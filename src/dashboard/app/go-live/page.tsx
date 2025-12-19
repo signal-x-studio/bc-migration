@@ -21,6 +21,13 @@ import {
   Globe,
   Power,
   Search,
+  BarChart3,
+  HardDrive,
+  Bell,
+  Clock,
+  Puzzle,
+  GraduationCap,
+  Headphones,
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -47,6 +54,13 @@ const ITEM_ICONS: Record<string, typeof CreditCard> = {
   domain: Globe,
   'wc-deactivate': Power,
   'search-console': Search,
+  analytics: BarChart3,
+  'backup-plan': HardDrive,
+  'customer-notification': Bell,
+  'dns-ttl': Clock,
+  'third-party-apps': Puzzle,
+  'staff-training': GraduationCap,
+  'support-info': Headphones,
 };
 
 export default function GoLivePage() {

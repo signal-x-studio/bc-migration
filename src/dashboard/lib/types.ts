@@ -722,6 +722,56 @@ export const GO_LIVE_CHECKLIST_ITEMS: ChecklistItemConfig[] = [
     autoVerifiable: false,
     helpUrl: 'https://search.google.com/search-console',
   },
+  {
+    id: 'analytics',
+    title: 'Analytics Configured',
+    description: 'Google Analytics or other tracking code installed',
+    category: 'recommended',
+    autoVerifiable: true,
+    helpUrl: 'https://support.bigcommerce.com/s/article/Google-Analytics',
+  },
+  {
+    id: 'backup-plan',
+    title: 'Backup & Rollback Plan',
+    description: 'Documented plan for reverting if issues occur',
+    category: 'recommended',
+    autoVerifiable: false,
+  },
+  {
+    id: 'customer-notification',
+    title: 'Customer Notification Ready',
+    description: 'Email draft prepared to notify customers of migration',
+    category: 'recommended',
+    autoVerifiable: false,
+  },
+  {
+    id: 'dns-ttl',
+    title: 'DNS TTL Lowered',
+    description: 'DNS TTL reduced 24-48 hours before migration',
+    category: 'recommended',
+    autoVerifiable: false,
+  },
+  {
+    id: 'third-party-apps',
+    title: 'Third-Party Apps Reconnected',
+    description: 'ERP, shipping, marketing integrations configured',
+    category: 'recommended',
+    autoVerifiable: false,
+  },
+  {
+    id: 'staff-training',
+    title: 'Staff Training Complete',
+    description: 'Team trained on BigCommerce admin panel',
+    category: 'recommended',
+    autoVerifiable: false,
+  },
+  {
+    id: 'support-info',
+    title: 'Support Contact Updated',
+    description: 'Customer support contact info updated on new store',
+    category: 'recommended',
+    autoVerifiable: false,
+  },
 ];
 
 // ============================================
