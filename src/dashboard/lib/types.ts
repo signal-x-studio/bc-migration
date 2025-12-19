@@ -1,6 +1,28 @@
 // Shared types for the dashboard
 
 // ============================================
+// Migration Options Types
+// ============================================
+
+export interface MigrationOptions {
+  /** Store original WC IDs in BC metafields for reference */
+  preserveSourceIds: boolean;
+  /** Auto-create 301 redirects in BigCommerce after migration */
+  createRedirects: boolean;
+  /** Strip HTML tags from product/category names */
+  stripHtmlFromNames: boolean;
+  /** Strip HTML tags from descriptions (may remove intended formatting) */
+  stripHtmlFromDescriptions: boolean;
+}
+
+export const DEFAULT_MIGRATION_OPTIONS: MigrationOptions = {
+  preserveSourceIds: true,
+  createRedirects: true,
+  stripHtmlFromNames: false,
+  stripHtmlFromDescriptions: false,
+};
+
+// ============================================
 // Connection Types
 // ============================================
 

@@ -17,8 +17,9 @@ import type {
   GoLiveChecklistState,
   ChecklistItem,
   MigrationMode,
+  MigrationOptions,
 } from './types';
-import { GO_LIVE_CHECKLIST_ITEMS } from './types';
+import { GO_LIVE_CHECKLIST_ITEMS, DEFAULT_MIGRATION_OPTIONS } from './types';
 
 const STORAGE_KEYS = {
   CREDENTIALS: 'wc-migration-credentials',
@@ -38,6 +39,7 @@ const STORAGE_KEYS = {
   SETUP_WIZARD_STATE: 'wc-migration-setup-wizard',
   GO_LIVE_CHECKLIST: 'wc-migration-go-live-checklist',
   MIGRATION_MODE: 'wc-migration-mode',
+  MIGRATION_OPTIONS: 'wc-migration-options',
 } as const;
 
 // ============================================
@@ -887,6 +889,46 @@ export function clearMigrationMode(): void {
     localStorage.removeItem(STORAGE_KEYS.MIGRATION_MODE);
   } catch (error) {
     console.error('Failed to clear migration mode:', error);
+  }
+}
+
+// ============================================
+// Migration Options Storage
+// ============================================
+
+export function saveMigrationOptions(options: MigrationOptions): void {
+  if (typeof window === 'undefined') return;
+
+  try {
+    localStorage.setItem(STORAGE_KEYS.MIGRATION_OPTIONS, JSON.stringify(options));
+  } catch (error) {
+    console.error('Failed to save migration options:', error);
+  }
+}
+
+export function loadMigrationOptions(): MigrationOptions {
+  if (typeof window === 'undefined') return DEFAULT_MIGRATION_OPTIONS;
+
+  try {
+    const stored = localStorage.getItem(STORAGE_KEYS.MIGRATION_OPTIONS);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      // Merge with defaults to handle new options added in future
+      return { ...DEFAULT_MIGRATION_OPTIONS, ...parsed };
+    }
+    return DEFAULT_MIGRATION_OPTIONS;
+  } catch {
+    return DEFAULT_MIGRATION_OPTIONS;
+  }
+}
+
+export function clearMigrationOptions(): void {
+  if (typeof window === 'undefined') return;
+
+  try {
+    localStorage.removeItem(STORAGE_KEYS.MIGRATION_OPTIONS);
+  } catch (error) {
+    console.error('Failed to clear migration options:', error);
   }
 }
 

@@ -1,5 +1,8 @@
 import { NextRequest } from 'next/server';
 import { createWCClient } from '@/lib/wc-client';
+import { stripHtmlTags } from '@/lib/utils';
+import type { MigrationOptions } from '@/lib/types';
+import { DEFAULT_MIGRATION_OPTIONS } from '@/lib/types';
 
 /**
  * Migrate products from a WooCommerce category to BigCommerce
@@ -33,6 +36,7 @@ interface BCProductCreate {
   images?: Array<{ image_url: string; is_thumbnail: boolean }>;
   inventory_level?: number;
   inventory_tracking?: 'none' | 'product';
+  custom_fields?: Array<{ name: string; value: string }>;
 }
 
 export async function POST(request: NextRequest) {
@@ -46,7 +50,16 @@ export async function POST(request: NextRequest) {
 
       try {
         const body = await request.json();
-        const { wcCredentials, bcCredentials, categoryId, migratedProductIds = [] } = body;
+        const {
+          wcCredentials,
+          bcCredentials,
+          categoryId,
+          migratedProductIds = [],
+          migrationOptions = DEFAULT_MIGRATION_OPTIONS
+        } = body;
+
+        // Merge with defaults to handle missing options
+        const options: MigrationOptions = { ...DEFAULT_MIGRATION_OPTIONS, ...migrationOptions };
 
         if (!wcCredentials || !bcCredentials || !categoryId) {
           send({ type: 'error', error: 'Missing required parameters' });
@@ -127,7 +140,8 @@ export async function POST(request: NextRequest) {
                 bcCredentials.storeHash,
                 bcCredentials.accessToken,
                 product,
-                bcCategoryId
+                bcCategoryId,
+                options
               );
             }
 
@@ -240,17 +254,38 @@ async function createBCProduct(
   storeHash: string,
   accessToken: string,
   wcProduct: WCProduct,
-  bcCategoryId: number
+  bcCategoryId: number,
+  options: MigrationOptions
 ): Promise<void> {
+  // Process name based on options
+  let productName = wcProduct.name;
+  if (options.stripHtmlFromNames) {
+    productName = stripHtmlTags(productName);
+  }
+  productName = productName.substring(0, 250); // BC limit
+
+  // Process description based on options
+  let description = wcProduct.description || wcProduct.short_description || '';
+  if (options.stripHtmlFromDescriptions) {
+    description = stripHtmlTags(description);
+  }
+
   const bcProduct: BCProductCreate = {
-    name: wcProduct.name.substring(0, 250), // BC limit
+    name: productName,
     type: 'physical',
     sku: (wcProduct.sku || `WC-${wcProduct.id}`).substring(0, 250),
     price: parseFloat(wcProduct.price) || parseFloat(wcProduct.regular_price) || 0,
     weight: parseFloat(wcProduct.weight) || 0,
-    description: wcProduct.description || wcProduct.short_description || '',
+    description,
     categories: [bcCategoryId],
   };
+
+  // Store original WC ID in custom field if option enabled
+  if (options.preserveSourceIds) {
+    bcProduct.custom_fields = [
+      { name: 'wc_product_id', value: String(wcProduct.id) },
+    ];
+  }
 
   // Add images if available
   if (wcProduct.images && wcProduct.images.length > 0) {

@@ -63,7 +63,7 @@ export function SEOPreview({ product, storeName = 'Your Store', storeUrl = 'your
     name: product.name,
     description: stripHtml(product.description || ''),
     sku: product.sku,
-    image: product.images[0]?.url || product.image,
+    image: product.images[0]?.url_standard || product.image,
     brand: product.brand ? {
       '@type': 'Brand',
       name: product.brand,
@@ -76,7 +76,7 @@ export function SEOPreview({ product, storeName = 'Your Store', storeUrl = 'your
         ? 'https://schema.org/InStock'
         : 'https://schema.org/OutOfStock',
     },
-    aggregateRating: product.reviewCount > 0 ? {
+    aggregateRating: (product.reviewCount ?? 0) > 0 ? {
       '@type': 'AggregateRating',
       ratingValue: product.rating,
       reviewCount: product.reviewCount,
@@ -173,11 +173,11 @@ export function SEOPreview({ product, storeName = 'Your Store', storeUrl = 'your
                 {truncate(seoDescription, deviceView === 'mobile' ? 120 : 160)}
               </p>
               {/* Rich Results */}
-              {(product.reviewCount > 0 || product.price > 0) && (
+              {((product.reviewCount ?? 0) > 0 || product.price > 0) && (
                 <div className="flex items-center gap-4 text-sm text-gray-600 mt-2">
-                  {product.reviewCount > 0 && (
+                  {(product.reviewCount ?? 0) > 0 && (
                     <div className="flex items-center gap-1">
-                      <span className="text-amber-500">{'★'.repeat(Math.round(product.rating))}</span>
+                      <span className="text-amber-500">{'★'.repeat(Math.round(product.rating ?? 0))}</span>
                       <span>({product.reviewCount})</span>
                     </div>
                   )}
@@ -296,12 +296,12 @@ export function SEOPreview({ product, storeName = 'Your Store', storeUrl = 'your
                   Offer with price present
                 </li>
                 <li className="flex items-center gap-2">
-                  {product.reviewCount > 0 ? (
+                  {(product.reviewCount ?? 0) > 0 ? (
                     <Check className="w-4 h-4 text-green-400" />
                   ) : (
                     <ChevronDown className="w-4 h-4 text-slate-500" />
                   )}
-                  Aggregate rating {product.reviewCount > 0 ? 'present' : 'optional'}
+                  Aggregate rating {(product.reviewCount ?? 0) > 0 ? 'present' : 'optional'}
                 </li>
               </ul>
             </div>
