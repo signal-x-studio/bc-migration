@@ -1,0 +1,741 @@
+/**
+ * BC Bridge Frontend Styles
+ *
+ * @package BC_Bridge
+ */
+
+/* ============================================
+   CSS Variables
+   ============================================ */
+:root {
+    --bc-primary: #2563eb;
+    --bc-primary-hover: #1d4ed8;
+    --bc-secondary: #6b7280;
+    --bc-success: #10b981;
+    --bc-error: #ef4444;
+    --bc-warning: #f59e0b;
+    --bc-text: #1f2937;
+    --bc-text-light: #6b7280;
+    --bc-border: #e5e7eb;
+    --bc-background: #f9fafb;
+    --bc-white: #ffffff;
+    --bc-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --bc-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --bc-radius: 8px;
+    --bc-radius-sm: 4px;
+}
+
+/* ============================================
+   Base Styles
+   ============================================ */
+.bc-bridge-shop,
+.bc-bridge-product,
+.bc-bridge-category,
+.bc-bridge-cart,
+.bc-bridge-checkout {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--bc-text);
+    line-height: 1.6;
+}
+
+/* ============================================
+   Buttons
+   ============================================ */
+.bc-bridge-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: var(--bc-radius);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.bc-bridge-button--primary {
+    background: var(--bc-primary);
+    color: var(--bc-white);
+}
+
+.bc-bridge-button--primary:hover {
+    background: var(--bc-primary-hover);
+}
+
+.bc-bridge-button--secondary {
+    background: var(--bc-white);
+    color: var(--bc-text);
+    border: 1px solid var(--bc-border);
+}
+
+.bc-bridge-button--secondary:hover {
+    background: var(--bc-background);
+}
+
+.bc-bridge-button--disabled {
+    background: var(--bc-secondary);
+    color: var(--bc-white);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.bc-bridge-button--full {
+    width: 100%;
+}
+
+/* ============================================
+   Product Grid
+   ============================================ */
+.bc-bridge-product-grid {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.bc-bridge-product-grid--2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.bc-bridge-product-grid--3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.bc-bridge-product-grid--4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 1024px) {
+    .bc-bridge-product-grid--4 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .bc-bridge-product-grid--4,
+    .bc-bridge-product-grid--3 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .bc-bridge-product-grid--4,
+    .bc-bridge-product-grid--3,
+    .bc-bridge-product-grid--2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ============================================
+   Product Card
+   ============================================ */
+.bc-bridge-product-card {
+    background: var(--bc-white);
+    border-radius: var(--bc-radius);
+    box-shadow: var(--bc-shadow);
+    overflow: hidden;
+    transition: box-shadow 0.2s ease;
+}
+
+.bc-bridge-product-card:hover {
+    box-shadow: var(--bc-shadow-lg);
+}
+
+.bc-bridge-product-card-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+}
+
+.bc-bridge-product-card-image {
+    position: relative;
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: var(--bc-background);
+}
+
+.bc-bridge-product-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.bc-bridge-product-card:hover .bc-bridge-product-card-image img {
+    transform: scale(1.05);
+}
+
+.bc-bridge-product-card-badge {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: var(--bc-radius-sm);
+    text-transform: uppercase;
+}
+
+.bc-bridge-product-card-badge--sale {
+    background: var(--bc-error);
+    color: var(--bc-white);
+}
+
+.bc-bridge-product-card-badge--out-of-stock {
+    background: var(--bc-secondary);
+    color: var(--bc-white);
+}
+
+.bc-bridge-product-card-content {
+    padding: 1rem;
+}
+
+.bc-bridge-product-card-title {
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.bc-bridge-product-card-price {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.bc-bridge-product-card-price--regular,
+.bc-bridge-product-card-price--sale {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--bc-text);
+}
+
+.bc-bridge-product-card-price--sale {
+    color: var(--bc-error);
+}
+
+.bc-bridge-product-card-price--original {
+    font-size: 0.875rem;
+    color: var(--bc-text-light);
+    text-decoration: line-through;
+}
+
+.bc-bridge-product-card-actions {
+    padding: 0 1rem 1rem;
+}
+
+.bc-bridge-product-card-actions .bc-bridge-button {
+    width: 100%;
+}
+
+/* ============================================
+   Single Product
+   ============================================ */
+.bc-bridge-product {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+}
+
+@media (max-width: 768px) {
+    .bc-bridge-product {
+        grid-template-columns: 1fr;
+    }
+}
+
+.bc-bridge-product-gallery {
+    position: sticky;
+    top: 2rem;
+}
+
+.bc-bridge-product-main-image {
+    border-radius: var(--bc-radius);
+    overflow: hidden;
+    background: var(--bc-background);
+    margin-bottom: 1rem;
+}
+
+.bc-bridge-product-main-image img {
+    width: 100%;
+    height: auto;
+}
+
+.bc-bridge-product-thumbnails {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.bc-bridge-product-thumbnail {
+    width: 80px;
+    height: 80px;
+    padding: 0;
+    border: 2px solid var(--bc-border);
+    border-radius: var(--bc-radius-sm);
+    overflow: hidden;
+    cursor: pointer;
+    background: none;
+}
+
+.bc-bridge-product-thumbnail:hover,
+.bc-bridge-product-thumbnail.active {
+    border-color: var(--bc-primary);
+}
+
+.bc-bridge-product-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.bc-bridge-product-title {
+    margin: 0 0 0.5rem;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.bc-bridge-product-sku {
+    margin: 0 0 1rem;
+    font-size: 0.875rem;
+    color: var(--bc-text-light);
+}
+
+.bc-bridge-product-price {
+    margin-bottom: 1.5rem;
+}
+
+.bc-bridge-product-price--regular,
+.bc-bridge-product-price--sale {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.bc-bridge-product-price--sale {
+    color: var(--bc-error);
+    margin-right: 0.5rem;
+}
+
+.bc-bridge-product-price--original {
+    font-size: 1.125rem;
+    color: var(--bc-text-light);
+    text-decoration: line-through;
+}
+
+.bc-bridge-product-description {
+    margin-bottom: 2rem;
+    line-height: 1.8;
+}
+
+.bc-bridge-product-form {
+    margin-bottom: 2rem;
+}
+
+.bc-bridge-product-option {
+    margin-bottom: 1rem;
+}
+
+.bc-bridge-product-option label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.bc-bridge-product-option select,
+.bc-bridge-product-quantity input {
+    padding: 0.75rem;
+    font-size: 1rem;
+    border: 1px solid var(--bc-border);
+    border-radius: var(--bc-radius-sm);
+}
+
+.bc-bridge-product-quantity {
+    margin-bottom: 1.5rem;
+}
+
+.bc-bridge-product-quantity label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.bc-bridge-product-quantity input {
+    width: 100px;
+}
+
+.bc-bridge-product-custom-fields {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--bc-border);
+}
+
+.bc-bridge-product-custom-fields h3 {
+    margin: 0 0 1rem;
+    font-size: 1.125rem;
+}
+
+.bc-bridge-product-custom-fields table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.bc-bridge-product-custom-fields th,
+.bc-bridge-product-custom-fields td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--bc-border);
+}
+
+.bc-bridge-product-custom-fields th {
+    font-weight: 600;
+    width: 40%;
+}
+
+/* ============================================
+   Cart
+   ============================================ */
+.bc-bridge-cart-title {
+    margin: 0 0 2rem;
+    font-size: 2rem;
+}
+
+.bc-bridge-cart-empty {
+    text-align: center;
+    padding: 3rem;
+    background: var(--bc-background);
+    border-radius: var(--bc-radius);
+}
+
+.bc-bridge-cart-content {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 2rem;
+    align-items: start;
+}
+
+@media (max-width: 768px) {
+    .bc-bridge-cart-content {
+        grid-template-columns: 1fr;
+    }
+}
+
+.bc-bridge-cart-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.bc-bridge-cart-table th,
+.bc-bridge-cart-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--bc-border);
+}
+
+.bc-bridge-cart-table th {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--bc-text-light);
+    text-transform: uppercase;
+}
+
+.bc-bridge-cart-item-product {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.bc-bridge-cart-item-image {
+    width: 80px;
+    height: 80px;
+    border-radius: var(--bc-radius-sm);
+    object-fit: cover;
+}
+
+.bc-bridge-cart-item-name {
+    font-weight: 600;
+    color: var(--bc-text);
+    text-decoration: none;
+}
+
+.bc-bridge-cart-item-name:hover {
+    color: var(--bc-primary);
+}
+
+.bc-bridge-cart-item-options {
+    font-size: 0.875rem;
+    color: var(--bc-text-light);
+}
+
+.bc-bridge-quantity-control {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.bc-bridge-quantity-btn {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    background: var(--bc-background);
+    border: 1px solid var(--bc-border);
+    border-radius: var(--bc-radius-sm);
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.bc-bridge-quantity-btn:hover {
+    background: var(--bc-border);
+}
+
+.bc-bridge-quantity-input {
+    width: 50px;
+    text-align: center;
+    padding: 0.5rem;
+    border: 1px solid var(--bc-border);
+    border-radius: var(--bc-radius-sm);
+}
+
+.bc-bridge-cart-remove {
+    padding: 0.5rem;
+    background: none;
+    border: none;
+    color: var(--bc-text-light);
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.bc-bridge-cart-remove:hover {
+    color: var(--bc-error);
+}
+
+.bc-bridge-cart-summary {
+    background: var(--bc-background);
+    padding: 1.5rem;
+    border-radius: var(--bc-radius);
+    position: sticky;
+    top: 2rem;
+}
+
+.bc-bridge-cart-summary h3 {
+    margin: 0 0 1rem;
+    font-size: 1.25rem;
+}
+
+.bc-bridge-cart-totals {
+    margin-bottom: 1rem;
+}
+
+.bc-bridge-cart-total-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--bc-border);
+}
+
+.bc-bridge-cart-total-row.bc-bridge-cart-total {
+    font-size: 1.25rem;
+    font-weight: 700;
+    border-bottom: none;
+}
+
+.bc-bridge-cart-note {
+    font-size: 0.875rem;
+    color: var(--bc-text-light);
+    margin-bottom: 1.5rem;
+}
+
+.bc-bridge-cart-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* ============================================
+   Checkout
+   ============================================ */
+.bc-bridge-checkout-title {
+    margin: 0 0 2rem;
+    font-size: 2rem;
+}
+
+.bc-bridge-checkout-container {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 2rem;
+}
+
+@media (max-width: 768px) {
+    .bc-bridge-checkout-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+.bc-bridge-checkout-frame-wrapper {
+    min-height: 600px;
+}
+
+.bc-bridge-checkout-frame {
+    width: 100%;
+    min-height: 600px;
+    border: none;
+    border-radius: var(--bc-radius);
+}
+
+.bc-bridge-checkout-summary {
+    background: var(--bc-background);
+    padding: 1.5rem;
+    border-radius: var(--bc-radius);
+}
+
+.bc-bridge-checkout-summary h3 {
+    margin: 0 0 1rem;
+    font-size: 1.125rem;
+}
+
+.bc-bridge-checkout-item {
+    display: grid;
+    grid-template-columns: 60px 1fr auto;
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--bc-border);
+}
+
+.bc-bridge-checkout-item-image {
+    width: 60px;
+    height: 60px;
+    border-radius: var(--bc-radius-sm);
+    object-fit: cover;
+}
+
+.bc-bridge-checkout-item-name {
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.bc-bridge-checkout-item-qty {
+    font-size: 0.875rem;
+    color: var(--bc-text-light);
+}
+
+.bc-bridge-checkout-totals {
+    margin-top: 1rem;
+}
+
+.bc-bridge-checkout-total-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+}
+
+.bc-bridge-checkout-total-row.bc-bridge-checkout-total {
+    font-size: 1.125rem;
+    font-weight: 700;
+    padding-top: 1rem;
+    margin-top: 0.5rem;
+    border-top: 1px solid var(--bc-border);
+}
+
+.bc-bridge-checkout-back {
+    margin-top: 1rem;
+}
+
+.bc-bridge-checkout-back a {
+    color: var(--bc-text-light);
+    text-decoration: none;
+}
+
+.bc-bridge-checkout-back a:hover {
+    color: var(--bc-primary);
+}
+
+/* ============================================
+   Pagination
+   ============================================ */
+.bc-bridge-pagination {
+    margin-top: 2rem;
+}
+
+.bc-bridge-pagination__list {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.bc-bridge-pagination__item a,
+.bc-bridge-pagination__item span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    padding: 0 0.75rem;
+    font-size: 0.875rem;
+    text-decoration: none;
+    border-radius: var(--bc-radius-sm);
+    transition: all 0.2s ease;
+}
+
+.bc-bridge-pagination__item a {
+    background: var(--bc-white);
+    color: var(--bc-text);
+    border: 1px solid var(--bc-border);
+}
+
+.bc-bridge-pagination__item a:hover {
+    background: var(--bc-background);
+    border-color: var(--bc-primary);
+    color: var(--bc-primary);
+}
+
+.bc-bridge-pagination__item--current span {
+    background: var(--bc-primary);
+    color: var(--bc-white);
+}
+
+/* ============================================
+   Utility Classes
+   ============================================ */
+.bc-bridge-no-products,
+.bc-bridge-not-found,
+.bc-bridge-error {
+    text-align: center;
+    padding: 3rem;
+    background: var(--bc-background);
+    border-radius: var(--bc-radius);
+}
+
+.bc-bridge-error-message {
+    color: var(--bc-error);
+}
+
+/* ============================================
+   Loading State
+   ============================================ */
+.bc-bridge-loading {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.bc-bridge-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--bc-border);
+    border-top-color: var(--bc-primary);
+    border-radius: 50%;
+    animation: bc-bridge-spin 0.6s linear infinite;
+}
+
+@keyframes bc-bridge-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

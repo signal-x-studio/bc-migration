@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Plan | Tiger Team Initiative</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Dark theme - CopilotKit inspired */
+            --bg-primary: #0d0a14;
+            --bg-secondary: #1a1625;
+            --bg-tertiary: #252033;
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --accent-cyan: #a78bfa;
+            --accent-orange: #f97316;
+            --accent-green: #34d399;
+            --accent-purple: #a78bfa;
+            --accent-blue: #60a5fa;
+            --accent-red: #f87171;
+            --accent-yellow: #fbbf24;
+            --border-color: #2d2640;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 24px 0;
+        }
+
+        .sidebar-header {
+            padding: 0 24px 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sidebar-header h1 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--accent-cyan);
+            margin-bottom: 4px;
+        }
+
+        .sidebar-header .doc-type {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-section {
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-section-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0 24px 8px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 8px 24px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 13px;
+            transition: all 0.15s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+            background: rgba(167, 139, 250, 0.05);
+        }
+
+        .nav-link.active {
+            color: var(--accent-cyan);
+            background: rgba(167, 139, 250, 0.1);
+            border-right: 2px solid var(--accent-cyan);
+        }
+
+        .sidebar-footer {
+            padding: 24px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 13px;
+            transition: color 0.15s ease;
+        }
+
+        .back-link:hover {
+            color: var(--accent-cyan);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 48px 64px;
+            max-width: 960px;
+        }
+
+        .doc-header {
+            margin-bottom: 48px;
+            padding-bottom: 32px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .classification {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--accent-blue);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+        }
+
+        .doc-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 12px;
+        }
+
+        .doc-subtitle {
+            font-size: 18px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .doc-meta {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .meta-item strong {
+            color: var(--text-secondary);
+        }
+
+        /* Sections */
+        section {
+            margin-bottom: 48px;
+        }
+
+        h2 {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--accent-cyan);
+            margin-bottom: 24px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 32px 0 16px;
+        }
+
+        h4 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin: 24px 0 12px;
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-secondary);
+        }
+
+        /* Key Metrics */
+        .key-metrics {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .metric-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .metric-box .value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .metric-box .label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Org Chart */
+        .org-chart {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+            overflow-x: auto;
+        }
+
+        .org-chart pre {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            line-height: 1.4;
+            color: var(--text-secondary);
+            margin: 0;
+            white-space: pre;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 13px;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            color: var(--text-secondary);
+        }
+
+        tbody tr:hover {
+            background: rgba(167, 139, 250, 0.02);
+        }
+
+        /* RACI Legend */
+        .raci-legend {
+            display: flex;
+            gap: 24px;
+            margin: 16px 0;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .raci-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .raci-badge {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 11px;
+        }
+
+        .raci-badge.r { background: rgba(167, 139, 250, 0.2); color: var(--accent-cyan); }
+        .raci-badge.a { background: rgba(249, 115, 22, 0.2); color: var(--accent-orange); }
+        .raci-badge.c { background: rgba(168, 85, 247, 0.2); color: var(--accent-purple); }
+        .raci-badge.i { background: rgba(100, 116, 139, 0.2); color: var(--text-muted); }
+
+        /* Timeline */
+        .timeline {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+
+        .timeline-month {
+            margin-bottom: 32px;
+        }
+
+        .timeline-month:last-child {
+            margin-bottom: 0;
+        }
+
+        .month-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .month-badge {
+            background: var(--accent-cyan);
+            color: var(--bg-primary);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .month-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .week-item {
+            display: flex;
+            gap: 16px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .week-item:last-child {
+            border-bottom: none;
+        }
+
+        .week-label {
+            width: 80px;
+            font-size: 12px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .week-content {
+            flex: 1;
+        }
+
+        .week-content h5 {
+            font-size: 14px;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .week-content p {
+            font-size: 13px;
+            margin: 0;
+        }
+
+        .milestone {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--accent-green);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        /* Budget Grid */
+        .budget-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .budget-category {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .budget-category h4 {
+            margin: 0 0 16px;
+            font-size: 14px;
+            color: var(--accent-cyan);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .budget-category h4 .amount {
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .budget-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .budget-item:last-child {
+            border-bottom: none;
+        }
+
+        .budget-item .label {
+            color: var(--text-secondary);
+        }
+
+        .budget-item .value {
+            color: var(--text-primary);
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        /* Total Box */
+        .total-box {
+            background: linear-gradient(135deg, rgba(167, 139, 250, 0.1), rgba(249, 115, 22, 0.1));
+            border: 1px solid var(--accent-cyan);
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 24px 0;
+        }
+
+        .total-box .label {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .total-box .value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        /* Risk Matrix */
+        .risk-table td:nth-child(3),
+        .risk-table td:nth-child(4) {
+            text-align: center;
+        }
+
+        .risk-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .risk-badge.high { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); }
+        .risk-badge.medium { background: rgba(234, 179, 8, 0.15); color: var(--accent-yellow); }
+        .risk-badge.low { background: rgba(34, 197, 94, 0.15); color: var(--accent-green); }
+
+        /* Checklists */
+        .checklist {
+            list-style: none;
+            padding: 0;
+            margin: 16px 0;
+        }
+
+        .checklist li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 8px 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .checklist li::before {
+            content: '';
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* Escalation Diagram */
+        .escalation-diagram {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            white-space: pre;
+            color: var(--text-secondary);
+        }
+
+        /* Decision Box */
+        .decision-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+
+        .decision-box h4 {
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .go-badge {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--accent-green);
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .nogo-badge {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--accent-red);
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 16px 0;
+            padding-left: 24px;
+            color: var(--text-secondary);
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        li strong {
+            color: var(--text-primary);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1>Project Plan</h1>
+                <div class="doc-type">Tiger Team Initiative</div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Organization</div>
+                <a href="#summary" class="nav-link active">Executive Summary</a>
+                <a href="#governance" class="nav-link">1. Governance</a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Phase 0</div>
+                <a href="#phase0" class="nav-link">2. Timeline</a>
+                <a href="#budget" class="nav-link">3. Budget</a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Execution</div>
+                <a href="#risks" class="nav-link">4. Risk Management</a>
+                <a href="#communication" class="nav-link">5. Communication</a>
+                <a href="#success" class="nav-link">6. Success Criteria</a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Next Steps</div>
+                <a href="#phase1" class="nav-link">7. Phase 1 Outline</a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Related</div>
+                <a href="../STRATEGIC_ASSESSMENT.html" class="nav-link">Strategic Assessment</a>
+                <a href="PRODUCT_STRATEGY.html" class="nav-link">Product Strategy</a>
+                <a href="TECHNICAL_ARCHITECTURE.html" class="nav-link">Technical Architecture</a>
+            </div>
+
+            <div class="sidebar-footer">
+                <a href="../INDEX.html" class="back-link">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                    Back to Index
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="doc-header">
+                <div class="classification">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                    Project Management
+                </div>
+                <h1>Tiger Team Project Plan</h1>
+                <p class="doc-subtitle">Commerce.com + WordPress Initiative</p>
+                <div class="doc-meta">
+                    <span class="meta-item"><strong>Version:</strong> 1.0</span>
+                    <span class="meta-item"><strong>Date:</strong> December 2025</span>
+                    <span class="meta-item"><strong>Status:</strong> Ready for Execution</span>
+                </div>
+            </header>
+
+            <!-- Executive Summary -->
+            <section id="summary">
+                <h2>Executive Summary</h2>
+                <p>This project plan details the execution framework for the Commerce.com + WordPress Tiger Team initiative. It covers Phase 0 (Stealth Validation) with extensions for Phase 1 (Soft Launch) contingent on Phase 0 success.</p>
+
+                <div class="key-metrics">
+                    <div class="metric-box">
+                        <div class="value">12</div>
+                        <div class="label">Weeks (Phase 0)</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="value">$190K</div>
+                        <div class="label">Investment</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="value">3+</div>
+                        <div class="label">Pilot Migrations</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="value">&gt;40</div>
+                        <div class="label">Target NPS</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Governance -->
+            <section id="governance">
+                <h2>1. Project Organization</h2>
+
+                <h3>1.1 Governance Structure</h3>
+                <div class="diagram-container" style="overflow-x: auto; background: #fafafa; border-radius: 8px; padding: 1rem; margin: 1rem 0;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480" style="font-family: Inter, system-ui, sans-serif; max-width: 100%; height: auto;">
+                        <defs>
+                            <style>
+                                .title { font-size: 22px; font-weight: 600; fill: #1e1e1e; }
+                                .box-title { font-size: 14px; font-weight: 600; }
+                                .box-subtitle { font-size: 11px; fill: #1e1e1e; }
+                                .box-detail { font-size: 10px; fill: #666666; }
+                                .box-items { font-size: 10px; fill: #666666; }
+                                .workstream-title { font-size: 13px; font-weight: 600; }
+                                .workstream-label { font-size: 9px; fill: #1e1e1e; }
+                            </style>
+                            <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#94a3b8"/></marker>
+                        </defs>
+                        <text x="400" y="30" class="title" text-anchor="middle">Governance Structure</text>
+                        <rect x="150" y="55" width="500" height="85" rx="8" fill="#a78bfa15" stroke="#a78bfa" stroke-width="3"/>
+                        <text x="400" y="80" class="box-title" fill="#a78bfa" text-anchor="middle">STEERING COMMITTEE</text>
+                        <text x="400" y="100" class="box-subtitle" text-anchor="middle">Commerce.com SVP (Sponsor)  +  WPEngine VP (Partner Sponsor)</text>
+                        <text x="400" y="120" class="box-detail" text-anchor="middle">Meets: Bi-weekly  |  Decisions: Go/No-Go, Budget, Partnership</text>
+                        <path d="M400 140 L400 170" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+                        <rect x="200" y="180" width="400" height="75" rx="8" fill="#f9731615" stroke="#f97316" stroke-width="2"/>
+                        <text x="400" y="205" class="box-title" fill="#f97316" text-anchor="middle">TIGER TEAM LEAD</text>
+                        <text x="400" y="225" class="box-detail" text-anchor="middle">Accountable for: Day-to-day execution, risk escalation</text>
+                        <text x="400" y="242" class="box-detail" text-anchor="middle">Reports: Weekly to Steering Committee</text>
+                        <path d="M300 255 L150 295" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+                        <path d="M400 255 L400 295" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+                        <path d="M500 255 L650 295" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+                        <rect x="60" y="305" width="180" height="140" rx="8" fill="#a855f715" stroke="#a855f7" stroke-width="2"/>
+                        <text x="150" y="330" class="workstream-title" fill="#a855f7" text-anchor="middle">PRODUCT</text>
+                        <text x="150" y="350" class="workstream-label" text-anchor="middle">Workstream</text>
+                        <text x="80" y="380" class="box-items"><tspan x="80" dy="0">- Catalyst</tspan><tspan x="80" dy="16">- Makeswift</tspan><tspan x="80" dy="16">- UX</tspan></text>
+                        <rect x="310" y="305" width="180" height="140" rx="8" fill="#22c55e15" stroke="#22c55e" stroke-width="2"/>
+                        <text x="400" y="330" class="workstream-title" fill="#22c55e" text-anchor="middle">ENGINEERING</text>
+                        <text x="400" y="350" class="workstream-label" text-anchor="middle">Workstream</text>
+                        <text x="330" y="380" class="box-items"><tspan x="330" dy="0">- Integration</tspan><tspan x="330" dy="16">- Feedonomics</tspan><tspan x="330" dy="16">- DevOps</tspan></text>
+                        <rect x="560" y="305" width="180" height="140" rx="8" fill="#eab30815" stroke="#eab308" stroke-width="2"/>
+                        <text x="650" y="330" class="workstream-title" fill="#eab308" text-anchor="middle">PARTNERSHIPS</text>
+                        <text x="650" y="350" class="workstream-label" text-anchor="middle">Workstream</text>
+                        <text x="580" y="380" class="box-items"><tspan x="580" dy="0">- WPEngine</tspan><tspan x="580" dy="16">- SI Partners</tspan><tspan x="580" dy="16">- Pilots</tspan></text>
+                    </svg>
+                </div>
+
+                <h3>1.2 Team Allocation</h3>
+                <table>
+                    <thead>
+                        <tr><th>Role</th><th>Organization</th><th>Allocation</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Executive Sponsor</td><td>Commerce.com</td><td>5%</td></tr>
+                        <tr><td>Tiger Team Lead</td><td>Commerce.com</td><td>50%</td></tr>
+                        <tr><td>Product Lead (Catalyst)</td><td>Commerce.com</td><td>50%</td></tr>
+                        <tr><td>Engineering Lead</td><td>Commerce.com</td><td>50%</td></tr>
+                        <tr><td>Feedonomics Specialist</td><td>Feedonomics</td><td>25%</td></tr>
+                        <tr><td>Makeswift PM</td><td>Makeswift</td><td>25%</td></tr>
+                        <tr><td>Partnerships Lead</td><td>Commerce.com</td><td>25%</td></tr>
+                        <tr><td>SI Partner PM</td><td>Partner Agency</td><td>Contract</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>1.3 RACI Matrix</h3>
+                <div class="raci-legend">
+                    <div class="raci-item"><span class="raci-badge r">R</span> Responsible</div>
+                    <div class="raci-item"><span class="raci-badge a">A</span> Accountable</div>
+                    <div class="raci-item"><span class="raci-badge c">C</span> Consulted</div>
+                    <div class="raci-item"><span class="raci-badge i">I</span> Informed</div>
+                </div>
+                <table>
+                    <thead>
+                        <tr><th>Activity</th><th>Sponsor</th><th>Tiger Lead</th><th>Product</th><th>Engineering</th><th>Partnerships</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Strategy approval</td><td><span class="raci-badge a">A</span></td><td><span class="raci-badge r">R</span></td><td><span class="raci-badge c">C</span></td><td><span class="raci-badge c">C</span></td><td><span class="raci-badge c">C</span></td></tr>
+                        <tr><td>WPEngine outreach</td><td><span class="raci-badge a">A</span></td><td><span class="raci-badge c">C</span></td><td><span class="raci-badge i">I</span></td><td><span class="raci-badge i">I</span></td><td><span class="raci-badge r">R</span></td></tr>
+                        <tr><td>Reference architecture</td><td><span class="raci-badge i">I</span></td><td><span class="raci-badge a">A</span></td><td><span class="raci-badge r">R</span></td><td><span class="raci-badge r">R</span></td><td><span class="raci-badge c">C</span></td></tr>
+                        <tr><td>Feedonomics config</td><td><span class="raci-badge i">I</span></td><td><span class="raci-badge a">A</span></td><td><span class="raci-badge c">C</span></td><td><span class="raci-badge r">R</span></td><td><span class="raci-badge i">I</span></td></tr>
+                        <tr><td>Pilot selection</td><td><span class="raci-badge a">A</span></td><td><span class="raci-badge r">R</span></td><td><span class="raci-badge c">C</span></td><td><span class="raci-badge i">I</span></td><td><span class="raci-badge r">R</span></td></tr>
+                        <tr><td>Migration execution</td><td><span class="raci-badge i">I</span></td><td><span class="raci-badge a">A</span></td><td><span class="raci-badge c">C</span></td><td><span class="raci-badge r">R</span></td><td><span class="raci-badge c">C</span></td></tr>
+                        <tr><td>Success measurement</td><td><span class="raci-badge a">A</span></td><td><span class="raci-badge r">R</span></td><td><span class="raci-badge c">C</span></td><td><span class="raci-badge c">C</span></td><td><span class="raci-badge c">C</span></td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Phase 0 Timeline -->
+            <section id="phase0">
+                <h2>2. Phase 0: Stealth Validation</h2>
+                <p><strong>Duration:</strong> 12 weeks | <strong>Investment:</strong> $190,000</p>
+
+                <h3>2.1 Objectives</h3>
+                <ol>
+                    <li>Validate WPEngine partnership interest and commitment</li>
+                    <li>Build working reference architecture (Catalyst + WordPress + BigCommerce)</li>
+                    <li>Develop Feedonomics WooCommerce migration package</li>
+                    <li>Execute 3 pilot migrations with at-risk WPEngine accounts</li>
+                    <li>Measure and document outcomes for Phase 1 decision</li>
+                </ol>
+
+                <h3>2.2 Detailed Timeline</h3>
+                <div class="timeline">
+                    <div class="timeline-month">
+                        <div class="month-header">
+                            <span class="month-badge">MONTH 1</span>
+                            <span class="month-title">Foundation (Weeks 1-4)</span>
+                        </div>
+                        <div class="week-item">
+                            <span class="week-label">Week 1</span>
+                            <div class="week-content">
+                                <h5>Kickoff & Planning</h5>
+                                <p>Tiger team kickoff meeting, detailed workstream planning, tool setup (Slack, Jira, shared drive)</p>
+                            </div>
+                        </div>
+                        <div class="week-item">
+                            <span class="week-label">Week 2</span>
+                            <div class="week-content">
+                                <h5>Partnership Outreach</h5>
+                                <p>SI partner alignment meeting, WPEngine introduction (via SI partner), initial partnership conversation</p>
+                            </div>
+                        </div>
+                        <div class="week-item">
+                            <span class="week-label">Week 3</span>
+                            <div class="week-content">
+                                <h5>Technical Foundation</h5>
+                                <p>Catalyst + WPGraphQL integration spike, document integration patterns</p>
+                            </div>
+                        </div>
+                        <div class="week-item">
+                            <span class="week-label">Week 4</span>
+                            <div class="week-content">
+                                <h5>Architecture Documentation</h5>
+                                <p>Reference architecture completion, demo environment setup</p>
+                                <div class="milestone">Reference architecture demo-ready</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-month">
+                        <div class="month-header">
+                            <span class="month-badge">MONTH 2</span>
+                            <span class="month-title">Tooling & Pilots (Weeks 5-8)</span>
+                        </div>
+                        <div class="week-item">
+                            <span class="week-label">Week 5</span>
+                            <div class="week-content">
+                                <h5>Feedonomics Development</h5>
+                                <p>WooCommerce connector configuration, transformation rules development</p>
+                            </div>
+                        </div>
+                        <div class="week-item">
+                            <span class="week-label">Week 6</span>
+                            <div class="week-content">
+                                <h5>Feedonomics Testing</h5>
+                                <p>Test migration with sample data, validate data integrity</p>
+                            </div>
+                        </div>
+                        <div class="week-item">
+                            <span class="week-label">Week 7</span>
+                            <div class="week-content">
+                                <h5>Pilot Identification</h5>
+                                <p>WPEngine provides at-risk account list, qualify and prioritize candidates, pilot outreach begins</p>
+                            </div>
+                        </div>
+                        <div class="week-item">
+                            <span class="week-label">Week 8</span>
+                            <div class="week-content">
+                                <h5>Pilot Agreements</h5>
+                                <p>Pilot merchant meetings, agreements signed (3 minimum)</p>
+                                <div class="milestone">3+ pilot merchants committed</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-month">
+                        <div class="month-header">
+                            <span class="month-badge">MONTH 3</span>
+                            <span class="month-title">Validation (Weeks 9-12)</span>
+                        </div>
+                        <div class="week-item">
+                            <span class="week-label">Week 9</span>
+                            <div class="week-content">
+                                <h5>Pilot 1 Execution</h5>
+                                <p>First pilot migration (intensive support)</p>
+                            </div>
+                        </div>
+                        <div class="week-item">
+                            <span class="week-label">Week 10</span>
+                            <div class="week-content">
+                                <h5>Pilots 2-3 Execution</h5>
+                                <p>Second and third pilot migrations</p>
+                            </div>
+                        </div>
+                        <div class="week-item">
+                            <span class="week-label">Week 11</span>
+                            <div class="week-content">
+                                <h5>Measurement & Documentation</h5>
+                                <p>Collect metrics from all pilots, document lessons learned</p>
+                            </div>
+                        </div>
+                        <div class="week-item">
+                            <span class="week-label">Week 12</span>
+                            <div class="week-content">
+                                <h5>Decision & Planning</h5>
+                                <p>Compile Phase 0 retrospective, steering committee presentation, Phase 1 planning (if approved)</p>
+                                <div class="milestone">Go/No-Go decision made</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Budget -->
+            <section id="budget">
+                <h2>3. Phase 0 Budget</h2>
+
+                <div class="budget-grid">
+                    <div class="budget-category">
+                        <h4>Personnel (Internal) <span class="amount">$100,000</span></h4>
+                        <div class="budget-item">
+                            <span class="label">Tiger Team Lead</span>
+                            <span class="value">$25,000</span>
+                        </div>
+                        <div class="budget-item">
+                            <span class="label">Product Lead</span>
+                            <span class="value">$25,000</span>
+                        </div>
+                        <div class="budget-item">
+                            <span class="label">Engineering Lead</span>
+                            <span class="value">$25,000</span>
+                        </div>
+                        <div class="budget-item">
+                            <span class="label">Feedonomics Specialist</span>
+                            <span class="value">$12,500</span>
+                        </div>
+                        <div class="budget-item">
+                            <span class="label">Makeswift PM</span>
+                            <span class="value">$12,500</span>
+                        </div>
+                    </div>
+
+                    <div class="budget-category">
+                        <h4>SI Partner <span class="amount">$50,000</span></h4>
+                        <div class="budget-item">
+                            <span class="label">Pilot implementations (3 @ $15K)</span>
+                            <span class="value">$45,000</span>
+                        </div>
+                        <div class="budget-item">
+                            <span class="label">Discovery/scoping</span>
+                            <span class="value">$5,000</span>
+                        </div>
+                    </div>
+
+                    <div class="budget-category">
+                        <h4>Infrastructure <span class="amount">$10,000</span></h4>
+                        <div class="budget-item">
+                            <span class="label">Development environments</span>
+                            <span class="value">$3,000</span>
+                        </div>
+                        <div class="budget-item">
+                            <span class="label">Tools and licenses</span>
+                            <span class="value">$4,000</span>
+                        </div>
+                        <div class="budget-item">
+                            <span class="label">Miscellaneous</span>
+                            <span class="value">$3,000</span>
+                        </div>
+                    </div>
+
+                    <div class="budget-category">
+                        <h4>Pilot Incentives <span class="amount">$30,000</span></h4>
+                        <div class="budget-item">
+                            <span class="label">Subsidized migrations (3 @ $10K)</span>
+                            <span class="value">$30,000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="total-box">
+                    <span class="label">Total Phase 0 Investment</span>
+                    <span class="value">$190,000</span>
+                </div>
+
+                <h4>Budget Authority</h4>
+                <table>
+                    <thead>
+                        <tr><th>Threshold</th><th>Authority</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>&lt; $5,000</td><td>Tiger Team Lead</td></tr>
+                        <tr><td>$5,000 - $25,000</td><td>Executive Sponsor</td></tr>
+                        <tr><td>&gt; $25,000</td><td>Steering Committee</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Risk Management -->
+            <section id="risks">
+                <h2>4. Risk Management</h2>
+
+                <h3>4.1 Risk Register</h3>
+                <table class="risk-table">
+                    <thead>
+                        <tr><th>ID</th><th>Risk</th><th>Likelihood</th><th>Impact</th><th>Mitigation</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>R1</td>
+                            <td>WPEngine declines partnership</td>
+                            <td><span class="risk-badge medium">Medium</span></td>
+                            <td><span class="risk-badge high">High</span></td>
+                            <td>Approach via SI; have backup hosts</td>
+                        </tr>
+                        <tr>
+                            <td>R2</td>
+                            <td>Technical integration fails</td>
+                            <td><span class="risk-badge low">Low</span></td>
+                            <td><span class="risk-badge high">High</span></td>
+                            <td>Spike in Week 2-3; fail fast</td>
+                        </tr>
+                        <tr>
+                            <td>R3</td>
+                            <td>No pilot merchants available</td>
+                            <td><span class="risk-badge medium">Medium</span></td>
+                            <td><span class="risk-badge high">High</span></td>
+                            <td>Over-recruit (5 for 3 needed)</td>
+                        </tr>
+                        <tr>
+                            <td>R4</td>
+                            <td>Pilot migration fails</td>
+                            <td><span class="risk-badge medium">Medium</span></td>
+                            <td><span class="risk-badge high">High</span></td>
+                            <td>Over-resource; rollback plan</td>
+                        </tr>
+                        <tr>
+                            <td>R5</td>
+                            <td>Automattic interference</td>
+                            <td><span class="risk-badge medium">Medium</span></td>
+                            <td><span class="risk-badge high">High</span></td>
+                            <td>Messaging discipline</td>
+                        </tr>
+                        <tr>
+                            <td>R6</td>
+                            <td>Tiger team distraction</td>
+                            <td><span class="risk-badge high">High</span></td>
+                            <td><span class="risk-badge medium">Medium</span></td>
+                            <td>Formal allocation; protect time</td>
+                        </tr>
+                        <tr>
+                            <td>R7</td>
+                            <td>SI partner capacity</td>
+                            <td><span class="risk-badge medium">Medium</span></td>
+                            <td><span class="risk-badge medium">Medium</span></td>
+                            <td>Pre-qualify multiple partners</td>
+                        </tr>
+                        <tr>
+                            <td>R8</td>
+                            <td>Scope creep</td>
+                            <td><span class="risk-badge high">High</span></td>
+                            <td><span class="risk-badge low">Low</span></td>
+                            <td>Fixed scope agreements</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>4.2 Risk Response Triggers</h3>
+                <table>
+                    <thead>
+                        <tr><th>Risk</th><th>Trigger</th><th>Response</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>R1</td><td>WPEngine says no by Week 4</td><td>Pivot to Kinsta or Pantheon</td></tr>
+                        <tr><td>R2</td><td>Integration not working by Week 4</td><td>Emergency engineering sprint</td></tr>
+                        <tr><td>R3</td><td>&lt; 2 pilots by Week 8</td><td>Expand search; consider non-WPEngine</td></tr>
+                        <tr><td>R4</td><td>Pilot 1 fails catastrophically</td><td>Pause, diagnose, potentially abort</td></tr>
+                        <tr><td>R5</td><td>Negative WordPress community reaction</td><td>Messaging adjustment; stealth tighter</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Communication -->
+            <section id="communication">
+                <h2>5. Communication Plan</h2>
+
+                <h3>5.1 Meeting Cadence</h3>
+                <table>
+                    <thead>
+                        <tr><th>Meeting</th><th>Frequency</th><th>Attendees</th><th>Purpose</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Tiger Team Standup</td><td>Daily (15 min)</td><td>All team members</td><td>Status, blockers</td></tr>
+                        <tr><td>Workstream Sync</td><td>Weekly (30 min)</td><td>Workstream leads</td><td>Coordination</td></tr>
+                        <tr><td>Tiger Team Review</td><td>Weekly (60 min)</td><td>Full team</td><td>Progress, decisions</td></tr>
+                        <tr><td>Steering Committee</td><td>Bi-weekly (30 min)</td><td>Sponsors + Tiger Lead</td><td>Governance</td></tr>
+                        <tr><td>Partnership Check-in</td><td>Weekly (30 min)</td><td>Partnerships + WPEngine</td><td>Relationship</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>5.2 Escalation Path</h3>
+                <div class="diagram-container" style="overflow-x: auto; background: #fafafa; border-radius: 8px; padding: 1rem; margin: 1rem 0;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 440" style="font-family: Inter, system-ui, sans-serif; max-width: 100%; height: auto;">
+                        <defs>
+                            <style>
+                                .title { font-size: 22px; font-weight: 600; fill: #1e1e1e; }
+                                .box-title { font-size: 13px; font-weight: 600; }
+                                .box-detail { font-size: 10px; fill: #666666; }
+                                .resolved { font-size: 11px; fill: #22c55e; }
+                                .unresolved { font-size: 10px; fill: #ef4444; }
+                                .doc { font-size: 9px; fill: #666666; }
+                            </style>
+                            <marker id="arrow-gray" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#94a3b8"/></marker>
+                            <marker id="arrow-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#ef4444"/></marker>
+                            <marker id="arrow-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#22c55e"/></marker>
+                        </defs>
+                        <text x="350" y="30" class="title" text-anchor="middle">Escalation Path</text>
+                        <rect x="200" y="55" width="200" height="45" rx="8" fill="#ef444415" stroke="#ef4444" stroke-width="2"/>
+                        <text x="300" y="83" class="box-title" fill="#ef4444" text-anchor="middle">Issue Identified</text>
+                        <path d="M300 100 L300 130" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow-gray)"/>
+                        <rect x="150" y="140" width="300" height="65" rx="8" fill="#f9731615" stroke="#f97316" stroke-width="2"/>
+                        <text x="300" y="168" class="box-title" fill="#f97316" text-anchor="middle">Tiger Team Lead</text>
+                        <text x="300" y="188" class="box-detail" text-anchor="middle">24h resolution target</text>
+                        <path d="M450 172 L490 172" stroke="#22c55e" stroke-width="2" marker-end="url(#arrow-green)"/>
+                        <rect x="500" y="152" width="100" height="40" rx="6" fill="#22c55e15" stroke="#22c55e" stroke-width="2"/>
+                        <text x="550" y="177" class="resolved" text-anchor="middle">Resolved</text>
+                        <path d="M600 172 L620 172" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow-gray)"/>
+                        <rect x="630" y="157" width="60" height="30" rx="4" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+                        <text x="660" y="177" class="doc" text-anchor="middle">Document</text>
+                        <path d="M300 205 L300 245" stroke="#ef4444" stroke-width="2" marker-end="url(#arrow-red)"/>
+                        <text x="320" y="230" class="unresolved">Unresolved</text>
+                        <rect x="150" y="255" width="300" height="65" rx="8" fill="#a78bfa15" stroke="#a78bfa" stroke-width="2"/>
+                        <text x="300" y="283" class="box-title" fill="#a78bfa" text-anchor="middle">Executive Sponsor</text>
+                        <text x="300" y="303" class="box-detail" text-anchor="middle">48h resolution target</text>
+                        <path d="M450 287 L490 287" stroke="#22c55e" stroke-width="2" marker-end="url(#arrow-green)"/>
+                        <rect x="500" y="267" width="100" height="40" rx="6" fill="#22c55e15" stroke="#22c55e" stroke-width="2"/>
+                        <text x="550" y="292" class="resolved" text-anchor="middle">Resolved</text>
+                        <path d="M600 287 L620 287" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow-gray)"/>
+                        <rect x="630" y="272" width="60" height="30" rx="4" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+                        <text x="660" y="292" class="doc" text-anchor="middle">Document</text>
+                        <path d="M300 320 L300 360" stroke="#ef4444" stroke-width="2" marker-end="url(#arrow-red)"/>
+                        <text x="320" y="345" class="unresolved">Unresolved</text>
+                        <rect x="150" y="370" width="300" height="55" rx="8" fill="#a855f715" stroke="#a855f7" stroke-width="3"/>
+                        <text x="300" y="403" class="box-title" fill="#a855f7" text-anchor="middle">Steering Committee</text>
+                    </svg>
+                </div>
+            </section>
+
+            <!-- Success Criteria -->
+            <section id="success">
+                <h2>6. Success Criteria</h2>
+
+                <h3>6.1 Phase 0 Success Metrics</h3>
+                <table>
+                    <thead>
+                        <tr><th>Metric</th><th>Target</th><th>Measurement Method</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>WPEngine partnership</td><td>LOI or commitment</td><td>Written agreement</td></tr>
+                        <tr><td>Reference architecture</td><td>Demo-ready</td><td>Working demo</td></tr>
+                        <tr><td>Pilot migrations</td><td>3 completed</td><td>Production launches</td></tr>
+                        <tr><td>Migration timeline</td><td>≤ 16 weeks average</td><td>Actual vs. plan</td></tr>
+                        <tr><td>Data integrity</td><td>100% Tier 1</td><td>Validation reports</td></tr>
+                        <tr><td>SEO preservation</td><td>&lt; 10% traffic loss</td><td>Analytics (30-day)</td></tr>
+                        <tr><td>Pilot NPS</td><td>&gt; 40</td><td>Survey</td></tr>
+                        <tr><td>Budget adherence</td><td>± 10%</td><td>Actuals vs. plan</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>6.2 Go/No-Go Decision Framework</h3>
+                <div class="decision-box">
+                    <h4><span class="go-badge">GO</span> to Phase 1 requires ALL of:</h4>
+                    <ul class="checklist">
+                        <li>WPEngine commits to formal partnership (written)</li>
+                        <li>3+ pilots complete successfully (production live)</li>
+                        <li>Pilot NPS > 40 (surveyed)</li>
+                        <li>SEO impact < 10% loss (measured)</li>
+                        <li>Technical integration stable (no critical bugs)</li>
+                        <li>Budget on track (± 10%)</li>
+                    </ul>
+                </div>
+
+                <div class="decision-box">
+                    <h4><span class="nogo-badge">NO-GO</span> Automatic if ANY of:</h4>
+                    <ul class="checklist">
+                        <li>WPEngine explicitly declines</li>
+                        <li>Fundamental technical barrier discovered</li>
+                        <li>Migration timeline > 150% of Shopify benchmark</li>
+                        <li>SEO impact > 20% loss</li>
+                        <li>Pilot merchants refuse to launch</li>
+                    </ul>
+                </div>
+
+                <h4>Decision Timeline</h4>
+                <table>
+                    <thead>
+                        <tr><th>Date</th><th>Milestone</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Week 4</td><td>Partnership viability checkpoint</td></tr>
+                        <tr><td>Week 8</td><td>Pilot readiness checkpoint</td></tr>
+                        <tr><td>Week 11</td><td>Metrics collection complete</td></tr>
+                        <tr><td>Week 12 Day 3</td><td>Steering Committee decision</td></tr>
+                        <tr><td>Week 12 Day 5</td><td>Phase 1 planning begins (if GO)</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Phase 1 Outline -->
+            <section id="phase1">
+                <h2>7. Phase 1 Outline (Contingent)</h2>
+
+                <h3>7.1 Phase 1 Objectives (If Approved)</h3>
+                <ol>
+                    <li>Scale to 10+ migrations</li>
+                    <li>Formalize WPEngine partnership (MOU/contract)</li>
+                    <li>Develop 2-3 publishable case studies</li>
+                    <li>Train 2+ SI partners</li>
+                    <li>Prepare for public launch</li>
+                </ol>
+
+                <h3>7.2 Phase 1 Timeline (Weeks 13-24)</h3>
+                <table>
+                    <thead>
+                        <tr><th>Period</th><th>Focus</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Weeks 13-16</td><td>Additional migrations (5-7)</td></tr>
+                        <tr><td>Weeks 17-20</td><td>Case study development, partner training</td></tr>
+                        <tr><td>Weeks 21-24</td><td>Public launch preparation</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>7.3 Phase 1 Budget (Estimate)</h3>
+                <table>
+                    <thead>
+                        <tr><th>Category</th><th>Amount</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Personnel (expanded team)</td><td>$150,000</td></tr>
+                        <tr><td>SI partner (additional migrations)</td><td>$75,000</td></tr>
+                        <tr><td>Marketing (soft launch)</td><td>$50,000</td></tr>
+                        <tr><td>Infrastructure scaling</td><td>$25,000</td></tr>
+                        <tr><td><strong>TOTAL</strong></td><td><strong>$300,000</strong></td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Document Metadata -->
+            <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; padding: 24px; margin-top: 48px;">
+                <h4 style="margin-top: 0; font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Document Metadata</h4>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 16px; font-size: 13px;">
+                    <div><span style="color: var(--text-muted);">Author:</span> <span style="color: var(--text-secondary);">Project Management</span></div>
+                    <div><span style="color: var(--text-muted);">Classification:</span> <span style="color: var(--text-secondary);">Project Management</span></div>
+                    <div><span style="color: var(--text-muted);">Version:</span> <span style="color: var(--text-secondary);">1.0</span></div>
+                    <div><span style="color: var(--text-muted);">Last Updated:</span> <span style="color: var(--text-secondary);">December 2025</span></div>
+                </div>
+                <p style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-color); font-size: 12px; font-style: italic; color: var(--text-muted);">This plan is a living document. Update as execution progresses.</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- What's Next Section -->
+    <section class="whats-next">
+        <div class="whats-next-content">
+            <div class="whats-next-label">Continue the Journey</div>
+            <h2 class="whats-next-title">Next: Implementation Playbook</h2>
+
+            <a href="IMPLEMENTATION_PLAYBOOK.html" class="next-card">
+                <div class="next-card-content">
+                    <div class="next-card-label">Step 4 of 4</div>
+                    <div class="next-card-title">Implementation Playbook</div>
+                    <div class="next-card-desc">Day-by-day execution guide, partner enablement, migration methodology, and operational runbooks.</div>
+                </div>
+                <div class="next-card-arrow">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </div>
+            </a>
+
+            <div class="related-section">
+                <div class="related-label">Or explore related:</div>
+                <div class="related-links">
+                    <a href="PRODUCT_STRATEGY.html" class="related-link">Product Strategy</a>
+                    <a href="TECHNICAL_ARCHITECTURE.html" class="related-link">Technical Architecture</a>
+                    <a href="../STRATEGIC_ASSESSMENT.html" class="related-link">Back to Assessment</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sequence Navigation Bar -->
+    <div class="sequence-nav">
+        <a href="TECHNICAL_ARCHITECTURE.html" class="sequence-link prev">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            <div class="sequence-text">
+                <span class="sequence-label">Previous</span>
+                <span class="sequence-title">Technical Architecture</span>
+            </div>
+        </a>
+        <div class="sequence-position">
+            <span class="sequence-current">3</span>
+            <span class="sequence-total">/ 4</span>
+        </div>
+        <a href="IMPLEMENTATION_PLAYBOOK.html" class="sequence-link next">
+            <div class="sequence-text">
+                <span class="sequence-label">Next</span>
+                <span class="sequence-title">Implementation Playbook</span>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+    </div>
+
+    <style>
+        /* What's Next Section */
+        .whats-next {
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            border-top: 1px solid #334155;
+            padding: 4rem 2rem 8rem;
+        }
+        .whats-next-content {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .whats-next-label {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #a78bfa;
+            margin-bottom: 0.75rem;
+        }
+        .whats-next-title {
+            font-size: 1.75rem;
+            font-weight: 400;
+            color: #e2e8f0;
+            margin-bottom: 2rem;
+        }
+
+        /* Next Card */
+        .next-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #0f172a;
+            border: 2px solid #a78bfa;
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            margin-bottom: 2rem;
+        }
+        .next-card:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 24px rgba(167, 139, 250, 0.2);
+        }
+        .next-card-label {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+        .next-card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #e2e8f0;
+            margin-bottom: 0.5rem;
+        }
+        .next-card-desc {
+            font-size: 0.875rem;
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+        .next-card-arrow {
+            color: #a78bfa;
+            flex-shrink: 0;
+            margin-left: 1.5rem;
+        }
+
+        /* Related Links */
+        .related-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .related-label {
+            font-size: 0.8125rem;
+            color: #64748b;
+        }
+        .related-links {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        .related-link {
+            font-size: 0.8125rem;
+            color: #94a3b8;
+            text-decoration: none;
+            padding: 0.375rem 0.75rem;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+        .related-link:hover {
+            color: #a78bfa;
+            border-color: #a78bfa;
+        }
+
+        /* Sequence Navigation Bar */
+        .sequence-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #0f172a;
+            border-top: 1px solid #334155;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+        .sequence-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: #94a3b8;
+            transition: color 0.2s;
+        }
+        .sequence-link:hover { color: #a78bfa; }
+        .sequence-text { display: flex; flex-direction: column; }
+        .sequence-link.next .sequence-text { text-align: right; }
+        .sequence-label { font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.7; }
+        .sequence-title { font-size: 0.9375rem; font-weight: 500; color: #e2e8f0; }
+        .sequence-position {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+        .sequence-current { color: #a78bfa; font-weight: 600; }
+        .main-content { padding-bottom: 60px; }
+    </style>
+
+    <script>
+        // Active nav link highlighting on scroll
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,2884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Red Team Validation | Commerce.com Strategy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Light theme - CopilotKit inspired */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --bg-tertiary: #f3f4f6;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-muted: #9ca3af;
+            --accent-cyan: #7c3aed;
+            --accent-orange: #ea580c;
+            --accent-green: #059669;
+            --accent-yellow: #d97706;
+            --accent-red: #dc2626;
+            --border-color: #e5e7eb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 24px 0;
+        }
+
+        .sidebar-header {
+            padding: 0 24px 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sidebar-header h1 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--accent-cyan);
+            margin-bottom: 4px;
+        }
+
+        .sidebar-header .doc-type {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-section {
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-section-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0 24px 8px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 8px 24px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.15s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+            background: rgba(124, 58, 237, 0.05);
+        }
+
+        .nav-link.active {
+            color: var(--accent-cyan);
+            background: rgba(124, 58, 237, 0.1);
+            border-right: 2px solid var(--accent-cyan);
+        }
+
+        .nav-link .risk-badge {
+            float: right;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .risk-high { background: rgba(220, 38, 38, 0.15); color: var(--accent-red); }
+        .risk-medium { background: rgba(217, 119, 6, 0.15); color: var(--accent-yellow); }
+        .risk-low { background: rgba(5, 150, 105, 0.15); color: var(--accent-green); }
+
+        .sidebar-footer {
+            padding: 24px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 13px;
+            transition: color 0.15s ease;
+        }
+
+        .back-link:hover {
+            color: var(--accent-cyan);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 48px 64px;
+            max-width: 900px;
+        }
+
+        .doc-header {
+            margin-bottom: 48px;
+            padding-bottom: 32px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .classification {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(220, 38, 38, 0.08);
+            color: var(--accent-red);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+        }
+
+        .doc-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 12px;
+        }
+
+        .doc-subtitle {
+            font-size: 18px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .doc-meta {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .meta-item strong {
+            color: var(--text-secondary);
+        }
+
+        /* Sections */
+        section {
+            margin-bottom: 48px;
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--accent-cyan);
+            margin-bottom: 24px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 32px 0 16px;
+        }
+
+        h4 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin: 24px 0 12px;
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-secondary);
+        }
+
+        /* Executive Summary Box */
+        .summary-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .summary-box h3 {
+            margin-top: 0;
+            color: var(--accent-cyan);
+        }
+
+        .assessment-badge {
+            display: inline-block;
+            background: rgba(5, 150, 105, 0.12);
+            color: var(--accent-green);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .risk-distribution {
+            display: flex;
+            gap: 24px;
+            margin-top: 16px;
+        }
+
+        .risk-stat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .risk-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .risk-dot.low { background: var(--accent-green); }
+        .risk-dot.medium { background: var(--accent-yellow); }
+        .risk-dot.high { background: var(--accent-red); }
+
+        /* Persona Cards */
+        .persona-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 24px 0;
+        }
+
+        .persona-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .persona-card h4 {
+            margin: 0 0 4px;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .persona-card .role {
+            font-size: 12px;
+            color: var(--accent-cyan);
+            margin-bottom: 8px;
+        }
+
+        .persona-card .focus {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Attack Vector */
+        .attack-vector {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin: 24px 0;
+            overflow: hidden;
+        }
+
+        .attack-header {
+            background: var(--bg-tertiary);
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .attack-header h4 {
+            margin: 0;
+            color: var(--text-primary);
+            font-size: 15px;
+        }
+
+        .verdict-badge {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .verdict-badge.low {
+            background: rgba(5, 150, 105, 0.12);
+            color: var(--accent-green);
+        }
+
+        .verdict-badge.medium {
+            background: rgba(217, 119, 6, 0.12);
+            color: var(--accent-yellow);
+        }
+
+        .verdict-badge.high {
+            background: rgba(220, 38, 38, 0.12);
+            color: var(--accent-red);
+        }
+
+        .attack-body {
+            padding: 24px;
+        }
+
+        .attack-quote {
+            background: rgba(220, 38, 38, 0.05);
+            border-left: 3px solid var(--accent-red);
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .response-section h5 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--accent-cyan);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .mitigation-box {
+            background: rgba(5, 150, 105, 0.05);
+            border: 1px solid rgba(5, 150, 105, 0.15);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-top: 16px;
+        }
+
+        .mitigation-box strong {
+            color: var(--accent-green);
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            color: var(--text-secondary);
+        }
+
+        tbody tr:hover {
+            background: rgba(124, 58, 237, 0.03);
+        }
+
+        /* Risk Matrix */
+        .risk-matrix {
+            margin: 24px 0;
+            overflow-x: auto;
+        }
+
+        .risk-matrix table {
+            min-width: 700px;
+        }
+
+        .risk-matrix .risk-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 16px 0;
+            padding-left: 24px;
+            color: var(--text-secondary);
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        li strong {
+            color: var(--text-primary);
+        }
+
+        /* Mitigation Section */
+        .mitigation-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+
+        .mitigation-card h4 {
+            margin-top: 0;
+            color: var(--accent-red);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mitigation-card h5 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--accent-cyan);
+            margin: 16px 0 8px;
+        }
+
+        .mitigation-card ol {
+            margin: 8px 0 0;
+        }
+
+        /* Conclusion */
+        .conclusion-box {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(249, 115, 22, 0.1));
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 32px;
+            margin: 32px 0;
+        }
+
+        .conclusion-box h3 {
+            margin-top: 0;
+            color: var(--text-primary);
+        }
+
+        .caveat-list {
+            list-style: none;
+            padding: 0;
+            margin: 16px 0;
+        }
+
+        .caveat-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .caveat-list li:last-child {
+            border-bottom: none;
+        }
+
+        .caveat-number {
+            background: var(--accent-cyan);
+            color: var(--bg-primary);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .recommendation-box {
+            background: rgba(5, 150, 105, 0.08);
+            border: 1px solid rgba(5, 150, 105, 0.25);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-top: 24px;
+        }
+
+        .recommendation-box strong {
+            color: var(--accent-green);
+        }
+
+        /* Document Metadata */
+        .metadata {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 24px;
+            margin-top: 48px;
+        }
+
+        .metadata h4 {
+            margin-top: 0;
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metadata-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .metadata-item {
+            font-size: 13px;
+        }
+
+        .metadata-item .label {
+            color: var(--text-muted);
+            margin-right: 8px;
+        }
+
+        .metadata-item .value {
+            color: var(--text-secondary);
+        }
+
+        .disclaimer {
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+            font-size: 12px;
+            font-style: italic;
+            color: var(--text-muted);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1>Appendix C</h1>
+                <div class="doc-type">Red Team Analysis</div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Overview</div>
+                <a href="#summary" class="nav-link active">Executive Summary</a>
+                <a href="#personas" class="nav-link">Red Team Personas</a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Persona Analysis</div>
+                <a href="#persona-1" class="nav-link">Board Member <span class="risk-badge risk-medium">MED</span></a>
+                <a href="#persona-2" class="nav-link">Shopify Partisan <span class="risk-badge risk-low">LOW</span></a>
+                <a href="#persona-3" class="nav-link">WPEngine Pessimist <span class="risk-badge risk-medium">MED</span></a>
+                <a href="#persona-4" class="nav-link">Automattic Insider <span class="risk-badge risk-high">HIGH</span></a>
+                <a href="#persona-5" class="nav-link">Technical Cynic <span class="risk-badge risk-medium">MED</span></a>
+                <a href="#persona-6" class="nav-link">Sales Realist <span class="risk-badge risk-medium">MED</span></a>
+                <a href="#persona-7" class="nav-link">Customer Advocate <span class="risk-badge risk-low">LOW</span></a>
+                <a href="#persona-8" class="nav-link">Operations Pessimist <span class="risk-badge risk-high">HIGH</span></a>
+                <a href="#persona-9" class="nav-link">Market Timer <span class="risk-badge risk-low">LOW</span></a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Conclusion</div>
+                <a href="#risk-matrix" class="nav-link">Risk Summary</a>
+                <a href="#mitigations" class="nav-link">Required Mitigations</a>
+                <a href="#audit-execution" class="nav-link">Investor Audit</a>
+                <a href="#ai-council" class="nav-link" style="color: var(--accent-cyan);">AI Council Audit <span class="risk-badge risk-medium">NEW</span></a>
+                <a href="#conclusion" class="nav-link">Final Assessment</a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Related</div>
+                <a href="../STRATEGIC_ASSESSMENT.html" class="nav-link">Strategic Assessment</a>
+                <a href="A_MARKET_RESEARCH.html" class="nav-link">Market Research</a>
+                <a href="B_WPENGINE_PARTNERSHIP.html" class="nav-link">Partnership Analysis</a>
+            </div>
+
+            <div class="sidebar-footer">
+                <a href="../INDEX.html" class="back-link">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                    Back to Index
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="doc-header">
+                <div class="classification">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                    Strategic - Adversarial Review
+                </div>
+                <h1>Red Team Validation</h1>
+                <p class="doc-subtitle">Commerce.com Tiger Team Strategy Stress Test</p>
+                <div class="doc-meta">
+                    <span class="meta-item"><strong>Version:</strong> 1.0</span>
+                    <span class="meta-item"><strong>Date:</strong> December 2025</span>
+                    <span class="meta-item"><strong>Status:</strong> Complete</span>
+                </div>
+            </header>
+
+            <!-- Executive Summary -->
+            <section id="summary">
+                <h2>Executive Summary</h2>
+                <div class="summary-box">
+                    <p>This document subjects the Commerce.com + WordPress Tiger Team GTM strategy to rigorous adversarial analysis. Nine personas representing hostile stakeholder perspectives stress-test the strategy's assumptions, economics, and execution viability. Additionally, an <strong>AI Council audit</strong> using multi-model LLM-as-Judge methodology provides independent validation.</p>
+
+                    <div class="assessment-badge">Viable with Managed Risks</div>
+
+                    <p>Four high-risk gaps require mitigation; six medium-risk areas need monitoring. No fatal flaws identified.</p>
+
+                    <div class="risk-distribution">
+                        <div class="risk-stat">
+                            <span class="risk-dot low"></span>
+                            <span>5 Low Risk</span>
+                        </div>
+                        <div class="risk-stat">
+                            <span class="risk-dot medium"></span>
+                            <span>6 Medium Risk</span>
+                        </div>
+                        <div class="risk-stat">
+                            <span class="risk-dot high"></span>
+                            <span>4 High Risk</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(124, 58, 237, 0.08); border-radius: 8px; border-left: 4px solid var(--accent-cyan);">
+                        <p style="margin: 0; font-size: 14px;"><strong style="color: var(--accent-cyan);">AI Council Score:</strong> 70.2/100 (C-) — Validates human red team findings while identifying additional concerns around vendor bias and partnership contingency planning. <a href="#ai-council" style="color: var(--accent-cyan);">View full audit →</a></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Red Team Personas -->
+            <section id="personas">
+                <h2>Red Team Personas</h2>
+                <div class="persona-grid">
+                    <div class="persona-card" style="border: 2px solid var(--accent); box-shadow: 0 0 15px rgba(124, 58, 237, 0.2);">
+                        <h4>The Skeptical Board Member</h4>
+                        <div class="role">PE Investor / Due Diligence</div>
+                        <div class="focus">10 attack vectors: TAM, CAC/LTV, dependencies, unit economics, execution risk</div>
+                    </div>
+                    <div class="persona-card">
+                        <h4>The Shopify Partisan</h4>
+                        <div class="role">Competitor Analyst</div>
+                        <div class="focus">Competitive response</div>
+                    </div>
+                    <div class="persona-card">
+                        <h4>The WPEngine Pessimist</h4>
+                        <div class="role">Partnership Skeptic</div>
+                        <div class="focus">Partner viability</div>
+                    </div>
+                    <div class="persona-card">
+                        <h4>The Automattic Insider</h4>
+                        <div class="role">Ecosystem Politics</div>
+                        <div class="focus">WordPress politics</div>
+                    </div>
+                    <div class="persona-card">
+                        <h4>The Technical Cynic</h4>
+                        <div class="role">Platform Architect</div>
+                        <div class="focus">Technical feasibility</div>
+                    </div>
+                    <div class="persona-card">
+                        <h4>The Sales Realist</h4>
+                        <div class="role">Revenue Leader</div>
+                        <div class="focus">Pipeline viability</div>
+                    </div>
+                    <div class="persona-card">
+                        <h4>The Customer Advocate</h4>
+                        <div class="role">Merchant Proxy</div>
+                        <div class="focus">Value proposition</div>
+                    </div>
+                    <div class="persona-card">
+                        <h4>The Operations Pessimist</h4>
+                        <div class="role">Delivery Leader</div>
+                        <div class="focus">Execution risk</div>
+                    </div>
+                    <div class="persona-card">
+                        <h4>The Market Timer</h4>
+                        <div class="role">Strategy Consultant</div>
+                        <div class="focus">Timing and windows</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Persona 1: Board Member -->
+            <section id="persona-1">
+                <h2>Persona 1: The Skeptical Board Member</h2>
+                <p><strong>Role:</strong> PE Investor / Board Representative<br>
+                <strong>Objective:</strong> Stress-test capital allocation and ROI claims</p>
+
+                <div class="attack-vector">
+                    <div class="attack-header">
+                        <h4>Attack 1.1: "Your ROI math is fantasy"</h4>
+                        <span class="verdict-badge medium">Medium Risk</span>
+                    </div>
+                    <div class="attack-body">
+                        <div class="attack-quote">
+                            "You're claiming 29x ROI on a $190K investment, yielding $5.65M ARR. But ARR accumulates over time. In Year 1, you won't have 1,250 merchants—you'll have maybe 100. Show me realistic Year 1 cash flow, not steady-state ARR."
+                        </div>
+                        <div class="response-section">
+                            <h5>Strategic Response</h5>
+                            <p>Fair challenge. Realistic Year 1 model:</p>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Quarter</th>
+                                        <th>New Merchants</th>
+                                        <th>Cumulative ARR</th>
+                                        <th>Quarterly Cash</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Q1</td>
+                                        <td>0 (building)</td>
+                                        <td>$0</td>
+                                        <td>-$100K</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Q2</td>
+                                        <td>25</td>
+                                        <td>$112,500</td>
+                                        <td>-$62K</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Q3</td>
+                                        <td>75</td>
+                                        <td>$450,000</td>
+                                        <td>+$25K</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Q4</td>
+                                        <td>150</td>
+                                        <td>$1,125,000</td>
+                                        <td>+$150K</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <p><strong>Year 1 Realistic Exit ARR:</strong> ~$1.1M (not $5.65M)<br>
+                            <strong>Year 1 Cash Position:</strong> Break-even by Q4<br>
+                            <strong>True ROI horizon:</strong> 24-36 months to reach base case</p>
+                            <p><strong>Revised Framing:</strong> Phase 0 is validation investment, not immediate ROI play. $190K buys proof of market, not profit.</p>
+                        </div>
+                        <div class="mitigation-box">
+                            <strong>Mitigation:</strong> Financial model includes quarterly cash flow projections, not just ARR targets.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="attack-vector">
+                    <div class="attack-header">
+                        <h4>Attack 1.2: "This distracts from core business"</h4>
+                        <span class="verdict-badge low">Low Risk</span>
+                    </div>
+                    <div class="attack-body">
+                        <div class="attack-quote">
+                            "Commerce.com just rebranded. You're integrating acquisitions (Feedonomics, Makeswift). Now you want a tiger team chasing WordPress partnerships? This fragments focus."
+                        </div>
+                        <div class="response-section">
+                            <h5>Strategic Response</h5>
+                            <p>The tiger team is <strong>explicitly designed</strong> to not distract:</p>
+                            <ul>
+                                <li>0.5 FTE allocation (not full-time)</li>
+                                <li>12-week bounded experiment</li>
+                                <li>Clear go/no-go gate</li>
+                            </ul>
+                            <p>The WordPress angle <strong>reinforces</strong> core strategy:</p>
+                            <ul>
+                                <li>Catalyst adoption (existing priority)</li>
+                                <li>Feedonomics usage (existing priority)</li>
+                                <li>Makeswift differentiation (existing priority)</li>
+                            </ul>
+                            <p><strong>Opportunity cost of not pursuing:</strong> Shopify continues to capture ~48% of platform migrations (Cart2Cart 2024) unchallenged.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="attack-vector">
+                    <div class="attack-header">
+                        <h4>Attack 1.3: "Show me bottom-up market sizing"</h4>
+                        <span class="verdict-badge high">High Risk</span>
+                    </div>
+                    <div class="attack-body">
+                        <div class="attack-quote">
+                            "You claim 4.5M WooCommerce stores with 2-5% churn. But what's the actual addressable market? How many are $500K+ GMV? How many are on WPEngine? How many have the technical sophistication for headless? Give me a bottoms-up TAM, SAM, SOM—not top-down assumptions."
+                        </div>
+                        <div class="response-section">
+                            <h5>Strategic Response</h5>
+                            <p><strong>Honest answer:</strong> We don't have precise bottoms-up data. Here's what we know and don't know:</p>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Layer</th>
+                                        <th>Estimate</th>
+                                        <th>Source</th>
+                                        <th>Confidence</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>WooCommerce stores globally</td>
+                                        <td>4.5M</td>
+                                        <td>StoreLeads 2024</td>
+                                        <td style="color: #22c55e;">High</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Stores with $100K+ GMV</td>
+                                        <td>~450K (10%)</td>
+                                        <td>Industry estimate</td>
+                                        <td style="color: #eab308;">Medium</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Annual migration consideration</td>
+                                        <td>2-5% of segment</td>
+                                        <td>SaaS churn benchmarks</td>
+                                        <td style="color: #eab308;">Medium</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Stores on WPEngine</td>
+                                        <td>Unknown</td>
+                                        <td>Requires WPEngine data</td>
+                                        <td style="color: #ef4444;">Low</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Headless-ready segment</td>
+                                        <td>Unknown</td>
+                                        <td>Requires pilot data</td>
+                                        <td style="color: #ef4444;">Low</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <p><strong>Phase 0 Purpose:</strong> Build bottoms-up data through WPEngine partnership access and pilot merchant qualification.</p>
+                        </div>
+                        <div class="mitigation-box">
+                            <strong>Mitigation:</strong> Phase 0 deliverable includes validated market sizing from WPEngine data access. Do not commit to Phase 1 without this.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="attack-vector">
+                    <div class="attack-header">
+                        <h4>Attack 1.4: "What are your unit economics?"</h4>
+                        <span class="verdict-badge high">High Risk</span>
+                    </div>
+                    <div class="attack-body">
+                        <div class="attack-quote">
+                            "Every investor asks CAC, LTV, payback. You're proposing $190K to acquire 3 pilot merchants. That's $63K CAC per merchant on $4,500 ARR. Your payback is 14 years. These economics are catastrophic."
+                        </div>
+                        <div class="response-section">
+                            <h5>Strategic Response</h5>
+                            <p><strong>Phase 0 is not representative of steady-state economics.</strong></p>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Metric</th>
+                                        <th>Phase 0</th>
+                                        <th>Steady State (Target)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Merchants</td>
+                                        <td>3 pilots</td>
+                                        <td>100+/year</td>
+                                    </tr>
+                                    <tr>
+                                        <td>CAC</td>
+                                        <td>~$63K (R&D investment)</td>
+                                        <td>$5-8K (target)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>ARR/Merchant</td>
+                                        <td>$4,500</td>
+                                        <td>$4,500</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Gross Margin</td>
+                                        <td>N/A</td>
+                                        <td>~70%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>LTV (5yr, 10% churn)</td>
+                                        <td>N/A</td>
+                                        <td>~$14K</td>
+                                    </tr>
+                                    <tr>
+                                        <td>LTV:CAC</td>
+                                        <td>N/A</td>
+                                        <td>~2.5:1</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Payback</td>
+                                        <td>N/A</td>
+                                        <td>~18 months</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <p><strong>Key assumption:</strong> WPEngine partnership provides warm leads, reducing CAC from typical $15-20K enterprise to $5-8K. <em>This is a Phase 0 validation item.</em></p>
+                        </div>
+                        <div class="mitigation-box">
+                            <strong>Mitigation:</strong> Phase 0 must validate CAC assumptions. If WPEngine leads don't materialize or convert, economics don't work.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="attack-vector">
+                    <div class="attack-header">
+                        <h4>Attack 1.5: "WPEngine is a single point of failure"</h4>
+                        <span class="verdict-badge high">High Risk</span>
+                    </div>
+                    <div class="attack-body">
+                        <div class="attack-quote">
+                            "Your entire strategy depends on WPEngine saying yes. What if they say no? What if they say yes but don't prioritize it? What if they get acquired? You've built a business case on a partnership you don't control."
+                        </div>
+                        <div class="response-section">
+                            <h5>Strategic Response</h5>
+                            <p><strong>Valid concern.</strong> WPEngine partnership is critical path but not sole path.</p>
+                            <h5>If WPEngine Declines (Week 4 checkpoint):</h5>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Alternative</th>
+                                        <th>Pros</th>
+                                        <th>Cons</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Kinsta</td>
+                                        <td>Growing, may be more flexible</td>
+                                        <td>Smaller scale, less brand</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Pantheon</td>
+                                        <td>Enterprise focus, WebOps positioning</td>
+                                        <td>Less WordPress-exclusive</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Direct to merchants</td>
+                                        <td>No dependency</td>
+                                        <td>Higher CAC, slower</td>
+                                    </tr>
+                                    <tr>
+                                        <td>SI-led (no host partner)</td>
+                                        <td>Proven channel</td>
+                                        <td>Loses "keep WordPress" narrative</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <p><strong>Risk acceptance:</strong> If WPEngine declines, we pivot by Week 5 with $100K remaining budget. Sunk cost is ~$90K.</p>
+                        </div>
+                        <div class="mitigation-box">
+                            <strong>Mitigation:</strong> Week 4 is hard checkpoint. No WPEngine commitment = decision point for pivot or abort.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="attack-vector">
+                    <div class="attack-header">
+                        <h4>Attack 1.6: "Prove the $4,500 ARR is realistic"</h4>
+                        <span class="verdict-badge medium">Medium Risk</span>
+                    </div>
+                    <div class="attack-body">
+                        <div class="attack-quote">
+                            "You're assuming $3K BigCommerce + $1.5K Feedonomics at 50% attach. But WooCommerce merchants are notoriously price-sensitive. They chose WooCommerce because it was 'free.' Why would they pay $4,500/year for platform fees?"
+                        </div>
+                        <div class="response-section">
+                            <h5>Strategic Response</h5>
+                            <p><strong>Segmentation matters.</strong> We're not targeting all WooCommerce merchants:</p>
+                            <ul>
+                                <li><strong>Target segment:</strong> $500K+ GMV merchants who are <em>already paying</em> $10-25K/year in WooCommerce TCO (hosting, plugins, dev time, security)</li>
+                                <li><strong>Value proposition:</strong> $4,500/year platform fee replaces fragmented costs while adding performance, security, and B2B capabilities</li>
+                                <li><strong>Proof point:</strong> BigCommerce Enterprise pricing is public (~$30K/year for large merchants). Our $3K assumption is conservative for the target segment.</li>
+                            </ul>
+                            <h5>Feedonomics Attach Risk:</h5>
+                            <p>50% attach rate is optimistic. Conservative scenario at 25% attach = $3,750 ARR/merchant. Still viable economics.</p>
+                        </div>
+                        <div class="mitigation-box">
+                            <strong>Mitigation:</strong> Phase 0 pilots validate actual pricing acceptance. If merchants push back on $4,500, we'll have real data.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="attack-vector">
+                    <div class="attack-header">
+                        <h4>Attack 1.7: "Who on this team has done this before?"</h4>
+                        <span class="verdict-badge medium">Medium Risk</span>
+                    </div>
+                    <div class="attack-body">
+                        <div class="attack-quote">
+                            "This is a complex multi-system integration requiring partnerships, technical execution, and enterprise sales. Point to the person on the tiger team who has successfully launched a new market segment from scratch."
+                        </div>
+                        <div class="response-section">
+                            <h5>Strategic Response</h5>
+                            <p><strong>Fair challenge.</strong> Tiger team composition must include:</p>
+                            <ul>
+                                <li><strong>Partnership experience:</strong> Someone who has negotiated and closed technology partnerships at scale</li>
+                                <li><strong>Catalyst/headless expertise:</strong> Already exists in-house (Catalyst team)</li>
+                                <li><strong>WooCommerce migration experience:</strong> SI partner provides this (Bounteous, Trellis, etc.)</li>
+                                <li><strong>Enterprise sales motion:</strong> Existing BigCommerce sales org</li>
+                            </ul>
+                            <p><strong>Gap:</strong> If tiger team lead lacks partnership experience, this is an execution risk.</p>
+                        </div>
+                        <div class="mitigation-box">
+                            <strong>Mitigation:</strong> Tiger team lead selection criteria must include demonstrated partnership development experience. Do not proceed with inexperienced lead.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="attack-vector">
+                    <div class="attack-header">
+                        <h4>Attack 1.8: "What if $190K isn't enough?"</h4>
+                        <span class="verdict-badge medium">Medium Risk</span>
+                    </div>
+                    <div class="attack-body">
+                        <div class="attack-quote">
+                            "Phase 0 is scoped tight, but what if pilots take longer? What if WPEngine wants more proof? What if you need a second SI partner? Are you going to come back asking for another $100K? Show me the contingency plan."
+                        </div>
+                        <div class="response-section">
+                            <h5>Strategic Response</h5>
+                            <p><strong>Budget has built-in contingency:</strong></p>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Category</th>
+                                        <th>Budgeted</th>
+                                        <th>Stretch</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Personnel</td>
+                                        <td>$100K</td>
+                                        <td>$120K (+20%)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>SI Partner</td>
+                                        <td>$50K</td>
+                                        <td>$65K (+30%)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Infrastructure</td>
+                                        <td>$10K</td>
+                                        <td>$15K (+50%)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Pilot Incentives</td>
+                                        <td>$30K</td>
+                                        <td>$40K (+33%)</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Total</strong></td>
+                                        <td><strong>$190K</strong></td>
+                                        <td><strong>$240K</strong></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <p><strong>Authorization request:</strong> Approve $190K with $50K contingency reserve. Contingency requires tiger team lead + sponsor approval. If contingency exhausted, return to steering committee.</p>
+                        </div>
+                        <div class="mitigation-box">
+                            <strong>Mitigation:</strong> Request $190K + $50K contingency upfront. Avoids delay of returning for additional approval mid-execution.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="attack-vector">
+                    <div class="attack-header">
+                        <h4>Attack 1.9: "When does this become material?"</h4>
+                        <span class="verdict-badge medium">Medium Risk</span>
+                    </div>
+                    <div class="attack-body">
+                        <div class="attack-quote">
+                            "Commerce.com is a $200M+ ARR business. Even if you hit your aggressive scenario of $20M ARR in 3 years, that's 10% of revenue. Meanwhile you're diverting executive attention, partnership resources, and engineering time. Is this worth the distraction?"
+                        </div>
+                        <div class="response-section">
+                            <h5>Strategic Response</h5>
+                            <p><strong>Materiality framing:</strong></p>
+                            <ul>
+                                <li><strong>Direct revenue:</strong> $10-20M ARR in Year 3 = 5-10% revenue contribution. Material but not transformative.</li>
+                                <li><strong>Strategic value:</strong> WordPress partnership creates differentiation narrative, not just revenue. "WordPress-native commerce" is a positioning Shopify cannot match.</li>
+                                <li><strong>Platform adoption:</strong> WordPress channel drives Catalyst, Feedonomics, and Makeswift usage—amplifying core product adoption metrics.</li>
+                                <li><strong>Beachhead:</strong> Proves composable commerce model with one CMS; expandable to Drupal, Contentful, Sanity.</li>
+                            </ul>
+                            <p><strong>Counter-question:</strong> What's the materiality of <em>not</em> pursuing? Shopify continues to capture 48% of migrations unchallenged. Market share erosion compounds.</p>
+                        </div>
+                        <div class="mitigation-box">
+                            <strong>Mitigation:</strong> Frame Phase 0 as strategic optionality purchase, not committed revenue. $190K buys the right to pursue $20M+ opportunity.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="attack-vector">
+                    <div class="attack-header">
+                        <h4>Attack 1.10: "What's the full failure cost?"</h4>
+                        <span class="verdict-badge low">Low Risk</span>
+                    </div>
+                    <div class="attack-body">
+                        <div class="attack-quote">
+                            "You say $190K is the downside. But what about opportunity cost? What about reputation risk if pilots fail publicly? What about team morale if this doesn't work? Give me the complete failure scenario."
+                        </div>
+                        <div class="response-section">
+                            <h5>Strategic Response</h5>
+                            <p><strong>Complete failure cost analysis:</strong></p>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Cost Type</th>
+                                        <th>Estimate</th>
+                                        <th>Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Direct investment</td>
+                                        <td>$190K</td>
+                                        <td>Sunk cost if all fails</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Opportunity cost (team time)</td>
+                                        <td>~$50K</td>
+                                        <td>2 FTE-equivalents × 3 months that could be elsewhere</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Reputation risk</td>
+                                        <td>Low</td>
+                                        <td>Stealth mode—no public announcement until Phase 1</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Partnership burn</td>
+                                        <td>Low</td>
+                                        <td>WPEngine relationship framed as exploration, not commitment</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Team morale</td>
+                                        <td>Low</td>
+                                        <td>Tiger team is opt-in; "experiment" framing sets expectations</td>
+                                    </tr>
+                                    <tr style="font-weight: bold;">
+                                        <td>Total failure cost</td>
+                                        <td>~$240K</td>
+                                        <td>Manageable loss for strategic exploration</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <p><strong>Risk-adjusted view:</strong> $240K total exposure for an option on $10-20M ARR opportunity. That's a reasonable bet.</p>
+                        </div>
+                        <div class="mitigation-box">
+                            <strong>Mitigation:</strong> Stealth mode until Phase 1 approval limits reputation risk. Tiger team "experiment" framing manages expectations.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Persona 2: Shopify Partisan -->
+            <section id="persona-2">
+                <h2>Persona 2: The Shopify Partisan</h2>
+                <p><strong>Role:</strong> Competitor Analyst (Shopify perspective)<br>
+                <strong>Objective:</strong> Identify competitive vulnerabilities</p>
+
+                <div class="attack-vector">
+                    <div class="attack-header">
+                        <h4>Attack 2.1: "Shopify will simply match this"</h4>
+                        <span class="verdict-badge low">Low Risk</span>
+                    </div>
+                    <div class="attack-body">
+                        <div class="attack-quote">
+                            "If Commerce.com announces a WordPress partnership, Shopify will respond in 48 hours with 'Shopify for WordPress' or acquire a headless CMS. They have unlimited resources."
+                        </div>
+                        <div class="response-section">
+                            <h5>Strategic Response</h5>
+                            <p>Shopify <strong>cannot credibly offer WordPress preservation</strong> without narrative contradiction:</p>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Shopify's Current Narrative</th>
+                                        <th>Required Shift</th>
+                                        <th>Probability</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>"WordPress is legacy"</td>
+                                        <td>"WordPress is partner"</td>
+                                        <td>Very Low</td>
+                                    </tr>
+                                    <tr>
+                                        <td>"Replace everything"</td>
+                                        <td>"Keep your CMS"</td>
+                                        <td>Very Low</td>
+                                    </tr>
+                                    <tr>
+                                        <td>"Shopify is the platform"</td>
+                                        <td>"We're just commerce"</td>
+                                        <td>Very Low</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <p><strong>Why they won't:</strong> Their checkout conversion advantage depends on owning the full experience. Shop Pay, Shopify Capital require closed system.</p>
+                        </div>
+                        <div class="mitigation-box">
+                            <strong>Mitigation:</strong> Speed to market. Establish partnerships and case studies before Shopify notices.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="attack-vector">
+                    <div class="attack-header">
+                        <h4>Attack 2.2: "The market is too small"</h4>
+                        <span class="verdict-badge low">Low Risk</span>
+                    </div>
+                    <div class="attack-body">
+                        <div class="attack-quote">
+                            "You're chasing a niche segment of WooCommerce migrations. Shopify processes millions of merchants. This is a rounding error."
+                        </div>
+                        <div class="response-section">
+                            <h5>Strategic Response</h5>
+                            <ul>
+                                <li><strong>Quality over quantity:</strong> Target segment is high-GMV capability seekers; ARR per merchant ~$4,500 (higher LTV than SMB)</li>
+                                <li><strong>Addressable market:</strong> With 4.5M WooCommerce stores and 2-5% annual churn, even 5% capture yields meaningful ARR (see sensitivity analysis in pitch deck)</li>
+                                <li><strong>Strategic positioning:</strong> WordPress partnership creates differentiation narrative</li>
+                                <li><strong>Beachhead strategy:</strong> Prove the model with WordPress, expand to other CMS ecosystems</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Persona 3: WPEngine Pessimist -->
+            <section id="persona-3">
+                <h2>Persona 3: The WPEngine Pessimist</h2>
+                <p><strong>Role:</strong> Partnership Skeptic<br>
+                <strong>Objective:</strong> Challenge WPEngine partnership viability</p>
+
+                <div class="attack-vector">
+                    <div class="attack-header">
+                        <h4>Attack 3.1: "WPEngine won't engage"</h4>
+                        <span class="verdict-badge medium">Medium Risk</span>
+                    </div>
+                    <div class="attack-body">
+                        <div class="attack-quote">
+                            "WPEngine is owned by Silver Lake. They're focused on profitability, not experiments. Why would they prioritize an unproven Commerce.com integration over their core hosting business?"
+                        </div>
+                        <div class="response-section">
+                            <h5>WPEngine's Incentives</h5>
+                            <ul>
+                                <li><strong>Revenue at risk:</strong> Significant ARR tied to WooCommerce customers (exact figures require WPEngine data access—Phase 0 validation item)</li>
+                                <li><strong>Churn problem:</strong> No current solution for Shopify migration bleeding</li>
+                                <li><strong>Atlas investment:</strong> Headless WordPress is strategic priority; Catalyst aligns</li>
+                                <li><strong>Competitive narrative:</strong> "Keep WordPress, upgrade commerce" differentiates</li>
+                            </ul>
+                            <h5>Approach Strategy</h5>
+                            <ul>
+                                <li>Don't go direct to executive team initially</li>
+                                <li>Work through existing SI partner relationship</li>
+                                <li>Position as "customer retention pilot" not "strategic partnership"</li>
+                            </ul>
+                        </div>
+                        <div class="mitigation-box">
+                            <strong>Mitigation:</strong> Phase 0 designed to work with informal WPEngine collaboration; formal partnership comes in Phase 1 after proof.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="attack-vector">
+                    <div class="attack-header">
+                        <h4>Attack 3.2: "Atlas competes with Catalyst"</h4>
+                        <span class="verdict-badge low">Low Risk</span>
+                    </div>
+                    <div class="attack-body">
+                        <div class="attack-quote">
+                            "WPEngine has their own headless solution (Atlas). Why would they promote a competitor's technology (Catalyst) when they have their own product?"
+                        </div>
+                        <div class="response-section">
+                            <h5>Strategic Response</h5>
+                            <p>Atlas and Catalyst are <strong>complementary, not competitive:</strong></p>
+                            <ul>
+                                <li><strong>Atlas</strong> = Headless WordPress hosting environment</li>
+                                <li><strong>Catalyst</strong> = Commerce storefront framework</li>
+                                <li><strong>Combined:</strong> Best-of-breed headless commerce + content stack</li>
+                            </ul>
+                            <p><strong>Framing:</strong> "Catalyst is the commerce layer for your Atlas-hosted WordPress"</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Persona 4: Automattic Insider -->
+            <section id="persona-4">
+                <h2>Persona 4: The Automattic Insider</h2>
+                <p><strong>Role:</strong> WordPress Ecosystem Observer<br>
+                <strong>Objective:</strong> Challenge political viability</p>
+
+                <div class="attack-vector">
+                    <div class="attack-header">
+                        <h4>Attack 4.1: "Automattic will block this"</h4>
+                        <span class="verdict-badge high">High Risk</span>
+                    </div>
+                    <div class="attack-body">
+                        <div class="attack-quote">
+                            "Automattic owns WooCommerce. They also own WordPress.com and have significant influence over the WordPress ecosystem. If you position against WooCommerce, they'll use their influence to block or undermine the partnership."
+                        </div>
+                        <div class="response-section">
+                            <h5>Recent Context (2024)</h5>
+                            <ul>
+                                <li>Automattic and WPEngine are in active legal dispute over trademarks</li>
+                                <li>WPEngine is motivated to reduce Automattic dependency</li>
+                                <li>Commerce.com partnership could be seen as strategic hedging for WPEngine</li>
+                            </ul>
+                            <h5>Mitigation Strategies</h5>
+                            <ol>
+                                <li><strong>Don't position as "anti-WooCommerce"</strong>—position as "for merchants who've outgrown it"</li>
+                                <li><strong>Focus on WPEngine, not WordPress.org</strong>—avoid community politics</li>
+                                <li><strong>Emphasize merchant choice</strong>—"We serve the 5% who are leaving anyway"</li>
+                                <li><strong>Maintain WooCommerce compatibility</strong>—Feedonomics works with WooCommerce; don't burn bridges</li>
+                            </ol>
+                        </div>
+                        <div class="mitigation-box">
+                            <strong>Mitigation Added:</strong> Messaging guide explicitly avoids anti-WooCommerce positioning.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Persona 5: Technical Cynic -->
+            <section id="persona-5">
+                <h2>Persona 5: The Technical Cynic</h2>
+                <p><strong>Role:</strong> Platform Architect<br>
+                <strong>Objective:</strong> Challenge technical feasibility</p>
+
+                <div class="attack-vector">
+                    <div class="attack-header">
+                        <h4>Attack 5.1: "The integration is too complex"</h4>
+                        <span class="verdict-badge medium">Medium Risk</span>
+                    </div>
+                    <div class="attack-body">
+                        <div class="attack-quote">
+                            "You're proposing: Next.js (Catalyst) fetching from BigCommerce GraphQL AND WordPress GraphQL, hosted on Vercel, with WPEngine hosting WordPress, and Feedonomics doing ETL. That's five systems. Every integration point is a failure mode."
+                        </div>
+                        <div class="response-section">
+                            <h5>System Count Reality Check</h5>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>System</th>
+                                        <th>Owner</th>
+                                        <th>SLA</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>Catalyst</td><td>Commerce.com</td><td>99.9%</td></tr>
+                                    <tr><td>BigCommerce</td><td>Commerce.com</td><td>99.99%</td></tr>
+                                    <tr><td>WordPress</td><td>WPEngine</td><td>99.95%</td></tr>
+                                    <tr><td>Vercel</td><td>Vercel</td><td>99.99%</td></tr>
+                                    <tr><td>Feedonomics</td><td>Commerce.com</td><td>99.9%</td></tr>
+                                </tbody>
+                            </table>
+                            <h5>Mitigations</h5>
+                            <ol>
+                                <li><strong>Incident runbook:</strong> Clear "who to call" for each failure mode</li>
+                                <li><strong>Graceful degradation:</strong> If WordPress fails, commerce still works</li>
+                                <li><strong>Monitoring:</strong> Single-pane observability across all systems</li>
+                                <li><strong>Pre-built reference architecture:</strong> Not custom integration each time</li>
+                            </ol>
+                        </div>
+                        <div class="mitigation-box">
+                            <strong>Mitigation Added:</strong> Incident response runbook is mandatory Phase 0 deliverable.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="attack-vector">
+                    <div class="attack-header">
+                        <h4>Attack 5.2: "WPGraphQL isn't production-ready"</h4>
+                        <span class="verdict-badge medium">Medium Risk</span>
+                    </div>
+                    <div class="attack-body">
+                        <div class="attack-quote">
+                            "WPGraphQL is a community plugin. What happens when a major WordPress update breaks WPGraphQL and your commerce sites go down?"
+                        </div>
+                        <div class="response-section">
+                            <h5>WPGraphQL Maturity</h5>
+                            <ul>
+                                <li>Used in production by major brands (Spotify Engineering Blog, TechCrunch)</li>
+                                <li>Jason Bahl is now employed by WPEngine (increased stability incentive)</li>
+                                <li>Active development with WordPress core alignment efforts</li>
+                            </ul>
+                            <h5>Mitigations</h5>
+                            <ul>
+                                <li>Staging environment testing before WordPress core updates</li>
+                                <li>Version pinning in production</li>
+                                <li>Fallback to REST API if GraphQL fails</li>
+                                <li>WPEngine manages WordPress updates (professional oversight)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Persona 6: Sales Realist -->
+            <section id="persona-6">
+                <h2>Persona 6: The Sales Realist</h2>
+                <p><strong>Role:</strong> Revenue Leader<br>
+                <strong>Objective:</strong> Challenge pipeline viability</p>
+
+                <div class="attack-vector">
+                    <div class="attack-header">
+                        <h4>Attack 6.1: "How do you find these merchants?"</h4>
+                        <span class="verdict-badge medium">Medium Risk</span>
+                    </div>
+                    <div class="attack-body">
+                        <div class="attack-quote">
+                            "You're targeting WooCommerce merchants who are about to migrate to Shopify. How do you find them before Shopify does? By the time they're searching 'WooCommerce to Shopify migration,' you've already lost."
+                        </div>
+                        <div class="response-section">
+                            <h5>Lead Source Strategy</h5>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Channel</th>
+                                        <th>Mechanism</th>
+                                        <th>Conversion Point</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>WPEngine CS</td><td>At-risk account identification</td><td>Before migration intent</td></tr>
+                                    <tr><td>SI Partners</td><td>Agency sees migration conversations</td><td>During evaluation</td></tr>
+                                    <tr><td>Content/SEO</td><td>"WooCommerce scaling issues" content</td><td>Pain awareness stage</td></tr>
+                                    <tr><td>WordPress community</td><td>WordCamp, developer meetups</td><td>Influencer referral</td></tr>
+                                </tbody>
+                            </table>
+                            <p><strong>Key Insight:</strong> WPEngine Customer Success has visibility into accounts showing WooCommerce distress signals before they start Shopify migration research.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="attack-vector">
+                    <div class="attack-header">
+                        <h4>Attack 6.2: "The sales cycle is too long"</h4>
+                        <span class="verdict-badge low">Low Risk</span>
+                    </div>
+                    <div class="attack-body">
+                        <div class="attack-quote">
+                            "Enterprise migrations take 6-12 months to close. By the time you close 2 deals in Phase 0, you'll have burned through your timeline."
+                        </div>
+                        <div class="response-section">
+                            <h5>Phase 0 Scope Clarification</h5>
+                            <p>Phase 0 goal is <strong>not</strong> to close deals; it's to <strong>validate approach</strong>.</p>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Metric</th>
+                                        <th>Phase 0 Target</th>
+                                        <th>Phase 1 Target</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>Leads</td><td>5-10 (from WPEngine)</td><td>30+</td></tr>
+                                    <tr><td>Proposals</td><td>3</td><td>10</td></tr>
+                                    <tr><td>Pilots Started</td><td>3</td><td>-</td></tr>
+                                    <tr><td>Pilots Completed</td><td>3</td><td>6</td></tr>
+                                    <tr><td>Full Deals Closed</td><td>0-1</td><td>6+</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Persona 7: Customer Advocate -->
+            <section id="persona-7">
+                <h2>Persona 7: The Customer Advocate</h2>
+                <p><strong>Role:</strong> Merchant Proxy<br>
+                <strong>Objective:</strong> Challenge value proposition from customer perspective</p>
+
+                <div class="attack-vector">
+                    <div class="attack-header">
+                        <h4>Attack 7.1: "Why wouldn't they just go to Shopify?"</h4>
+                        <span class="verdict-badge low">Low Risk</span>
+                    </div>
+                    <div class="attack-body">
+                        <div class="attack-quote">
+                            "Shopify is simple, well-known, and has more apps. You're offering a 'composable stack' with five vendors and React developers. Why would any sane merchant choose complexity?"
+                        </div>
+                        <div class="response-section">
+                            <h5>Target Merchant Profile (not everyone)</h5>
+                            <ul>
+                                <li>500+ WordPress blog posts with SEO value</li>
+                                <li>B2B revenue (wholesale, price lists)</li>
+                                <li>Marketplace revenue > 30% of GMV</li>
+                                <li>Internal dev team or agency relationship</li>
+                                <li>Previous frustration with Shopify limitations</li>
+                            </ul>
+                            <h5>Value Proposition for This Merchant</h5>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Pain Point</th>
+                                        <th>Shopify Answer</th>
+                                        <th>Commerce.com Answer</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>"I have 500 blog posts"</td><td>Migrate them all (cost, risk)</td><td>Keep them where they are</td></tr>
+                                    <tr><td>"I need B2B pricing"</td><td>Buy Plus + apps</td><td>Native B2B</td></tr>
+                                    <tr><td>"I sell on Amazon heavily"</td><td>Basic integration</td><td>Feedonomics optimization</td></tr>
+                                    <tr><td>"I hate transaction fees"</td><td>Pay 0.15-2%</td><td>$0</td></tr>
+                                </tbody>
+                            </table>
+                            <p><strong>Key Framing:</strong> We're not for everyone. We're for the 20% who would suffer on Shopify.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Persona 8: Operations Pessimist -->
+            <section id="persona-8">
+                <h2>Persona 8: The Operations Pessimist</h2>
+                <p><strong>Role:</strong> Delivery Leader<br>
+                <strong>Objective:</strong> Challenge execution capability</p>
+
+                <div class="attack-vector">
+                    <div class="attack-header">
+                        <h4>Attack 8.1: "You don't have the bench"</h4>
+                        <span class="verdict-badge medium">Medium Risk</span>
+                    </div>
+                    <div class="attack-body">
+                        <div class="attack-quote">
+                            "This strategy requires: WooCommerce expertise, BigCommerce expertise, React/Next.js developers, Feedonomics specialists, and WordPress integration experience. Show me the team."
+                        </div>
+                        <div class="response-section">
+                            <h5>Team Model</h5>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Role</th>
+                                        <th>Source</th>
+                                        <th>FTE</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>Tiger Team Lead</td><td>Commerce.com Product</td><td>0.5</td></tr>
+                                    <tr><td>Catalyst Engineer</td><td>Commerce.com Engineering</td><td>0.5</td></tr>
+                                    <tr><td>Feedonomics Specialist</td><td>Feedonomics Team</td><td>0.25</td></tr>
+                                    <tr><td>Makeswift PM</td><td>Makeswift Team</td><td>0.25</td></tr>
+                                    <tr><td>SI Partner Lead</td><td>External Agency</td><td>Contract</td></tr>
+                                    <tr><td>Implementation</td><td>SI Partner</td><td>Contract</td></tr>
+                                </tbody>
+                            </table>
+                            <p><strong>Key Insight:</strong> Commerce.com <strong>owns all the components</strong>—they just need to coordinate internal teams.</p>
+                        </div>
+                        <div class="mitigation-box">
+                            <strong>Mitigation:</strong> SI partner selection is critical; must have WordPress + BigCommerce experience.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="attack-vector">
+                    <div class="attack-header">
+                        <h4>Attack 8.2: "Pilot merchants will have bad experiences"</h4>
+                        <span class="verdict-badge high">High Risk</span>
+                    </div>
+                    <div class="attack-body">
+                        <div class="attack-quote">
+                            "You're running pilots with subsidized migrations on immature tooling. What happens when the first pilot has a disaster—SEO tanks, checkout breaks, data is lost? You've created negative case studies before positive ones."
+                        </div>
+                        <div class="response-section">
+                            <h5>Over-Resource Pilots</h5>
+                            <ul>
+                                <li>Pilot migrations get senior resources (not junior)</li>
+                                <li>2x staffing vs. normal engagement</li>
+                                <li>Daily check-ins during migration</li>
+                                <li>Immediate escalation paths</li>
+                            </ul>
+                            <h5>Set Expectations</h5>
+                            <ul>
+                                <li>Pilots know they're pilots (transparent)</li>
+                                <li>Accept that some issues will occur</li>
+                                <li>Value is learning + co-development, not perfection</li>
+                            </ul>
+                            <h5>Rollback Plan</h5>
+                            <ul>
+                                <li>WooCommerce site remains live until Catalyst is validated</li>
+                                <li>"Soft launch" with limited traffic before full cutover</li>
+                                <li>Data backup and restoration procedures</li>
+                            </ul>
+                        </div>
+                        <div class="mitigation-box">
+                            <strong>Mitigation Added:</strong> Pilot merchant selection criteria emphasizes "friendly clients" with tolerance for issues.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Persona 9: Market Timer -->
+            <section id="persona-9">
+                <h2>Persona 9: The Market Timer</h2>
+                <p><strong>Role:</strong> Strategy Consultant<br>
+                <strong>Objective:</strong> Challenge timing assumptions</p>
+
+                <div class="attack-vector">
+                    <div class="attack-header">
+                        <h4>Attack 9.1: "You're too late"</h4>
+                        <span class="verdict-badge low">Low Risk</span>
+                    </div>
+                    <div class="attack-body">
+                        <div class="attack-quote">
+                            "WooCommerce to Shopify migration has been happening for years. The merchants who were going to leave have already left. You're entering a declining market."
+                        </div>
+                        <div class="response-section">
+                            <h5>Market Timing Evidence</h5>
+                            <ul>
+                                <li>WooCommerce still has 4.5M active stores (StoreLeads 2024)—not declining</li>
+                                <li>WordPress powers 43% of the web (growing)</li>
+                                <li>New AI/agentic commerce trends favor headless (rising)</li>
+                                <li>Shopify's increasing "tax" on merchants creates new friction (ongoing)</li>
+                            </ul>
+                            <h5>Why Now</h5>
+                            <ul>
+                                <li>Commerce.com just completed acquisitions (Feedonomics, Makeswift)</li>
+                                <li>Catalyst reached maturity in 2024</li>
+                                <li>Automattic/WPEngine dispute creates partnership opening</li>
+                                <li>Before Shopify notices and responds</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="attack-vector">
+                    <div class="attack-header">
+                        <h4>Attack 9.2: "Headless is hype"</h4>
+                        <span class="verdict-badge low">Low Risk</span>
+                    </div>
+                    <div class="attack-body">
+                        <div class="attack-quote">
+                            "The industry has been talking about headless commerce for years, but adoption remains low. Headless is a developer fantasy, not a merchant need."
+                        </div>
+                        <div class="response-section">
+                            <h5>Headless Positioning</h5>
+                            <ul>
+                                <li>We don't sell "headless"—we sell "keep your WordPress"</li>
+                                <li>Headless is the <strong>mechanism</strong>, not the value proposition</li>
+                                <li>Merchant-facing message: "Your site gets faster, your team keeps WordPress"</li>
+                                <li>Technical complexity hidden behind Makeswift (visual builder)</li>
+                            </ul>
+                            <h5>Evidence of Headless Demand</h5>
+                            <ul>
+                                <li>Nike, Under Armour, other enterprise brands using headless</li>
+                                <li>Vercel's growth (headless hosting) demonstrates market</li>
+                                <li>Shopify's Hydrogen/Oxygen proves even they see headless value</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Risk Summary Matrix -->
+            <section id="risk-matrix">
+                <h2>Risk Summary Matrix</h2>
+                <div class="risk-matrix">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Attack Vector</th>
+                                <th>Persona</th>
+                                <th>Risk</th>
+                                <th>Mitigation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- INVESTOR / BOARD ATTACKS (10) -->
+                            <tr style="background: rgba(124, 58, 237, 0.05);">
+                                <td colspan="4" style="font-weight: 700; color: var(--accent);">Investor / Board Attacks (10)</td>
+                            </tr>
+                            <tr>
+                                <td>1.1 ROI timeline unrealistic</td>
+                                <td>Board Member</td>
+                                <td><span class="risk-indicator"><span class="risk-dot medium"></span> Medium</span></td>
+                                <td>Realistic cash flow model</td>
+                            </tr>
+                            <tr>
+                                <td>1.2 Distracts from core</td>
+                                <td>Board Member</td>
+                                <td><span class="risk-indicator"><span class="risk-dot low"></span> Low</span></td>
+                                <td>Tiger team scoped small</td>
+                            </tr>
+                            <tr>
+                                <td>1.3 Bottoms-up TAM missing</td>
+                                <td>Board Member</td>
+                                <td><span class="risk-indicator"><span class="risk-dot high"></span> High</span></td>
+                                <td>Phase 0 must build bottoms-up data</td>
+                            </tr>
+                            <tr>
+                                <td>1.4 Unit economics (CAC/LTV)</td>
+                                <td>Board Member</td>
+                                <td><span class="risk-indicator"><span class="risk-dot high"></span> High</span></td>
+                                <td>Phase 0 not representative; validate CAC assumptions</td>
+                            </tr>
+                            <tr>
+                                <td>1.5 WPEngine single point of failure</td>
+                                <td>Board Member</td>
+                                <td><span class="risk-indicator"><span class="risk-dot high"></span> High</span></td>
+                                <td>Week 4 hard checkpoint; alternatives identified</td>
+                            </tr>
+                            <tr>
+                                <td>1.6 $4,500 ARR unrealistic</td>
+                                <td>Board Member</td>
+                                <td><span class="risk-indicator"><span class="risk-dot medium"></span> Medium</span></td>
+                                <td>Target $500K+ GMV merchants; pilots validate</td>
+                            </tr>
+                            <tr>
+                                <td>1.7 Team execution credibility</td>
+                                <td>Board Member</td>
+                                <td><span class="risk-indicator"><span class="risk-dot medium"></span> Medium</span></td>
+                                <td>Tiger team lead must have partnership experience</td>
+                            </tr>
+                            <tr>
+                                <td>1.8 Budget overrun risk</td>
+                                <td>Board Member</td>
+                                <td><span class="risk-indicator"><span class="risk-dot medium"></span> Medium</span></td>
+                                <td>Request $50K contingency upfront</td>
+                            </tr>
+                            <tr>
+                                <td>1.9 Materiality question</td>
+                                <td>Board Member</td>
+                                <td><span class="risk-indicator"><span class="risk-dot medium"></span> Medium</span></td>
+                                <td>Strategic optionality framing; 5-10% revenue is material</td>
+                            </tr>
+                            <tr>
+                                <td>1.10 Full failure cost</td>
+                                <td>Board Member</td>
+                                <td><span class="risk-indicator"><span class="risk-dot low"></span> Low</span></td>
+                                <td>~$240K total exposure; stealth mode limits reputation risk</td>
+                            </tr>
+                            <tr style="background: rgba(124, 58, 237, 0.05);">
+                                <td colspan="4" style="font-weight: 700; color: var(--accent);">Competitive Attacks</td>
+                            </tr>
+                            <tr>
+                                <td>Shopify will match</td>
+                                <td>Competitor</td>
+                                <td><span class="risk-indicator"><span class="risk-dot low"></span> Low</span></td>
+                                <td>Narrative lock-in protects</td>
+                            </tr>
+                            <tr>
+                                <td>Market too small</td>
+                                <td>Competitor</td>
+                                <td><span class="risk-indicator"><span class="risk-dot low"></span> Low</span></td>
+                                <td>Quality over quantity</td>
+                            </tr>
+                            <tr>
+                                <td>WPEngine won't engage</td>
+                                <td>Partnership</td>
+                                <td><span class="risk-indicator"><span class="risk-dot medium"></span> Medium</span></td>
+                                <td>SI partner approach</td>
+                            </tr>
+                            <tr>
+                                <td>Atlas competes with Catalyst</td>
+                                <td>Partnership</td>
+                                <td><span class="risk-indicator"><span class="risk-dot low"></span> Low</span></td>
+                                <td>Complementary positioning</td>
+                            </tr>
+                            <tr>
+                                <td>Automattic blocks</td>
+                                <td>Ecosystem</td>
+                                <td><span class="risk-indicator"><span class="risk-dot high"></span> High</span></td>
+                                <td>Avoid anti-WooCommerce messaging</td>
+                            </tr>
+                            <tr>
+                                <td>Integration complexity</td>
+                                <td>Technical</td>
+                                <td><span class="risk-indicator"><span class="risk-dot medium"></span> Medium</span></td>
+                                <td>Incident runbook</td>
+                            </tr>
+                            <tr>
+                                <td>WPGraphQL maturity</td>
+                                <td>Technical</td>
+                                <td><span class="risk-indicator"><span class="risk-dot medium"></span> Medium</span></td>
+                                <td>WPEngine alignment</td>
+                            </tr>
+                            <tr>
+                                <td>Lead generation</td>
+                                <td>Sales</td>
+                                <td><span class="risk-indicator"><span class="risk-dot medium"></span> Medium</span></td>
+                                <td>WPEngine CS collaboration</td>
+                            </tr>
+                            <tr>
+                                <td>Sales cycle length</td>
+                                <td>Sales</td>
+                                <td><span class="risk-indicator"><span class="risk-dot low"></span> Low</span></td>
+                                <td>Phase 0 is validation</td>
+                            </tr>
+                            <tr>
+                                <td>Customer value prop</td>
+                                <td>Customer</td>
+                                <td><span class="risk-indicator"><span class="risk-dot low"></span> Low</span></td>
+                                <td>Clear segmentation</td>
+                            </tr>
+                            <tr>
+                                <td>Team capacity</td>
+                                <td>Operations</td>
+                                <td><span class="risk-indicator"><span class="risk-dot medium"></span> Medium</span></td>
+                                <td>SI partner selection</td>
+                            </tr>
+                            <tr>
+                                <td>Pilot failures</td>
+                                <td>Operations</td>
+                                <td><span class="risk-indicator"><span class="risk-dot high"></span> High</span></td>
+                                <td>Over-resource pilots</td>
+                            </tr>
+                            <tr>
+                                <td>Too late to market</td>
+                                <td>Timing</td>
+                                <td><span class="risk-indicator"><span class="risk-dot low"></span> Low</span></td>
+                                <td>Multiple factors favor now</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- High-Risk Mitigations -->
+            <section id="mitigations">
+                <h2>High-Risk Mitigations Required</h2>
+
+                <div class="mitigation-card">
+                    <h4>
+                        <span class="risk-dot high" style="display: inline-block; margin-right: 8px;"></span>
+                        Risk 1: Automattic/WordPress Politics
+                    </h4>
+                    <h5>Mitigation Actions</h5>
+                    <ol>
+                        <li>Create messaging guide that explicitly avoids anti-WooCommerce positioning</li>
+                        <li>Focus on WPEngine partnership, not WordPress.org community</li>
+                        <li>Prepare "we serve the 5% who are already leaving" narrative</li>
+                        <li>Monitor WordPress community sentiment during Phase 0</li>
+                    </ol>
+                </div>
+
+                <div class="mitigation-card">
+                    <h4>
+                        <span class="risk-dot high" style="display: inline-block; margin-right: 8px;"></span>
+                        Risk 2: Pilot Failure Damage
+                    </h4>
+                    <h5>Mitigation Actions</h5>
+                    <ol>
+                        <li>Over-resource pilots (2x normal staffing)</li>
+                        <li>Select "friendly" pilot merchants with issue tolerance</li>
+                        <li>Establish rollback procedures before starting</li>
+                        <li>Daily check-ins during migration execution</li>
+                        <li>Accept that Phase 0 investment includes risk of pilot failure</li>
+                    </ol>
+                </div>
+
+                <div class="mitigation-card">
+                    <h4>
+                        <span class="risk-dot high" style="display: inline-block; margin-right: 8px;"></span>
+                        Risk 3: Financial Expectations
+                    </h4>
+                    <h5>Mitigation Actions</h5>
+                    <ol>
+                        <li>Present quarterly cash flow, not steady-state ARR</li>
+                        <li>Frame Phase 0 as validation investment, not revenue play</li>
+                        <li>Set break-even expectation at 24-36 months, not Year 1</li>
+                        <li>Define Phase 0 success as "proof of approach," not "profit"</li>
+                    </ol>
+                </div>
+
+                <div class="mitigation-card">
+                    <h4>
+                        <span class="risk-dot high" style="display: inline-block; margin-right: 8px;"></span>
+                        Risk 4: Integration Complexity
+                    </h4>
+                    <h5>Mitigation Actions</h5>
+                    <ol>
+                        <li>Incident response runbook as mandatory Phase 0 deliverable</li>
+                        <li>Pre-built reference architecture (not custom each time)</li>
+                        <li>Single-pane monitoring across all systems</li>
+                        <li>Graceful degradation design (commerce works if content fails)</li>
+                    </ol>
+                </div>
+            </section>
+
+            <!-- Investor Audit Execution -->
+            <section id="audit-execution" style="margin-top: 3rem;">
+                <h2>Investor Attack Audit Execution</h2>
+                <p>Cross-document validation of investor defensibility against the 10 board-level attack vectors.</p>
+
+                <h3 style="color: var(--accent); margin-top: 2rem;">Audit Scope</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Document</th>
+                            <th>Role</th>
+                            <th>Investor Exposure</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>04_TIGER_TEAM_PITCH_DECK.html</td>
+                            <td>Primary board presentation</td>
+                            <td style="color: #ef4444;">Direct - all claims visible</td>
+                        </tr>
+                        <tr>
+                            <td>01_TIGER_TEAM_GTM.html</td>
+                            <td>GTM strategy + financials</td>
+                            <td style="color: #ef4444;">Direct - due diligence document</td>
+                        </tr>
+                        <tr>
+                            <td>00_UNBIASED_BASELINE.html</td>
+                            <td>Market analysis</td>
+                            <td style="color: #eab308;">Indirect - supporting data</td>
+                        </tr>
+                        <tr>
+                            <td>02_WPENGINE_PARTNERSHIP.html</td>
+                            <td>Partnership strategy</td>
+                            <td style="color: #eab308;">Indirect - execution detail</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 style="color: var(--accent); margin-top: 2rem;">Audit Results by Attack Vector</h3>
+
+                <div class="attack-vector">
+                    <div class="attack-header">
+                        <h4>Attack 1.3 Audit: Bottoms-up TAM</h4>
+                        <span class="verdict-badge high">GAPS IDENTIFIED</span>
+                    </div>
+                    <div class="attack-body">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Document</th>
+                                    <th>Current State</th>
+                                    <th>Gap</th>
+                                    <th>Action Required</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Pitch Deck</td>
+                                    <td style="color: #22c55e;">Uses ranges, not point estimates</td>
+                                    <td>None</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>GTM</td>
+                                    <td style="color: #22c55e;">Updated to scenarios</td>
+                                    <td>None</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>Baseline</td>
+                                    <td style="color: #eab308;">Top-down only (4.5M stores)</td>
+                                    <td>No SAM/SOM breakdown by GMV tier</td>
+                                    <td>Add segment sizing table with confidence levels</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="mitigation-box">
+                            <strong>Verdict:</strong> PITCH DECK passes. Supporting docs need explicit "assumptions to validate in Phase 0" callouts.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="attack-vector">
+                    <div class="attack-header">
+                        <h4>Attack 1.4 Audit: Unit Economics (CAC/LTV)</h4>
+                        <span class="verdict-badge medium">PARTIAL COVERAGE</span>
+                    </div>
+                    <div class="attack-body">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Document</th>
+                                    <th>CAC Discussed?</th>
+                                    <th>LTV Discussed?</th>
+                                    <th>Payback?</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Pitch Deck</td>
+                                    <td style="color: #eab308;">Implied in budget</td>
+                                    <td style="color: #ef4444;">No</td>
+                                    <td style="color: #ef4444;">No</td>
+                                </tr>
+                                <tr>
+                                    <td>GTM</td>
+                                    <td style="color: #22c55e;">Yes (implied in SI costs)</td>
+                                    <td style="color: #eab308;">Partial</td>
+                                    <td style="color: #ef4444;">No</td>
+                                </tr>
+                                <tr>
+                                    <td>Red Team (this doc)</td>
+                                    <td style="color: #22c55e;">Yes - Attack 1.4 response</td>
+                                    <td style="color: #22c55e;">Yes (~$14K)</td>
+                                    <td style="color: #22c55e;">Yes (~18mo)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="mitigation-box">
+                            <strong>Verdict:</strong> Unit economics exist in Red Team response but NOT in customer-facing docs. Consider adding unit economics appendix to Pitch Deck.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="attack-vector">
+                    <div class="attack-header">
+                        <h4>Attack 1.5 Audit: WPEngine Dependency</h4>
+                        <span class="verdict-badge high">CRITICAL DEPENDENCY</span>
+                    </div>
+                    <div class="attack-body">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Document</th>
+                                    <th>Dependency Acknowledged?</th>
+                                    <th>Alternatives Listed?</th>
+                                    <th>Checkpoint Defined?</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Pitch Deck</td>
+                                    <td style="color: #22c55e;">Yes</td>
+                                    <td style="color: #ef4444;">No</td>
+                                    <td style="color: #eab308;">Implied in Phase 0</td>
+                                </tr>
+                                <tr>
+                                    <td>GTM</td>
+                                    <td style="color: #22c55e;">Yes</td>
+                                    <td style="color: #ef4444;">No</td>
+                                    <td style="color: #ef4444;">No</td>
+                                </tr>
+                                <tr>
+                                    <td>WPEngine Doc</td>
+                                    <td style="color: #eab308;">Assumed success</td>
+                                    <td style="color: #ef4444;">No</td>
+                                    <td style="color: #ef4444;">No</td>
+                                </tr>
+                                <tr>
+                                    <td>Red Team (this doc)</td>
+                                    <td style="color: #22c55e;">Yes</td>
+                                    <td style="color: #22c55e;">Yes (Kinsta, Pantheon, direct)</td>
+                                    <td style="color: #22c55e;">Week 4 hard stop</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="mitigation-box">
+                            <strong>Verdict:</strong> Alternatives and checkpoint ONLY exist in Red Team. Add to Pitch Deck slide 9 (Success Criteria) as "WPEngine commitment by Week 4 or pivot decision."
+                        </div>
+                    </div>
+                </div>
+
+                <div class="attack-vector">
+                    <div class="attack-header">
+                        <h4>Attack 1.7 Audit: Execution Credibility</h4>
+                        <span class="verdict-badge medium">GAP IN ALL DOCS</span>
+                    </div>
+                    <div class="attack-body">
+                        <p>No document currently addresses:</p>
+                        <ul>
+                            <li>Named tiger team lead with relevant experience</li>
+                            <li>Track record of similar initiatives at Commerce.com or elsewhere</li>
+                            <li>SI partner selection criteria beyond cost</li>
+                        </ul>
+                        <div class="mitigation-box">
+                            <strong>Verdict:</strong> Add "Team & Experience" section to GTM doc listing tiger team composition with relevant background. Board will ask "Who is running this?"
+                        </div>
+                    </div>
+                </div>
+
+                <div class="attack-vector">
+                    <div class="attack-header">
+                        <h4>Attack 1.8 Audit: Budget Contingency</h4>
+                        <span class="verdict-badge low">ADEQUATELY ADDRESSED</span>
+                    </div>
+                    <div class="attack-body">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Document</th>
+                                    <th>Base Budget</th>
+                                    <th>Contingency Mentioned?</th>
+                                    <th>Stretch Scenario?</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Pitch Deck</td>
+                                    <td>$190K</td>
+                                    <td style="color: #ef4444;">No</td>
+                                    <td style="color: #ef4444;">No</td>
+                                </tr>
+                                <tr>
+                                    <td>GTM</td>
+                                    <td>$190K</td>
+                                    <td style="color: #ef4444;">No</td>
+                                    <td style="color: #ef4444;">No</td>
+                                </tr>
+                                <tr>
+                                    <td>Project Plan</td>
+                                    <td>$190K</td>
+                                    <td style="color: #eab308;">Implied buffer</td>
+                                    <td style="color: #ef4444;">No</td>
+                                </tr>
+                                <tr>
+                                    <td>Red Team (this doc)</td>
+                                    <td>$190K</td>
+                                    <td style="color: #22c55e;">$50K contingency</td>
+                                    <td style="color: #22c55e;">$240K stretch</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="mitigation-box">
+                            <strong>Verdict:</strong> Consider updating Pitch Deck ask to "$190K + $50K contingency = $240K max exposure" for transparency. Board will respect honesty about overrun potential.
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="color: var(--accent); margin-top: 2rem;">Audit Summary: Document Readiness</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Document</th>
+                            <th>Investor Ready?</th>
+                            <th>Gaps</th>
+                            <th>Priority Fixes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>04_TIGER_TEAM_PITCH_DECK</strong></td>
+                            <td style="color: #22c55e;"><strong>YES</strong> (with caveats)</td>
+                            <td>No unit economics, no explicit contingency</td>
+                            <td>Add CAC/LTV appendix slide; update ask to $240K max</td>
+                        </tr>
+                        <tr>
+                            <td><strong>01_TIGER_TEAM_GTM</strong></td>
+                            <td style="color: #eab308;"><strong>MOSTLY</strong></td>
+                            <td>No team bios, no WPEngine alternatives</td>
+                            <td>Add team section; add checkpoint criteria</td>
+                        </tr>
+                        <tr>
+                            <td><strong>00_UNBIASED_BASELINE</strong></td>
+                            <td style="color: #eab308;"><strong>SUPPORTING ONLY</strong></td>
+                            <td>No SAM/SOM by segment</td>
+                            <td>Flag as "Phase 0 validation target"</td>
+                        </tr>
+                        <tr>
+                            <td><strong>02_WPENGINE_PARTNERSHIP</strong></td>
+                            <td style="color: #eab308;"><strong>SUPPORTING ONLY</strong></td>
+                            <td>No failure path documented</td>
+                            <td>Add "If WPEngine declines" section</td>
+                        </tr>
+                        <tr>
+                            <td><strong>05_RED_TEAM (this doc)</strong></td>
+                            <td style="color: #22c55e;"><strong>YES</strong></td>
+                            <td>Contains answers to all 10 attacks</td>
+                            <td>Ready for board prep</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="conclusion-box" style="margin-top: 2rem;">
+                    <h4>Audit Conclusion</h4>
+                    <p>The document suite can withstand investor scrutiny <strong>IF the board meeting is structured as:</strong></p>
+                    <ol>
+                        <li><strong>Present:</strong> Pitch Deck (10 slides)</li>
+                        <li><strong>Anticipate:</strong> Questions from Attack Vectors 1.3-1.10</li>
+                        <li><strong>Respond:</strong> Using Red Team responses as talking points</li>
+                        <li><strong>Reference:</strong> GTM for detail, Baseline for market data</li>
+                    </ol>
+                    <p><strong>Key preparation:</strong> Presenter must internalize Red Team responses for live Q&A. Do not read from slides.</p>
+                </div>
+            </section>
+
+            <!-- AI Council Audit -->
+            <section id="ai-council" style="margin-top: 3rem;">
+                <h2>AI Council Red Team Audit</h2>
+
+                <div class="summary-box" style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.06), rgba(124, 58, 237, 0.08)); border-left: 4px solid var(--accent);">
+                    <p>Multi-model LLM-as-Judge audit conducted December 2025 using an AI Council architecture: three specialist reviewers providing independent analysis, synthesized by a Chief Judge, with challenges from a Devil's Advocate.</p>
+                    <div class="assessment-badge" style="background: rgba(217, 119, 6, 0.15); color: var(--accent-yellow);">Overall Score: 70.2/100 (C-)</div>
+                </div>
+
+                <h3 style="margin-top: 2rem;">Methodology: AI Council Architecture</h3>
+                <p>The audit employed a multi-model "council" approach to eliminate single-model bias and provide diverse analytical perspectives:</p>
+
+                <div class="response-card" style="margin-top: 1rem;">
+                    <h4>Reviewer Panel (Parallel, Independent Analysis)</h4>
+                    <table class="data-table" style="margin-top: 1rem;">
+                        <thead>
+                            <tr>
+                                <th>Role</th>
+                                <th>Model</th>
+                                <th>Focus Area</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Strategic Analyst</strong></td>
+                                <td>Claude Sonnet 4</td>
+                                <td>Strategic coherence, logical consistency, gap analysis</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Operations Critic</strong></td>
+                                <td>GPT-4o</td>
+                                <td>Actionability, feasibility, risk coverage</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Technical Auditor</strong></td>
+                                <td>Gemini 2.0 Flash</td>
+                                <td>Technical accuracy, vendor claims, implementation details</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="response-card" style="margin-top: 1rem;">
+                    <h4>Judge Panel (Sequential Synthesis)</h4>
+                    <table class="data-table" style="margin-top: 1rem;">
+                        <thead>
+                            <tr>
+                                <th>Role</th>
+                                <th>Model</th>
+                                <th>Purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Chief Judge</strong></td>
+                                <td>Claude Sonnet 4</td>
+                                <td>Synthesize findings, resolve conflicts, produce final verdict</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Devil's Advocate</strong></td>
+                                <td>GPT-4o</td>
+                                <td>Challenge consensus, identify blind spots, raise uncomfortable questions</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 style="margin-top: 2rem;">Scoring Rubric</h3>
+                <p>Seven weighted dimensions evaluated on a 1-10 scale with confidence ratings:</p>
+
+                <table class="data-table" style="margin-top: 1rem;">
+                    <thead>
+                        <tr>
+                            <th>Dimension</th>
+                            <th>Weight</th>
+                            <th>Score</th>
+                            <th>Confidence</th>
+                            <th>Consensus</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Strategic Coherence</td>
+                            <td>1.5x</td>
+                            <td style="color: var(--accent-green);"><strong>8.0/10</strong></td>
+                            <td>85%</td>
+                            <td><span class="risk-badge risk-low">STRONG</span></td>
+                        </tr>
+                        <tr>
+                            <td>Internal Consistency</td>
+                            <td>1.0x</td>
+                            <td style="color: var(--accent-green);"><strong>8.0/10</strong></td>
+                            <td>90%</td>
+                            <td><span class="risk-badge risk-low">STRONG</span></td>
+                        </tr>
+                        <tr>
+                            <td>Technical Accuracy</td>
+                            <td>1.2x</td>
+                            <td style="color: var(--accent-yellow);"><strong>7.0/10</strong></td>
+                            <td>80%</td>
+                            <td><span class="risk-badge risk-low">STRONG</span></td>
+                        </tr>
+                        <tr>
+                            <td>Actionability</td>
+                            <td>1.4x</td>
+                            <td style="color: var(--accent-yellow);"><strong>7.0/10</strong></td>
+                            <td>80%</td>
+                            <td><span class="risk-badge risk-low">STRONG</span></td>
+                        </tr>
+                        <tr>
+                            <td>Completeness</td>
+                            <td>1.1x</td>
+                            <td style="color: var(--accent-yellow);"><strong>7.0/10</strong></td>
+                            <td>75%</td>
+                            <td><span class="risk-badge risk-low">STRONG</span></td>
+                        </tr>
+                        <tr>
+                            <td>Risk Coverage</td>
+                            <td>1.3x</td>
+                            <td style="color: var(--accent-orange);"><strong>6.0/10</strong></td>
+                            <td>75%</td>
+                            <td><span class="risk-badge risk-low">STRONG</span></td>
+                        </tr>
+                        <tr>
+                            <td>Bias Detection</td>
+                            <td>1.0x</td>
+                            <td style="color: var(--accent-orange);"><strong>6.0/10</strong></td>
+                            <td>70%</td>
+                            <td><span class="risk-badge risk-low">STRONG</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 style="margin-top: 2rem;">Executive Summary (Chief Judge Synthesis)</h3>
+                <div class="response-card">
+                    <p>The audit reveals a <strong>strategically coherent "Keep WordPress, Upgrade Commerce"</strong> approach that effectively targets a market gap between WooCommerce limitations and Shopify's complete platform replacement. The technical foundation is sound with accurate identification of WooCommerce pain points and a feasible headless architecture, though implementation complexity appears underestimated.</p>
+
+                    <p style="margin-top: 1rem;">However, the entire strategy hinges on an <strong>unvalidated assumption that WPEngine wants this partnership</strong>, creating significant execution risk. The financial projections show impressive ROI (29.7x) but lack conservative stress-testing and adequate risk mitigation planning.</p>
+
+                    <p style="margin-top: 1rem;">While the strategic positioning is compelling and documents maintain strong internal consistency, notable <strong>vendor bias toward Commerce.com</strong> and gaps in competitive response planning from Automattic require immediate attention before committing the proposed $190K investment.</p>
+                </div>
+
+                <h3 style="margin-top: 2rem;">Critical Issues Identified</h3>
+
+                <div class="attack-card" style="border-left-color: var(--accent-red);">
+                    <div class="attack-header">
+                        <span class="attack-number" style="background: var(--accent-red);">1</span>
+                        <div class="attack-info">
+                            <h4>WPEngine Partnership Unvalidated</h4>
+                            <span class="risk-badge risk-high">HIGH RISK</span>
+                        </div>
+                    </div>
+                    <div class="attack-body">
+                        <p><strong>Issue:</strong> No evidence WPEngine wants this partnership or has significant WooCommerce revenue exposure. The entire strategy depends on this unvalidated assumption.</p>
+                        <p><strong>Mitigation:</strong> Validate WPEngine partnership interest through direct outreach before committing $190K investment. Develop fallback customer acquisition strategy that doesn't depend on WPEngine.</p>
+                    </div>
+                </div>
+
+                <div class="attack-card" style="border-left-color: var(--accent-red);">
+                    <div class="attack-header">
+                        <span class="attack-number" style="background: var(--accent-red);">2</span>
+                        <div class="attack-info">
+                            <h4>Competitive Response Gap</h4>
+                            <span class="risk-badge risk-high">HIGH RISK</span>
+                        </div>
+                    </div>
+                    <div class="attack-body">
+                        <p><strong>Issue:</strong> Automattic/WooCommerce.com counter-moves underanalyzed despite their ability to counter with hosted solutions or acquisitions.</p>
+                        <p><strong>Mitigation:</strong> Develop detailed competitive response scenarios for Automattic launching WooCommerce.com enterprise hosting or making strategic acquisitions.</p>
+                    </div>
+                </div>
+
+                <div class="attack-card" style="border-left-color: var(--accent-orange);">
+                    <div class="attack-header">
+                        <span class="attack-number" style="background: var(--accent-orange);">3</span>
+                        <div class="attack-info">
+                            <h4>Data Migration Complexity</h4>
+                            <span class="risk-badge risk-medium">MEDIUM RISK</span>
+                        </div>
+                    </div>
+                    <div class="attack-body">
+                        <p><strong>Issue:</strong> Plan does not adequately address data migration complexities and potential for data loss, especially for merchants with complex product catalogs and order histories.</p>
+                        <p><strong>Mitigation:</strong> Develop detailed data migration plan with clear procedures for data validation and error handling. Perform proof-of-concept to validate performance and scalability.</p>
+                    </div>
+                </div>
+
+                <div class="attack-card" style="border-left-color: var(--accent-orange);">
+                    <div class="attack-header">
+                        <span class="attack-number" style="background: var(--accent-orange);">4</span>
+                        <div class="attack-info">
+                            <h4>Headless SEO Risks</h4>
+                            <span class="risk-badge risk-medium">MEDIUM RISK</span>
+                        </div>
+                    </div>
+                    <div class="attack-body">
+                        <p><strong>Issue:</strong> Documents gloss over complexities of headless WordPress implementations and potential SEO impacts from changing URL structures.</p>
+                        <p><strong>Mitigation:</strong> Add comprehensive SEO migration plan including redirect strategy, URL structure preservation approach, and SEO monitoring during transition.</p>
+                    </div>
+                </div>
+
+                <div class="attack-card" style="border-left-color: var(--accent-yellow);">
+                    <div class="attack-header">
+                        <span class="attack-number" style="background: var(--accent-yellow);">5</span>
+                        <div class="attack-info">
+                            <h4>Financial Projection Optimism</h4>
+                            <span class="risk-badge risk-medium">MEDIUM RISK</span>
+                        </div>
+                    </div>
+                    <div class="attack-body">
+                        <p><strong>Issue:</strong> ROI projections (29.7x) rely on optimistic assumptions without sensitivity analysis. Year 1 reality ($1.1M ARR) differs significantly from base case ($5.65M).</p>
+                        <p><strong>Mitigation:</strong> Refine financial model with conservative estimates for customer acquisition costs, churn rates, and implementation timelines. Add stress-testing scenarios.</p>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 2rem;">Reviewer Key Findings</h3>
+
+                <div class="response-card" style="margin-top: 1rem;">
+                    <h4 style="color: var(--accent-cyan);">Strategic Analyst (Claude Sonnet 4)</h4>
+                    <ul style="margin-top: 0.5rem;">
+                        <li>Strong strategic coherence around "Keep WordPress, Upgrade Commerce" positioning that differentiates from Shopify's replace-everything approach</li>
+                        <li>Technical architecture is sound but implementation complexity may be underestimated, particularly for maintaining WordPress content while migrating commerce functions</li>
+                        <li>Financial projections show impressive ROI (29.7x) but Year 1 reality check reveals more modest $1.1M ARR vs $5.65M base case</li>
+                    </ul>
+                </div>
+
+                <div class="response-card" style="margin-top: 1rem;">
+                    <h4 style="color: var(--accent-green);">Operations Critic (GPT-4o)</h4>
+                    <ul style="margin-top: 0.5rem;">
+                        <li>Strategy effectively targets a gap in the WooCommerce migration market</li>
+                        <li>Strong emphasis on WPEngine partnership to retain WordPress users</li>
+                        <li>Documents consistently position Commerce.com as superior alternative for certain segments</li>
+                        <li>Lack of detailed risk management strategies for technical and operational challenges during migration</li>
+                    </ul>
+                </div>
+
+                <div class="response-card" style="margin-top: 1rem;">
+                    <h4 style="color: var(--accent-orange);">Technical Auditor (Gemini 2.0 Flash)</h4>
+                    <ul style="margin-top: 0.5rem;">
+                        <li>"Keep WordPress, Upgrade Commerce" strategy is well-defined and potentially effective</li>
+                        <li>Documents highlight genuine pain points for WooCommerce merchants, but some Shopify claims require further validation</li>
+                        <li>Proposed composable architecture's complexity and potential performance bottlenecks need careful consideration</li>
+                        <li>Missing discussion of PCI compliance concerns within the proposed composable architecture</li>
+                    </ul>
+                </div>
+
+                <h3 style="margin-top: 2rem;">Devil's Advocate Challenges</h3>
+                <div class="summary-box" style="background: rgba(220, 38, 38, 0.08); border-left: 4px solid var(--accent-red);">
+                    <p style="font-style: italic; color: var(--text-secondary);">The following challenges represent deliberate adversarial questioning to stress-test the audit findings:</p>
+                </div>
+
+                <div class="response-card" style="margin-top: 1rem; border-left: 4px solid var(--accent-red);">
+                    <h4>🔥 Challenge 1: Partnership Contingency Void</h4>
+                    <p>The assumption that WPEngine wants this partnership is not only unvalidated but also lacks any contingency plan if the partnership does not materialize. What's Plan B?</p>
+                </div>
+
+                <div class="response-card" style="margin-top: 1rem; border-left: 4px solid var(--accent-red);">
+                    <h4>🔥 Challenge 2: Financial Sensitivity Gap</h4>
+                    <p>The financial projections lack sensitivity analysis to account for potential market changes or competitive responses, which could significantly impact the projected ROI.</p>
+                </div>
+
+                <div class="response-card" style="margin-top: 1rem; border-left: 4px solid var(--accent-red);">
+                    <h4>🔥 Challenge 3: Headless Complexity Understatement</h4>
+                    <p>The technical complexity of maintaining a headless architecture with WordPress and Commerce.com is understated, and the potential for increased operational costs and technical debt is not fully explored.</p>
+                </div>
+
+                <div class="response-card" style="margin-top: 1rem; border-left: 4px solid var(--accent-orange);">
+                    <h4>🔥 Uncomfortable Question 1</h4>
+                    <p>What if WPEngine decides to pursue a similar strategy independently or partners with a different commerce solution? The strategy has no defensive moat.</p>
+                </div>
+
+                <div class="response-card" style="margin-top: 1rem; border-left: 4px solid var(--accent-orange);">
+                    <h4>🔥 Uncomfortable Question 2</h4>
+                    <p>How will the strategy adapt if Automattic enhances WooCommerce to address its current limitations, thereby closing the market gap being targeted?</p>
+                </div>
+
+                <h3 style="margin-top: 2rem;">AI Council vs Human Red Team Comparison</h3>
+                <table class="data-table" style="margin-top: 1rem;">
+                    <thead>
+                        <tr>
+                            <th>Dimension</th>
+                            <th>Human Red Team</th>
+                            <th>AI Council</th>
+                            <th>Alignment</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>WPEngine Partnership Risk</td>
+                            <td>Persona 3 (WPEngine Pessimist) - MEDIUM</td>
+                            <td>Critical Issue #1 - HIGH</td>
+                            <td style="color: var(--accent-orange);">AI more severe</td>
+                        </tr>
+                        <tr>
+                            <td>Automattic Response</td>
+                            <td>Persona 4 (Automattic Insider) - HIGH</td>
+                            <td>Critical Issue #2 - HIGH</td>
+                            <td style="color: var(--accent-green);">Aligned</td>
+                        </tr>
+                        <tr>
+                            <td>Technical Complexity</td>
+                            <td>Persona 5 (Technical Cynic) - MEDIUM</td>
+                            <td>Challenge #3 - HIGH</td>
+                            <td style="color: var(--accent-orange);">AI more severe</td>
+                        </tr>
+                        <tr>
+                            <td>Financial Projections</td>
+                            <td>Persona 1 (Board Member) - MEDIUM</td>
+                            <td>Critical Issue #5 - MEDIUM</td>
+                            <td style="color: var(--accent-green);">Aligned</td>
+                        </tr>
+                        <tr>
+                            <td>Operational Execution</td>
+                            <td>Persona 8 (Operations Pessimist) - HIGH</td>
+                            <td>Critical Issue #3 - MEDIUM</td>
+                            <td style="color: var(--accent-cyan);">Human more severe</td>
+                        </tr>
+                        <tr>
+                            <td>Vendor Bias</td>
+                            <td>Not explicitly addressed</td>
+                            <td>Bias Detection: 6.0/10</td>
+                            <td style="color: var(--accent-red);">AI identified gap</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="conclusion-box" style="margin-top: 2rem;">
+                    <h4>AI Council Audit Conclusion</h4>
+                    <p>The AI Council audit <strong>validates the human red team's core findings</strong> while surfacing additional concerns around vendor bias and partnership contingency planning. The 70.2/100 overall score reflects a strategy that is <strong>directionally sound but requires hardening</strong> before investment commitment.</p>
+
+                    <p style="margin-top: 1rem;"><strong>Key Convergence:</strong> Both human and AI reviewers flag WPEngine partnership validation and Automattic competitive response as critical risks.</p>
+
+                    <p style="margin-top: 1rem;"><strong>Key Divergence:</strong> AI Council more aggressively flags vendor bias toward Commerce.com stack and lack of alternative scenarios.</p>
+
+                    <div class="recommendation-box" style="margin-top: 1rem;">
+                        <strong>Recommendation:</strong> Address the five critical issues identified before proceeding to Phase 0. Prioritize WPEngine partnership validation as the gating decision point.
+                    </div>
+                </div>
+            </section>
+
+            <!-- Conclusion -->
+            <section id="conclusion">
+                <h2>Conclusion</h2>
+                <div class="conclusion-box">
+                    <h3>Strategy Passes Red Team Validation</h3>
+                    <p>The Commerce.com + WordPress Tiger Team strategy is viable with the following caveats:</p>
+
+                    <ul class="caveat-list">
+                        <li>
+                            <span class="caveat-number">1</span>
+                            <span><strong>Proceed with caution on WordPress politics</strong>—messaging discipline is critical</span>
+                        </li>
+                        <li>
+                            <span class="caveat-number">2</span>
+                            <span><strong>Over-invest in pilots</strong>—failure at this stage is disproportionately damaging</span>
+                        </li>
+                        <li>
+                            <span class="caveat-number">3</span>
+                            <span><strong>Set realistic financial expectations</strong>—this is a 24-36 month investment, not 12-week ROI</span>
+                        </li>
+                        <li>
+                            <span class="caveat-number">4</span>
+                            <span><strong>Build operational runbooks</strong>—complexity requires documented procedures</span>
+                        </li>
+                    </ul>
+
+                    <div class="recommendation-box">
+                        <strong>Recommendation:</strong> Approve Phase 0 with explicit acknowledgment of high-risk items and required mitigations.
+                    </div>
+                </div>
+            </section>
+
+            <!-- Document Metadata -->
+            <div class="metadata">
+                <h4>Document Metadata</h4>
+                <div class="metadata-grid">
+                    <div class="metadata-item">
+                        <span class="label">Author:</span>
+                        <span class="value">Red Team Analysis Team + AI Council</span>
+                    </div>
+                    <div class="metadata-item">
+                        <span class="label">Classification:</span>
+                        <span class="value">Confidential - Strategic Review</span>
+                    </div>
+                    <div class="metadata-item">
+                        <span class="label">Version:</span>
+                        <span class="value">3.0 (AI Council Audit)</span>
+                    </div>
+                    <div class="metadata-item">
+                        <span class="label">Last Updated:</span>
+                        <span class="value">December 17, 2025</span>
+                    </div>
+                    <div class="metadata-item">
+                        <span class="label">Next Review:</span>
+                        <span class="value">End of Phase 0</span>
+                    </div>
+                    <div class="metadata-item">
+                        <span class="label">Related Documents:</span>
+                        <span class="value">01_TIGER_TEAM_GTM, AUDIT_REPORT.md</span>
+                    </div>
+                    <div class="metadata-item">
+                        <span class="label">AI Council Models:</span>
+                        <span class="value">Claude Sonnet 4, GPT-4o, Gemini 2.0 Flash</span>
+                    </div>
+                </div>
+                <p class="disclaimer">This document contains adversarial analysis. Human persona attacks represent devil's advocate positions. AI Council findings represent independent multi-model analysis.</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- What's Next Section -->
+    <section class="whats-next complete">
+        <div class="whats-next-content">
+            <div class="whats-next-label">Evidence Review Complete</div>
+            <h2 class="whats-next-title">You've reviewed the supporting evidence.</h2>
+
+            <div class="completion-card">
+                <p>You've seen the market research, partnership analysis, and adversarial stress testing. The strategy has been validated with a 70.2/100 score from the AI Council.</p>
+                <p style="margin-top: 1rem;">Return to the Strategic Assessment to make your decision.</p>
+            </div>
+
+            <a href="../STRATEGIC_ASSESSMENT.html" class="next-card complete-card">
+                <div class="next-card-content">
+                    <div class="next-card-label">Return</div>
+                    <div class="next-card-title">Strategic Assessment</div>
+                    <div class="next-card-desc">Review the recommendation and make your GO / NO-GO decision.</div>
+                </div>
+                <div class="next-card-arrow">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </div>
+            </a>
+
+            <div class="related-section">
+                <div class="related-label">Or revisit:</div>
+                <div class="related-links">
+                    <a href="A_MARKET_RESEARCH.html" class="related-link">Market Research</a>
+                    <a href="B_WPENGINE_PARTNERSHIP.html" class="related-link">Partnership Analysis</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sequence Navigation Bar -->
+    <div class="sequence-nav">
+        <a href="B_WPENGINE_PARTNERSHIP.html" class="sequence-link prev">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            <div class="sequence-text">
+                <span class="sequence-label">Previous</span>
+                <span class="sequence-title">Partnership Analysis</span>
+            </div>
+        </a>
+        <div class="sequence-position">
+            <span class="sequence-current">C</span>
+            <span class="sequence-total">/ C</span>
+        </div>
+        <a href="../STRATEGIC_ASSESSMENT.html" class="sequence-link next">
+            <div class="sequence-text">
+                <span class="sequence-label">Complete</span>
+                <span class="sequence-title">Back to Assessment</span>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+    </div>
+
+    <style>
+        /* What's Next Section - Dark navigation footer */
+        .whats-next {
+            background: linear-gradient(180deg, #1a1625 0%, #0d0a14 100%);
+            border-top: 1px solid #2d2640;
+            padding: 4rem 2rem 8rem;
+        }
+        .whats-next.complete {
+            background: linear-gradient(180deg, #1a1625 0%, #0d0a14 100%);
+            border-top: 2px solid #ea580c;
+        }
+        .whats-next-content {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .whats-next-label {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #ea580c;
+            margin-bottom: 0.75rem;
+        }
+        .whats-next-title {
+            font-size: 1.75rem;
+            font-weight: 400;
+            color: #f9fafb;
+            margin-bottom: 2rem;
+        }
+
+        /* Completion Card */
+        .completion-card {
+            background: #1a1625;
+            border: 1px solid #2d2640;
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            color: #9ca3af;
+            line-height: 1.6;
+        }
+
+        /* Next Card */
+        .next-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #0d0a14;
+            border: 2px solid #ea580c;
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            margin-bottom: 2rem;
+        }
+        .next-card:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 24px rgba(234, 88, 12, 0.2);
+        }
+        .next-card-label {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: #6b7280;
+            margin-bottom: 0.5rem;
+        }
+        .next-card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #f9fafb;
+            margin-bottom: 0.5rem;
+        }
+        .next-card-desc {
+            font-size: 0.875rem;
+            color: #9ca3af;
+            line-height: 1.5;
+        }
+        .next-card-arrow {
+            color: #ea580c;
+            flex-shrink: 0;
+            margin-left: 1.5rem;
+        }
+
+        /* Related Links */
+        .related-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .related-label {
+            font-size: 0.8125rem;
+            color: #6b7280;
+        }
+        .related-links {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        .related-link {
+            font-size: 0.8125rem;
+            color: #9ca3af;
+            text-decoration: none;
+            padding: 0.375rem 0.75rem;
+            background: #1a1625;
+            border: 1px solid #2d2640;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+        .related-link:hover {
+            color: #ea580c;
+            border-color: #ea580c;
+        }
+
+        /* Sequence Navigation Bar */
+        .sequence-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #0d0a14;
+            border-top: 1px solid #2d2640;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+        .sequence-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: #9ca3af;
+            transition: color 0.2s;
+        }
+        .sequence-link:hover { color: #ea580c; }
+        .sequence-text { display: flex; flex-direction: column; }
+        .sequence-link.next .sequence-text { text-align: right; }
+        .sequence-label { font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.7; }
+        .sequence-title { font-size: 0.9375rem; font-weight: 500; color: #f9fafb; }
+        .sequence-position {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        .sequence-current { color: #ea580c; font-weight: 600; }
+        .main-content { padding-bottom: 60px; }
+    </style>
+
+    <script>
+        // Active nav link highlighting on scroll
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

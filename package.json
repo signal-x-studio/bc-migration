@@ -1,0 +1,54 @@
+{
+  "name": "bc-migration",
+  "version": "0.1.0",
+  "description": "WooCommerce to BigCommerce migration tooling",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "bc-migrate": "dist/cli.js"
+  },
+  "scripts": {
+    "dev": "tsx src/cli.ts",
+    "build": "tsc",
+    "assess": "tsx src/cli.ts assess",
+    "migrate": "tsx src/cli.ts migrate",
+    "validate": "tsx src/cli.ts validate",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "keywords": [
+    "bigcommerce",
+    "woocommerce",
+    "migration",
+    "ecommerce"
+  ],
+  "author": "",
+  "license": "UNLICENSED",
+  "private": true,
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@woocommerce/woocommerce-rest-api": "^1.0.2",
+    "axios": "^1.13.2",
+    "bottleneck": "^2.19.5",
+    "chalk": "^4.1.2",
+    "cli-progress": "^3.12.0",
+    "commander": "^12.1.0",
+    "dotenv": "^16.4.5",
+    "p-retry": "^6.2.1",
+    "pino": "^9.6.0",
+    "pino-pretty": "^13.0.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^10.1.0",
+    "@types/cli-progress": "^3.11.6",
+    "@types/node": "^22.10.2",
+    "@vitest/coverage-v8": "^2.1.8",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

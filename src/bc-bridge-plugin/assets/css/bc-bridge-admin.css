@@ -1,0 +1,244 @@
+/**
+ * BC Bridge Admin Styles
+ *
+ * @package BC_Bridge
+ */
+
+/* ============================================
+   Admin Dashboard
+   ============================================ */
+.bc-bridge-admin {
+    max-width: 1200px;
+}
+
+.bc-bridge-dashboard {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+@media (max-width: 1200px) {
+    .bc-bridge-dashboard {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .bc-bridge-dashboard {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ============================================
+   Cards
+   ============================================ */
+.bc-bridge-card {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 1.5rem;
+}
+
+.bc-bridge-card--wide {
+    grid-column: span 2;
+}
+
+@media (max-width: 768px) {
+    .bc-bridge-card--wide {
+        grid-column: span 1;
+    }
+}
+
+.bc-bridge-card h2 {
+    margin: 0 0 1rem;
+    padding: 0 0 0.5rem;
+    border-bottom: 1px solid #ddd;
+    font-size: 1.1rem;
+}
+
+/* ============================================
+   Status Indicators
+   ============================================ */
+.bc-bridge-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    border-radius: 4px;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.bc-bridge-status--connected {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.bc-bridge-status--disconnected {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.bc-bridge-status--error {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.bc-bridge-status .dashicons {
+    font-size: 1.25rem;
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+/* ============================================
+   Tables
+   ============================================ */
+.bc-bridge-admin .widefat {
+    margin-bottom: 1rem;
+}
+
+.bc-bridge-admin .widefat th {
+    font-weight: 600;
+    padding: 0.75rem;
+}
+
+.bc-bridge-admin .widefat td {
+    padding: 0.75rem;
+}
+
+.bc-bridge-admin .widefat code {
+    background: #f0f0f1;
+    padding: 0.25rem 0.5rem;
+    border-radius: 3px;
+    font-size: 0.875rem;
+}
+
+/* ============================================
+   Links
+   ============================================ */
+.bc-bridge-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.bc-bridge-links li {
+    margin-bottom: 0.75rem;
+}
+
+.bc-bridge-links a {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    color: #2271b1;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+.bc-bridge-links a:hover {
+    background: #f0f0f1;
+}
+
+.bc-bridge-links .dashicons {
+    color: #646970;
+}
+
+/* ============================================
+   Tools Page
+   ============================================ */
+.bc-bridge-tools {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .bc-bridge-tools {
+        grid-template-columns: 1fr;
+    }
+}
+
+.bc-bridge-tools .button {
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.bc-bridge-tools textarea {
+    font-family: monospace;
+    font-size: 0.75rem;
+    line-height: 1.6;
+}
+
+/* ============================================
+   Settings Page
+   ============================================ */
+.bc-bridge-test-connection {
+    margin: 1rem 0;
+}
+
+.bc-bridge-test-result {
+    margin-left: 1rem;
+    font-weight: 600;
+}
+
+.bc-bridge-test-result.success {
+    color: #00a32a;
+}
+
+.bc-bridge-test-result.error {
+    color: #d63638;
+}
+
+/* ============================================
+   Form Styles
+   ============================================ */
+.form-table th {
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
+}
+
+.form-table td {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.form-table .description {
+    margin-top: 0.5rem;
+    color: #646970;
+}
+
+/* ============================================
+   Notices
+   ============================================ */
+.bc-bridge-admin .notice {
+    margin: 1rem 0;
+}
+
+/* ============================================
+   Loading States
+   ============================================ */
+.bc-bridge-loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.bc-bridge-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ddd;
+    border-top-color: #2271b1;
+    border-radius: 50%;
+    animation: bc-bridge-spin 0.6s linear infinite;
+    margin-left: 0.5rem;
+}
+
+@keyframes bc-bridge-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

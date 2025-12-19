@@ -1,0 +1,1778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WooCommerce Migration: Strategic Assessment | Commerce.com</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html {
+            font-size: 100%;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            font-size: 1rem;
+        }
+
+        :root {
+            /* Dark theme - CopilotKit inspired */
+            --bg: #0d0a14;
+            --bg-card: #1a1625;
+            --bg-card-elevated: #252033;
+            --bg-divider: #080510;
+            --text: #f9fafb;
+            --text-muted: #9ca3af;
+            --text-dim: #6b7280;
+            --accent-primary: #a78bfa;
+            --accent-primary-muted: rgba(167, 139, 250, 0.15);
+            --accent-secondary: #f97316;
+            --accent-secondary-muted: rgba(249, 115, 22, 0.15);
+            --accent-purple: #a78bfa;
+            --accent-purple-muted: rgba(167, 139, 250, 0.15);
+            --positive: #34d399;
+            --positive-muted: rgba(52, 211, 153, 0.15);
+            --negative: #f87171;
+            --negative-muted: rgba(248, 113, 113, 0.15);
+            --border: #2d2640;
+            --border-subtle: #1a1625;
+        }
+
+        /* Typography */
+        .display {
+            font-size: 3.5rem;
+            font-weight: 300;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+            color: var(--text);
+        }
+        .display-sm {
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+        .headline {
+            font-size: 1.5rem;
+            font-weight: 400;
+            letter-spacing: -0.01em;
+            line-height: 1.3;
+        }
+        .section-label {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--accent-primary);
+        }
+        .body-lg {
+            font-size: 1.25rem;
+            line-height: 1.7;
+            color: var(--text-muted);
+        }
+        .mono { font-family: 'IBM Plex Mono', monospace; }
+
+        /* Layout */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 4rem 2rem;
+            background: linear-gradient(180deg, var(--bg) 0%, var(--bg-card) 100%);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .hero-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--accent-primary);
+            margin-bottom: 2rem;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 300;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero h1 span {
+            color: var(--accent-primary);
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            font-weight: 400;
+            color: var(--text-muted);
+            margin-bottom: 3rem;
+            max-width: 700px;
+        }
+
+        .hero-meta {
+            display: flex;
+            gap: 3rem;
+            font-size: 0.875rem;
+            color: var(--text-dim);
+        }
+
+        .hero-meta strong {
+            color: var(--text-muted);
+        }
+
+        /* Section Divider */
+        .section-divider {
+            min-height: 50vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: var(--bg-divider);
+            padding: 4rem 2rem;
+        }
+
+        .divider-content {
+            max-width: 700px;
+        }
+
+        .divider-num {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 8rem;
+            font-weight: 200;
+            color: var(--accent-primary);
+            opacity: 0.2;
+            line-height: 1;
+            margin-bottom: 1rem;
+        }
+
+        .divider-title {
+            font-size: 2.5rem;
+            font-weight: 300;
+            color: var(--text);
+            margin-bottom: 1rem;
+        }
+
+        .divider-subtitle {
+            font-size: 1.125rem;
+            color: var(--text-muted);
+        }
+
+        /* Content Section */
+        section {
+            padding: 5rem 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        section:last-of-type {
+            border-bottom: none;
+        }
+
+        .section-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            font-size: 2rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            color: var(--text);
+        }
+
+        h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 2.5rem 0 1rem;
+            color: var(--text);
+        }
+
+        h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 1.5rem 0 0.75rem;
+            color: var(--accent-primary);
+        }
+
+        p {
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            font-size: 1.0625rem;
+            line-height: 1.8;
+        }
+
+        strong {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        ul, ol {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            font-size: 1.0625rem;
+        }
+
+        li::before {
+            content: '';
+            display: block;
+            width: 8px;
+            height: 8px;
+            background: var(--accent-primary);
+            border-radius: 2px;
+            margin-top: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        /* Callout */
+        .callout {
+            background: var(--accent-primary-muted);
+            border-left: 4px solid var(--accent-primary);
+            border-radius: 0 12px 12px 0;
+            padding: 1.5rem 2rem;
+            margin: 2rem 0;
+        }
+
+        .callout-orange {
+            background: var(--accent-secondary-muted);
+            border-left-color: var(--accent-secondary);
+        }
+
+        .callout-purple {
+            background: var(--accent-purple-muted);
+            border-left-color: var(--accent-purple);
+        }
+
+        .callout-label {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--accent-primary);
+            margin-bottom: 0.75rem;
+        }
+
+        .callout-orange .callout-label {
+            color: var(--accent-secondary);
+        }
+
+        .callout-purple .callout-label {
+            color: var(--accent-purple);
+        }
+
+        .callout p {
+            font-size: 1.25rem;
+            line-height: 1.6;
+            color: var(--text);
+            margin: 0;
+        }
+
+        .callout p:not(:last-child) {
+            margin-bottom: 0.75rem;
+        }
+
+        /* Stat Cards */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: 'Inter', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 300;
+            color: var(--accent-secondary);
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value-alt {
+            color: var(--accent-primary);
+        }
+
+        .stat-label {
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Question Box */
+        .question-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            margin: 1.5rem 0;
+        }
+
+        .question-box .question {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 0.75rem;
+        }
+
+        .question-box .answer {
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        .question-box .answer strong {
+            color: var(--positive);
+        }
+
+        /* Data Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            font-size: 0.9375rem;
+        }
+
+        th {
+            text-align: left;
+            padding: 1rem 1.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            color: var(--text-muted);
+        }
+
+        td {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+            line-height: 1.5;
+            color: var(--text);
+        }
+
+        tr:hover td {
+            background: rgba(255,255,255,0.02);
+        }
+
+        /* Card Grid */
+        .card-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .card-elevated {
+            background: var(--bg-card-elevated);
+            border-left: 3px solid var(--accent-primary);
+        }
+
+        .card h4 {
+            margin-top: 0;
+        }
+
+        .card ul {
+            margin-bottom: 0;
+        }
+
+        /* Risk Card */
+        .risk-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .risk-card.high {
+            border-left: 4px solid var(--negative);
+        }
+
+        .risk-card.medium {
+            border-left: 4px solid var(--accent-secondary);
+        }
+
+        .risk-card.low {
+            border-left: 4px solid var(--positive);
+        }
+
+        .risk-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .risk-header h4 {
+            margin: 0;
+            color: var(--text);
+            flex: 1;
+        }
+
+        .risk-badge {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            padding: 0.25rem 0.625rem;
+            border-radius: 4px;
+        }
+
+        .risk-badge.high {
+            background: var(--negative-muted);
+            color: var(--negative);
+        }
+
+        .risk-badge.medium {
+            background: var(--accent-secondary-muted);
+            color: var(--accent-secondary);
+        }
+
+        .risk-card p {
+            margin: 0;
+            font-size: 0.9375rem;
+        }
+
+        /* Timeline */
+        .timeline {
+            margin: 2rem 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 1.5rem;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .timeline-item:last-child {
+            border-bottom: none;
+        }
+
+        .timeline-marker {
+            width: 56px;
+            height: 56px;
+            background: var(--bg-card);
+            border: 2px solid var(--accent-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'IBM Plex Mono', monospace;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--accent-primary);
+            flex-shrink: 0;
+        }
+
+        .timeline-content h4 {
+            margin: 0 0 0.5rem;
+            color: var(--text);
+        }
+
+        .timeline-content p {
+            margin: 0;
+            font-size: 0.9375rem;
+        }
+
+        /* Decision Box */
+        .decision-box {
+            background: var(--positive-muted);
+            border: 2px solid var(--positive);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .decision-box h3 {
+            color: var(--positive);
+            margin: 0 0 1rem;
+            font-size: 1.5rem;
+        }
+
+        .decision-box p {
+            font-size: 1.125rem;
+            color: var(--text);
+            margin: 0;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* AI Section */
+        .ai-section {
+            background: var(--accent-purple-muted);
+            border: 1px solid var(--accent-purple);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .ai-section h4 {
+            color: var(--accent-purple);
+            margin-top: 0;
+        }
+
+        /* Source Citation */
+        .source {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.6875rem;
+            color: var(--accent-primary);
+            background: var(--accent-primary-muted);
+            padding: 0.125rem 0.5rem;
+            border-radius: 4px;
+            margin-left: 0.25rem;
+        }
+
+        /* Appendix Link */
+        .appendix-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--accent-primary);
+            text-decoration: none;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            margin-top: 1rem;
+        }
+
+        .appendix-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Footer */
+        .doc-footer {
+            background: var(--bg-card);
+            padding: 3rem 2rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .footer-content {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--accent-primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer-link:hover {
+            text-decoration: underline;
+        }
+
+        .footer-meta {
+            font-size: 0.875rem;
+            color: var(--text-dim);
+        }
+
+        /* Print Styles */
+        @media print {
+            @page {
+                size: letter;
+                margin: 0.75in;
+            }
+
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            body {
+                background: white !important;
+                color: #1e293b !important;
+            }
+
+            .hero, .section-divider {
+                min-height: auto;
+                page-break-after: always;
+            }
+
+            section {
+                page-break-inside: avoid;
+            }
+
+            .callout, .card, .risk-card, .stat-card, .question-box {
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero -->
+    <header class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                </svg>
+                Strategic Assessment
+            </div>
+            <h1>WooCommerce Migration:<br><span>Strategic Assessment</span></h1>
+            <p class="hero-subtitle">An analysis of the opportunity, the risks, and the path forward for Commerce.com</p>
+            <div class="hero-meta">
+                <span><strong>Prepared for:</strong> Commerce.com Leadership</span>
+                <span><strong>Date:</strong> December 2025</span>
+                <span><strong>Version:</strong> 1.0</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Executive Summary -->
+    <section>
+        <div class="section-content">
+            <div class="section-label">Executive Summary</div>
+            <h2>Three Questions, One Assessment</h2>
+
+            <div class="callout">
+                <div class="callout-label">The Opportunity</div>
+                <p>Commerce.com has an opportunity to capture WooCommerce migration demand before it defaults to Shopify. This assessment evaluates the CEO's thesis, validates the market opportunity, and recommends a $190K Phase 0 investment to prove or disprove the strategy with real data.</p>
+            </div>
+
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-value">4.5M</div>
+                    <div class="stat-label">WooCommerce Stores</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">48%</div>
+                    <div class="stat-label">Migrate to Shopify</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value stat-value-alt">$190K</div>
+                    <div class="stat-label">Phase 0 Investment</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value stat-value-alt">12 wks</div>
+                    <div class="stat-label">Validation Timeline</div>
+                </div>
+            </div>
+
+            <h3>This Assessment Answers Three Questions</h3>
+
+            <div class="question-box">
+                <div class="question">1. Is the CEO's WooCommerce migration thesis viable?</div>
+                <p class="answer"><strong>Conditionally Yes.</strong> The market opportunity exists, but key assumptions about WPEngine partnership and capture rates require validation.</p>
+            </div>
+
+            <div class="question-box">
+                <div class="question">2. Is this a sound investment for Commerce.com?</div>
+                <p class="answer"><strong>Yes, as a validation investment.</strong> $190K to prove/disprove the thesis is reasonable. Committing to scale before validation would not be.</p>
+            </div>
+
+            <div class="question-box">
+                <div class="question">3. What does this assessment demonstrate about AI-augmented strategy work?</div>
+                <p class="answer"><strong>Significant leverage.</strong> This complete strategic analysis was produced in days, not months, using AI as a force multiplier. See Part VII for methodology.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Part I: The Thesis -->
+    <div class="section-divider">
+        <div class="divider-content">
+            <div class="divider-num">I</div>
+            <div class="divider-title">The Thesis</div>
+            <div class="divider-subtitle">What the CEO proposed and why it might work</div>
+        </div>
+    </div>
+
+    <section>
+        <div class="section-content">
+            <p class="body-lg">The CEO's thesis is straightforward:</p>
+
+            <div class="callout">
+                <div class="callout-label">The Core Idea</div>
+                <p>WooCommerce merchants who outgrow the platform have no good options that let them keep WordPress. Commerce.com, with its headless architecture, can be that option.</p>
+            </div>
+
+            <h3>The Observation</h3>
+            <p>WooCommerce powers approximately 4.5 million online stores globally, representing about 20% of the e-commerce market. <span class="source">StoreLeads 2024</span> However, WooCommerce has significant churn—merchants who outgrow the platform's capabilities, struggle with performance, or need enterprise features eventually replatform.</p>
+
+            <p>When they do, <strong>48% migrate to Shopify</strong>. <span class="source">Cart2Cart 2024</span> This happens almost by default—Shopify has the brand recognition, the marketing, and the migration tools.</p>
+
+            <h3>The Gap in the Market</h3>
+            <p>What these merchants give up when moving to Shopify:</p>
+            <ul>
+                <li><strong>WordPress investment:</strong> Years of content, SEO equity, and site customization</li>
+                <li><strong>Flexibility:</strong> Shopify's closed ecosystem vs. WordPress's open architecture</li>
+                <li><strong>Control:</strong> Platform dependency and transaction fees (0.5-2%)</li>
+            </ul>
+
+            <p>Many merchants would prefer an option that lets them <strong>keep WordPress for content while upgrading their commerce capabilities</strong>. That option doesn't exist today in a well-packaged form.</p>
+
+            <h3>The Commerce.com Angle</h3>
+            <p>Commerce.com (BigCommerce + Feedonomics + Makeswift) is uniquely positioned to fill this gap:</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Asset</th>
+                        <th>Role in Strategy</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>BigCommerce</strong></td>
+                        <td>Headless commerce engine—works alongside WordPress, not instead of it</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Feedonomics</strong></td>
+                        <td>Product data syndication—connects to marketplaces without Shopify dependency</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Makeswift</strong></td>
+                        <td>Visual page builder—enables rapid storefront development on headless</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="callout-orange callout">
+                <div class="callout-label">The Value Proposition</div>
+                <p>"Keep WordPress. Upgrade Commerce."</p>
+            </div>
+
+            <h3>Why Now?</h3>
+            <ul>
+                <li><strong>WPEngine tension:</strong> Recent conflicts with Automattic have WordPress hosting providers looking for alternatives to WooCommerce dependency</li>
+                <li><strong>Headless maturity:</strong> The technology for WordPress + headless commerce is now proven and accessible</li>
+                <li><strong>Market timing:</strong> Before competitors recognize and fill this gap</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Part II: The Analysis -->
+    <div class="section-divider">
+        <div class="divider-content">
+            <div class="divider-num">II</div>
+            <div class="divider-title">The Analysis</div>
+            <div class="divider-subtitle">Market validation and competitive landscape</div>
+        </div>
+    </div>
+
+    <section>
+        <div class="section-content">
+            <p class="body-lg">Is the thesis sound? We examined the market data, competitive landscape, and key assumptions.</p>
+
+            <h3>Market Validation</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Value</th>
+                        <th>Source</th>
+                        <th>Confidence</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>WooCommerce active stores</td>
+                        <td>4.5 million</td>
+                        <td>StoreLeads 2024</td>
+                        <td>High</td>
+                    </tr>
+                    <tr>
+                        <td>Market share</td>
+                        <td>20.1%</td>
+                        <td>BuiltWith 2024</td>
+                        <td>High</td>
+                    </tr>
+                    <tr>
+                        <td>Annual replatforming intent</td>
+                        <td>74% considering</td>
+                        <td>Econsultancy</td>
+                        <td>Medium</td>
+                    </tr>
+                    <tr>
+                        <td>Migration to Shopify</td>
+                        <td>48%</td>
+                        <td>Cart2Cart 2024</td>
+                        <td>High</td>
+                    </tr>
+                    <tr>
+                        <td>Annual churn estimate</td>
+                        <td>1-5% of base</td>
+                        <td>Industry estimates</td>
+                        <td>Low - needs validation</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>The Addressable Segment</h3>
+            <p>Not all WooCommerce merchants are candidates. The addressable segment is:</p>
+            <ul>
+                <li>Mid-market merchants ($1M-$50M GMV)</li>
+                <li>Significant WordPress content investment</li>
+                <li>Outgrowing WooCommerce capabilities</li>
+                <li>Not yet committed to Shopify migration</li>
+            </ul>
+
+            <p>We estimate this at <strong>5-15% of annual migration volume</strong>, but this assumption requires validation with WPEngine data.</p>
+
+            <h3>Competitive Landscape</h3>
+
+            <div class="card-grid">
+                <div class="card">
+                    <h4>Current Competitors</h4>
+                    <ul>
+                        <li><strong>Shopify:</strong> Default choice, strong brand, closed ecosystem</li>
+                        <li><strong>Adobe Commerce:</strong> Enterprise, expensive, complex</li>
+                        <li><strong>Salesforce Commerce:</strong> Enterprise, requires ecosystem buy-in</li>
+                    </ul>
+                </div>
+                <div class="card card-elevated">
+                    <h4>Commerce.com Differentiation</h4>
+                    <ul>
+                        <li>Headless: works WITH WordPress, not instead</li>
+                        <li>No transaction fees (vs. Shopify 0.5-2%)</li>
+                        <li>Open ecosystem, not platform lock-in</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Key Assumptions Requiring Validation</h3>
+            <p>The thesis depends on assumptions we cannot verify without market engagement:</p>
+
+            <div class="risk-card medium">
+                <div class="risk-header">
+                    <h4>Assumption 1: WPEngine Partnership Viability</h4>
+                    <span class="risk-badge medium">UNVALIDATED</span>
+                </div>
+                <p>We assume WPEngine would partner to refer migrating customers. This has not been tested.</p>
+            </div>
+
+            <div class="risk-card medium">
+                <div class="risk-header">
+                    <h4>Assumption 2: Capture Rate Potential</h4>
+                    <span class="risk-badge medium">UNVALIDATED</span>
+                </div>
+                <p>We assume 2-10% of addressable migrations could be captured. This is modeled, not proven.</p>
+            </div>
+
+            <div class="risk-card medium">
+                <div class="risk-header">
+                    <h4>Assumption 3: "Keep WordPress" Value</h4>
+                    <span class="risk-badge medium">UNVALIDATED</span>
+                </div>
+                <p>We assume merchants value keeping WordPress enough to choose Commerce.com over Shopify. This needs customer validation.</p>
+            </div>
+
+            <a href="appendices/A_MARKET_RESEARCH.html" class="appendix-link">
+                See Appendix A for full market research
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+    </section>
+
+    <!-- Part III: The Strategy -->
+    <div class="section-divider">
+        <div class="divider-content">
+            <div class="divider-num">III</div>
+            <div class="divider-title">The Strategy</div>
+            <div class="divider-subtitle">How Commerce.com would execute</div>
+        </div>
+    </div>
+
+    <section>
+        <div class="section-content">
+            <p class="body-lg">If the thesis holds, how would Commerce.com execute?</p>
+
+            <h3>Strategic Approach: Stealth Partnership</h3>
+            <p>Rather than a public "WooCommerce migration" campaign (which would invite competitive response), the strategy is a <strong>stealth partnership</strong> with WordPress hosting providers:</p>
+
+            <ol>
+                <li><strong>Partner with WPEngine</strong> (and potentially Kinsta, Pantheon) as a recommended migration path</li>
+                <li><strong>Position as "WordPress-native commerce upgrade"</strong> rather than "WooCommerce replacement"</li>
+                <li><strong>Build migration tooling</strong> that makes the transition seamless</li>
+                <li><strong>Enable SI partners</strong> to execute migrations at scale</li>
+            </ol>
+
+            <h3>Why Product, Not Services</h3>
+            <p>This initiative should be a <strong>product investment</strong>, not a services business:</p>
+
+            <div class="card-grid">
+                <div class="card">
+                    <h4>Services Approach (Not Recommended)</h4>
+                    <ul>
+                        <li>Run migrations as a consulting business</li>
+                        <li>Revenue = project fees</li>
+                        <li>Scale by hiring people</li>
+                        <li>Compete with SI partners</li>
+                    </ul>
+                </div>
+                <div class="card card-elevated">
+                    <h4>Product Approach (Recommended)</h4>
+                    <ul>
+                        <li>Build migration tooling and platform</li>
+                        <li>Value = reduced CAC, platform stickiness</li>
+                        <li>Scale by building software</li>
+                        <li>Enable SI partners</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>What "Migration as Product" Means</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Component</th>
+                        <th>Function</th>
+                        <th>Phase</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Assessment Engine</strong></td>
+                        <td>Automated WooCommerce store analysis and migration scoping</td>
+                        <td>Phase 0</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Data Pipeline</strong></td>
+                        <td>ETL for products, orders, customers with validation</td>
+                        <td>Phase 0</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Content Migration</strong></td>
+                        <td>WordPress content handling, URL mapping, SEO preservation</td>
+                        <td>Phase 1</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Partner Platform</strong></td>
+                        <td>SI portal with tooling access and certification</td>
+                        <td>Phase 2</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Self-Service</strong></td>
+                        <td>Wizard-driven migration for SMB merchants</td>
+                        <td>Phase 3</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <a href="execution/PRODUCT_STRATEGY.html" class="appendix-link">
+                See Product Strategy for full platform vision
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+    </section>
+
+    <!-- Part IV: The Risks -->
+    <div class="section-divider">
+        <div class="divider-content">
+            <div class="divider-num">IV</div>
+            <div class="divider-title">The Risks</div>
+            <div class="divider-subtitle">Honest assessment of what could go wrong</div>
+        </div>
+    </div>
+
+    <section>
+        <div class="section-content">
+            <p class="body-lg">We conducted adversarial analysis using 9 skeptical personas and an AI Council review. Here's what could go wrong:</p>
+
+            <h3>High-Risk Factors</h3>
+
+            <div class="risk-card high">
+                <div class="risk-header">
+                    <h4>WPEngine Partnership Fails</h4>
+                    <span class="risk-badge high">HIGH</span>
+                </div>
+                <p><strong>Risk:</strong> WPEngine declines to partner, or the partnership doesn't produce referrals.</p>
+                <p><strong>Mitigation:</strong> Phase 0 includes partnership validation by week 4. If WPEngine declines, pivot to alternative channels or abort.</p>
+            </div>
+
+            <div class="risk-card high">
+                <div class="risk-header">
+                    <h4>Automattic Response</h4>
+                    <span class="risk-badge high">HIGH</span>
+                </div>
+                <p><strong>Risk:</strong> Automattic improves WooCommerce or makes migration to alternatives harder.</p>
+                <p><strong>Mitigation:</strong> Current Automattic/WPEngine tension creates a window. Move fast. Stealth positioning reduces visibility.</p>
+            </div>
+
+            <div class="risk-card high">
+                <div class="risk-header">
+                    <h4>"Keep WordPress" Value Unproven</h4>
+                    <span class="risk-badge high">HIGH</span>
+                </div>
+                <p><strong>Risk:</strong> Merchants don't actually value keeping WordPress enough to choose Commerce.com over Shopify.</p>
+                <p><strong>Mitigation:</strong> Phase 0 pilot migrations will test this directly with real customers.</p>
+            </div>
+
+            <h3>Medium-Risk Factors</h3>
+
+            <div class="risk-card medium">
+                <div class="risk-header">
+                    <h4>Technical Complexity</h4>
+                    <span class="risk-badge medium">MEDIUM</span>
+                </div>
+                <p><strong>Risk:</strong> Migration tooling is harder to build than estimated, or edge cases explode scope.</p>
+                <p><strong>Mitigation:</strong> Phase 0 scopes 3 pilot migrations to surface complexity early. GO/NO-GO gate before Phase 1.</p>
+            </div>
+
+            <h3>What the AI Council Found</h3>
+
+            <div class="ai-section">
+                <h4>AI Council Audit Results</h4>
+                <p><strong>Overall Score: 70.2/100 (Grade: C-)</strong></p>
+                <p><strong>Verdict:</strong> "Directionally sound strategy with significant execution risks. Key assumptions unvalidated. Recommend proceeding to Phase 0 validation, not scale commitment."</p>
+                <p style="margin-top: 1rem;"><strong>Critical gaps identified:</strong></p>
+                <ul>
+                    <li>WPEngine partnership assumptions not validated</li>
+                    <li>Customer acquisition relies on unproven referral channel</li>
+                    <li>Technical migration complexity may be underestimated</li>
+                    <li>Competitive response scenarios need deeper analysis</li>
+                </ul>
+            </div>
+
+            <a href="appendices/C_RED_TEAM.html" class="appendix-link">
+                See Appendix C for full Red Team analysis
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+    </section>
+
+    <!-- Part V: The Investment Case -->
+    <div class="section-divider">
+        <div class="divider-content">
+            <div class="divider-num">V</div>
+            <div class="divider-title">The Investment Case</div>
+            <div class="divider-subtitle">What we're asking for and what Commerce.com gets</div>
+        </div>
+    </div>
+
+    <section>
+        <div class="section-content">
+            <h3>The Ask: Phase 0 Validation</h3>
+
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-value">$190K</div>
+                    <div class="stat-label">Total Investment</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value stat-value-alt">12 wks</div>
+                    <div class="stat-label">Duration</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value stat-value-alt">4</div>
+                    <div class="stat-label">Team Members</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">3</div>
+                    <div class="stat-label">Pilot Migrations</div>
+                </div>
+            </div>
+
+            <h3>Budget Breakdown</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th>Rationale</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Product/Engineering Lead</strong></td>
+                        <td>$50K</td>
+                        <td>0.25 FTE @ $200K fully-loaded</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Senior Engineer</strong></td>
+                        <td>$50K</td>
+                        <td>0.25 FTE @ $200K fully-loaded</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Migration Specialist</strong></td>
+                        <td>$40K</td>
+                        <td>0.25 FTE @ $160K fully-loaded</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Partnership Development</strong></td>
+                        <td>$25K</td>
+                        <td>Travel, legal, partnership materials</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Pilot Migration Costs</strong></td>
+                        <td>$15K</td>
+                        <td>Infrastructure, incentives for pilot customers</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Contingency</strong></td>
+                        <td>$10K</td>
+                        <td>5% buffer</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total</strong></td>
+                        <td><strong>$190K</strong></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p><em>Note: This is primarily internal resource allocation, not incremental headcount.</em></p>
+
+            <h3>What Phase 0 Delivers</h3>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-marker">W4</div>
+                    <div class="timeline-content">
+                        <h4>Partnership Validation</h4>
+                        <p>WPEngine partnership viability confirmed or alternative channels identified. First GO/NO-GO gate.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-marker">W8</div>
+                    <div class="timeline-content">
+                        <h4>Assessment Engine MVP</h4>
+                        <p>Automated WooCommerce store analysis working. Can demo to partners.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-marker">W12</div>
+                    <div class="timeline-content">
+                        <h4>Pilot Migrations Complete</h4>
+                        <p>3 real migrations completed. Data on complexity, customer satisfaction, and process efficiency.</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Success Criteria (GO/NO-GO)</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Criterion</th>
+                        <th>GO</th>
+                        <th>NO-GO</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Partnership</strong></td>
+                        <td>WPEngine LOI or equivalent channel</td>
+                        <td>No viable referral channel identified</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Technical</strong></td>
+                        <td>3 pilots completed, 80%+ automated</td>
+                        <td>Pilots require >50% manual intervention</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Customer</strong></td>
+                        <td>Pilot NPS >40, "would recommend"</td>
+                        <td>Pilot customers report significant friction</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Economics</strong></td>
+                        <td>Migration cost <$5K per customer</td>
+                        <td>Economics don't support CAC reduction thesis</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Potential Returns (If Validated)</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Scenario</th>
+                        <th>Capture Rate</th>
+                        <th>Year 1 ARR</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Conservative</td>
+                        <td>2%</td>
+                        <td>$4.1M</td>
+                        <td>Assumes 45K annual migrations, $45K ACV</td>
+                    </tr>
+                    <tr>
+                        <td>Base Case</td>
+                        <td>5%</td>
+                        <td>$10.1M</td>
+                        <td>Assumes successful partnership channel</td>
+                    </tr>
+                    <tr>
+                        <td>Optimistic</td>
+                        <td>10%</td>
+                        <td>$20.3M</td>
+                        <td>Assumes self-service at scale (Phase 3)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p><em>These projections are illustrative. Actual returns depend on Phase 0 findings.</em></p>
+        </div>
+    </section>
+
+    <!-- Part VI: The Recommendation -->
+    <div class="section-divider">
+        <div class="divider-content">
+            <div class="divider-num">VI</div>
+            <div class="divider-title">The Recommendation</div>
+            <div class="divider-subtitle">Go/No-Go framework and next steps</div>
+        </div>
+    </div>
+
+    <section>
+        <div class="section-content">
+            <div class="decision-box">
+                <h3>Recommendation: Proceed to Phase 0</h3>
+                <p>Invest $190K over 12 weeks to validate the thesis with real partnerships, real technology, and real customers. Make the scale decision with data, not assumptions.</p>
+            </div>
+
+            <h3>Why This Recommendation</h3>
+            <ol>
+                <li><strong>The opportunity is real:</strong> 4.5M WooCommerce stores, 48% defaulting to Shopify, no "Keep WordPress" alternative</li>
+                <li><strong>The timing is right:</strong> WPEngine/Automattic tension creates a window; headless technology is mature</li>
+                <li><strong>The risk is bounded:</strong> $190K validation investment, not scale commitment</li>
+                <li><strong>The downside is learning:</strong> Even if NO-GO, we learn about the market and build migration capabilities</li>
+            </ol>
+
+            <h3>What Happens Next</h3>
+            <p>If approved:</p>
+            <ul>
+                <li><strong>Week 1:</strong> Team assembled, WPEngine outreach initiated</li>
+                <li><strong>Week 4:</strong> Partnership checkpoint (GO/NO-GO #1)</li>
+                <li><strong>Week 8:</strong> Assessment Engine MVP, pilot customers identified</li>
+                <li><strong>Week 12:</strong> Phase 0 complete, full GO/NO-GO decision with data</li>
+            </ul>
+
+            <h3>Decision Framework for Leadership</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>If you believe...</th>
+                        <th>Then...</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>WooCommerce migration is a real market</td>
+                        <td>Phase 0 is worth the investment to validate capture strategy</td>
+                    </tr>
+                    <tr>
+                        <td>Commerce.com can differentiate on "Keep WordPress"</td>
+                        <td>Phase 0 will prove or disprove this with real customers</td>
+                    </tr>
+                    <tr>
+                        <td>WPEngine partnership is unlikely</td>
+                        <td>Phase 0 tests alternatives before committing</td>
+                    </tr>
+                    <tr>
+                        <td>The opportunity is too small to matter</td>
+                        <td>Pass—but recognize competitors may capture the niche</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Part VII: How This Was Built -->
+    <div class="section-divider">
+        <div class="divider-content">
+            <div class="divider-num">VII</div>
+            <div class="divider-title">How This Was Built</div>
+            <div class="divider-subtitle">AI-augmented methodology and what it demonstrates</div>
+        </div>
+    </div>
+
+    <section>
+        <div class="section-content">
+            <p class="body-lg">This strategic assessment demonstrates what AI-augmented strategy work can produce.</p>
+
+            <div class="ai-section">
+                <h4>Production Timeline</h4>
+                <p>This complete strategic analysis—market research, competitive analysis, strategy development, red team validation, product vision, and documentation—was produced in <strong>under 4 hours of active work</strong> using AI as a force multiplier.</p>
+                <p style="margin-top: 0.75rem;">Traditional approach for equivalent output: <strong>4-6 weeks</strong> with a strategy team.</p>
+            </div>
+
+            <h3>What AI Did</h3>
+            <ul>
+                <li><strong>Market research synthesis:</strong> Aggregating and analyzing data from multiple sources</li>
+                <li><strong>Competitive analysis:</strong> Mapping landscape and identifying differentiation</li>
+                <li><strong>Strategy development:</strong> Structuring the thesis, approach, and execution plan</li>
+                <li><strong>Red team simulation:</strong> 9 adversarial personas challenging the strategy</li>
+                <li><strong>Document generation:</strong> All HTML/CSS formatting and visualization</li>
+                <li><strong>Quality assurance:</strong> AI Council audit with multi-model review</li>
+            </ul>
+
+            <h3>What Human Judgment Did</h3>
+            <ul>
+                <li><strong>Strategic framing:</strong> Defining the thesis and key questions to answer</li>
+                <li><strong>Direction and editing:</strong> Guiding AI output, rejecting weak arguments</li>
+                <li><strong>Validation design:</strong> Designing the red team personas and audit methodology</li>
+                <li><strong>Business context:</strong> Applying Commerce.com-specific knowledge</li>
+                <li><strong>Final recommendations:</strong> Synthesizing analysis into actionable guidance</li>
+            </ul>
+
+            <h3>The AI Council Audit</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Role</th>
+                        <th>Model</th>
+                        <th>Function</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Reviewer 1</strong></td>
+                        <td>Claude Sonnet 4</td>
+                        <td>Strategic coherence, logical gaps</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Reviewer 2</strong></td>
+                        <td>GPT-4o</td>
+                        <td>Actionability, feasibility, risks</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Reviewer 3</strong></td>
+                        <td>Gemini 2.0 Flash</td>
+                        <td>Technical accuracy, vendor claims</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Chief Judge</strong></td>
+                        <td>Claude Sonnet 4</td>
+                        <td>Synthesize reviews, resolve conflicts</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Devil's Advocate</strong></td>
+                        <td>GPT-4o</td>
+                        <td>Challenge consensus, identify blind spots</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p><strong>Result:</strong> 70.2/100 overall score. Key finding: "Directionally sound, assumptions need validation." This informed the Phase 0 validation approach.</p>
+
+            <div class="callout-purple callout">
+                <div class="callout-label">The Capability</div>
+                <p>A senior architect with AI fluency can produce enterprise-grade strategic analysis in days, not months. The output isn't perfect—it's a starting point that traditionally requires weeks to reach.</p>
+                <p>This is the kind of leverage I would bring to leading this initiative.</p>
+            </div>
+
+            <h3>Artifacts Produced</h3>
+            <ul>
+                <li>This Strategic Assessment (primary document)</li>
+                <li>Market Research deep-dive (Appendix A)</li>
+                <li>WPEngine Partnership Analysis (Appendix B)</li>
+                <li>Red Team Analysis with 9 personas + AI Council audit (Appendix C)</li>
+                <li>Product & Engineering Strategy (Execution Plan)</li>
+                <li>Technical Architecture (Execution Plan)</li>
+                <li>Project Roadmap (Execution Plan)</li>
+            </ul>
+
+            <p>All documents are self-contained HTML with no external dependencies—viewable offline, shareable as files.</p>
+        </div>
+    </section>
+
+    <!-- What's Next -->
+    <section class="next-section">
+        <div class="section-content">
+            <div class="section-label">What's Next</div>
+            <h2>Choose Your Path</h2>
+
+            <div class="path-card primary-path">
+                <div class="path-header">
+                    <div class="path-label">Ready to Execute?</div>
+                    <p>If the recommendation makes sense, here's the execution plan.</p>
+                </div>
+                <a href="execution/PRODUCT_STRATEGY.html" class="path-cta">
+                    <div class="path-cta-content">
+                        <div class="path-cta-title">Start with Product Strategy</div>
+                        <div class="path-cta-desc">Platform vision, migration-as-product architecture, engineering roadmap</div>
+                    </div>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </a>
+                <div class="path-sequence">
+                    <span class="path-sequence-label">Full sequence:</span>
+                    <span class="path-step">Product Strategy</span>
+                    <span class="path-arrow">→</span>
+                    <span class="path-step">Technical Architecture</span>
+                    <span class="path-arrow">→</span>
+                    <span class="path-step">Project Roadmap</span>
+                    <span class="path-arrow">→</span>
+                    <span class="path-step">Playbook</span>
+                </div>
+            </div>
+
+            <div class="path-card evidence-path">
+                <div class="path-header">
+                    <div class="path-label">Need More Evidence?</div>
+                    <p>Dig deeper into the research, partnership analysis, or stress testing.</p>
+                </div>
+                <div class="evidence-links">
+                    <a href="appendices/A_MARKET_RESEARCH.html" class="evidence-link">
+                        <span class="evidence-letter">A</span>
+                        <span class="evidence-title">Market Research</span>
+                    </a>
+                    <a href="appendices/B_WPENGINE_PARTNERSHIP.html" class="evidence-link">
+                        <span class="evidence-letter">B</span>
+                        <span class="evidence-title">Partnership Analysis</span>
+                    </a>
+                    <a href="appendices/C_RED_TEAM.html" class="evidence-link">
+                        <span class="evidence-letter">C</span>
+                        <span class="evidence-title">Red Team</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="doc-footer">
+        <div class="footer-content">
+            <a href="INDEX.html" class="footer-back">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back to Index
+            </a>
+            <span class="footer-meta">Commerce.com | WooCommerce Migration Strategy Kit | December 2025</span>
+        </div>
+    </footer>
+
+    <style>
+        /* What's Next Section */
+        .next-section {
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+            border-bottom: none;
+        }
+
+        .path-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .primary-path {
+            border-color: var(--accent-primary);
+            border-width: 2px;
+        }
+
+        .path-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .path-label {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--accent-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .evidence-path .path-label {
+            color: var(--text-muted);
+        }
+
+        .path-header p {
+            margin: 0;
+            color: var(--text-muted);
+        }
+
+        .path-cta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--accent-primary);
+            color: var(--bg);
+            padding: 1.25rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            margin-bottom: 1rem;
+        }
+
+        .path-cta:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 20px rgba(167, 139, 250, 0.3);
+        }
+
+        .path-cta-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .path-cta-desc {
+            font-size: 0.875rem;
+            opacity: 0.8;
+        }
+
+        .path-sequence {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8125rem;
+            color: var(--text-dim);
+            flex-wrap: wrap;
+        }
+
+        .path-sequence-label {
+            color: var(--text-muted);
+            margin-right: 0.5rem;
+        }
+
+        .path-step {
+            color: var(--text-muted);
+        }
+
+        .path-arrow {
+            color: var(--accent-primary);
+        }
+
+        .evidence-links {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .evidence-links {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .evidence-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .evidence-link:hover {
+            border-color: var(--accent-primary);
+            background: var(--bg-card-elevated);
+        }
+
+        .evidence-letter {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--accent-primary);
+            width: 2rem;
+            text-align: center;
+        }
+
+        .evidence-title {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .footer-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.875rem;
+        }
+
+        .footer-back:hover {
+            color: var(--text-muted);
+        }
+
+        /* Sticky Navigation Bar */
+        .sticky-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+            padding: 0.75rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+        }
+
+        .sticky-nav-left a {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 0.2s;
+        }
+
+        .sticky-nav-left a:hover {
+            color: var(--accent-primary);
+        }
+
+        .sticky-nav-center {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+        }
+
+        .sticky-nav-right {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .sticky-nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .sticky-nav-btn.primary {
+            background: var(--accent-primary);
+            color: var(--bg);
+        }
+
+        .sticky-nav-btn.primary:hover {
+            box-shadow: 0 2px 12px rgba(167, 139, 250, 0.4);
+        }
+
+        .sticky-nav-btn.secondary {
+            background: var(--bg-card-elevated);
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+        }
+
+        .sticky-nav-btn.secondary:hover {
+            border-color: var(--accent-primary);
+            color: var(--text);
+        }
+
+        @media (max-width: 768px) {
+            .sticky-nav-center { display: none; }
+            .sticky-nav-btn span { display: none; }
+        }
+
+        /* Add padding to body so content doesn't hide behind sticky nav */
+        body { padding-bottom: 70px; }
+    </style>
+
+    <!-- Sticky Navigation Bar -->
+    <nav class="sticky-nav">
+        <div class="sticky-nav-left">
+            <a href="INDEX.html">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Index
+            </a>
+        </div>
+        <div class="sticky-nav-center">Strategic Assessment</div>
+        <div class="sticky-nav-right">
+            <a href="appendices/A_MARKET_RESEARCH.html" class="sticky-nav-btn secondary">
+                <span>Evidence</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+            <a href="execution/PRODUCT_STRATEGY.html" class="sticky-nav-btn primary">
+                <span>Execute</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+    </nav>
+</body>
+</html>

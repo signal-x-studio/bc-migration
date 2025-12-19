@@ -1,0 +1,1635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WooCommerce Migration Solution: Review Package</title>
+
+  <style>
+    :root {
+      --color-brand-bc: #121118;
+      --color-brand-accent: #5c6ac4;
+      --color-brand-wpe: #0ecad4;
+      --color-text-primary: #171717;
+      --color-text-secondary: #404040;
+      --color-text-body: #525252;
+      --color-bg-primary: #ffffff;
+      --color-bg-secondary: #f5f5f5;
+      --color-bg-dark: #111827;
+      --color-success: #059669;
+      --color-warning: #d97706;
+      --color-danger: #dc2626;
+      --color-info: #0284c7;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--color-bg-secondary);
+      color: var(--color-text-body);
+      line-height: 1.6;
+    }
+
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 280px;
+      height: 100vh;
+      background: var(--color-bg-primary);
+      border-right: 1px solid #e5e5e5;
+      padding: 24px;
+      overflow-y: auto;
+      z-index: 100;
+    }
+
+    .nav-title {
+      font-weight: 700;
+      color: var(--color-brand-accent);
+      font-size: 14px;
+      margin-bottom: 8px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid var(--color-brand-accent);
+    }
+
+    .nav-subtitle {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+      margin-bottom: 20px;
+    }
+
+    .toc {
+      list-style: none;
+    }
+
+    .toc-section {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 16px;
+      margin-bottom: 8px;
+      padding-top: 12px;
+      border-top: 1px solid #e5e5e5;
+    }
+
+    .toc-section:first-child {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: none;
+    }
+
+    .toc-item {
+      margin-bottom: 4px;
+    }
+
+    .toc-item a {
+      display: block;
+      padding: 6px 12px;
+      color: var(--color-text-secondary);
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 13px;
+      transition: all 0.15s;
+    }
+
+    .toc-item a:hover {
+      background: var(--color-bg-secondary);
+      color: var(--color-brand-accent);
+    }
+
+    .main {
+      margin-left: 280px;
+      padding: 40px;
+      min-height: 100vh;
+      max-width: 1200px;
+    }
+
+    .section {
+      background: var(--color-bg-primary);
+      border-radius: 12px;
+      padding: 32px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      font-size: 28px;
+      color: var(--color-text-primary);
+      margin-bottom: 8px;
+    }
+
+    h2 {
+      font-size: 20px;
+      color: var(--color-brand-accent);
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--color-brand-accent);
+    }
+
+    h3 {
+      font-size: 16px;
+      color: var(--color-text-primary);
+      margin: 24px 0 12px;
+    }
+
+    h4 {
+      font-size: 14px;
+      color: var(--color-text-secondary);
+      margin: 16px 0 8px;
+    }
+
+    p {
+      margin-bottom: 16px;
+    }
+
+    .meta {
+      color: var(--color-text-secondary);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 14px;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #e5e5e5;
+    }
+
+    th {
+      background: var(--color-bg-secondary);
+      font-weight: 600;
+      color: var(--color-text-primary);
+    }
+
+    tr:hover {
+      background: #fafafa;
+    }
+
+    .highlight-row {
+      background: #f0fdf4;
+      font-weight: 600;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin: 20px 0;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, var(--color-brand-accent), #4338ca);
+      color: white;
+      padding: 20px;
+      border-radius: 12px;
+    }
+
+    .stat-card.secondary {
+      background: linear-gradient(135deg, var(--color-brand-bc), #374151);
+    }
+
+    .stat-card.success {
+      background: linear-gradient(135deg, var(--color-success), #047857);
+    }
+
+    .stat-card.warning {
+      background: linear-gradient(135deg, var(--color-warning), #b45309);
+    }
+
+    .stat-card.wpe {
+      background: linear-gradient(135deg, var(--color-brand-wpe), #0891b2);
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      opacity: 0.9;
+    }
+
+    .code-block {
+      background: var(--color-bg-dark);
+      color: #e5e5e5;
+      padding: 20px;
+      border-radius: 8px;
+      font-family: 'Monaco', 'Consolas', monospace;
+      font-size: 12px;
+      overflow-x: auto;
+      margin: 16px 0;
+      white-space: pre;
+      line-height: 1.5;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .badge-primary {
+      background: #ede9fe;
+      color: var(--color-brand-accent);
+    }
+
+    .badge-success {
+      background: #d1fae5;
+      color: var(--color-success);
+    }
+
+    .badge-warning {
+      background: #fef3c7;
+      color: var(--color-warning);
+    }
+
+    .badge-danger {
+      background: #fee2e2;
+      color: var(--color-danger);
+    }
+
+    .badge-info {
+      background: #e0f2fe;
+      color: var(--color-info);
+    }
+
+    .badge-wpe {
+      background: #cffafe;
+      color: #0e7490;
+    }
+
+    ul, ol {
+      margin: 12px 0;
+      padding-left: 24px;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    .note {
+      background: #fef3c7;
+      border-left: 4px solid var(--color-warning);
+      padding: 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 16px 0;
+    }
+
+    .info-box {
+      background: #e0f2fe;
+      border-left: 4px solid var(--color-info);
+      padding: 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 16px 0;
+    }
+
+    .success-box {
+      background: #d1fae5;
+      border-left: 4px solid var(--color-success);
+      padding: 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 16px 0;
+    }
+
+    .danger-box {
+      background: #fee2e2;
+      border-left: 4px solid var(--color-danger);
+      padding: 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 16px 0;
+    }
+
+    blockquote {
+      background: #f5f5f5;
+      border-left: 4px solid var(--color-brand-accent);
+      padding: 16px;
+      margin: 16px 0;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .question-box {
+      background: #faf5ff;
+      border: 1px solid #e9d5ff;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 16px 0;
+    }
+
+    .question-box h4 {
+      color: #7c3aed;
+      margin-top: 0;
+      margin-bottom: 12px;
+    }
+
+    .decision-card {
+      background: var(--color-bg-primary);
+      border: 2px solid #e5e5e5;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 16px 0;
+    }
+
+    .decision-card.recommended {
+      border-color: var(--color-success);
+      background: #f0fdf4;
+    }
+
+    .decision-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .decision-title {
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    @media print {
+      @page {
+        size: portrait;
+        margin: 0.5in;
+      }
+
+      .nav {
+        display: none;
+      }
+
+      .main {
+        margin-left: 0;
+        padding: 0;
+        max-width: none;
+      }
+
+      .section {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #e5e5e5;
+        margin-bottom: 16px;
+        padding: 24px;
+      }
+
+      .page-break {
+        page-break-before: always;
+        break-before: page;
+      }
+
+      .no-print {
+        display: none !important;
+      }
+
+      body {
+        background: white;
+        font-size: 11px;
+      }
+
+      h1 { font-size: 22px; }
+      h2 { font-size: 16px; }
+      h3 { font-size: 13px; }
+      h4 { font-size: 11px; }
+
+      table { font-size: 10px; }
+      th, td { padding: 6px 8px; }
+
+      .stat-grid { gap: 12px; }
+
+      .stat-card {
+        padding: 16px;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+
+      .stat-value { font-size: 24px; }
+      .stat-label { font-size: 11px; }
+
+      .code-block {
+        font-size: 9px;
+        padding: 12px;
+        background: #1a1a1a !important;
+        color: #e5e5e5 !important;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+
+      .badge {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+
+      .highlight-row {
+        background: #f0fdf4 !important;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .nav {
+        display: none;
+      }
+      .main {
+        margin-left: 0;
+        padding: 20px;
+      }
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-title">WC MIGRATION SOLUTION</div>
+    <div class="nav-subtitle">Review Package v1.0 | December 2025</div>
+    <ul class="toc">
+      <li class="toc-section">Overview</li>
+      <li class="toc-item"><a href="#executive-summary">Executive Summary</a></li>
+      <li class="toc-item"><a href="#how-to-use">How to Use This Document</a></li>
+      <li class="toc-item"><a href="#solution-components">Solution Components</a></li>
+
+      <li class="toc-section">Assumptions</li>
+      <li class="toc-item"><a href="#bc-assumptions">BigCommerce Platform</a></li>
+      <li class="toc-item"><a href="#wc-assumptions">WooCommerce</a></li>
+      <li class="toc-item"><a href="#wp-assumptions">WordPress Integration</a></li>
+      <li class="toc-item"><a href="#feedo-assumptions">Feedonomics</a></li>
+      <li class="toc-item"><a href="#makeswift-assumptions">Makeswift</a></li>
+
+      <li class="toc-section">Risks</li>
+      <li class="toc-item"><a href="#critical-risks">Critical Risks</a></li>
+      <li class="toc-item"><a href="#high-risks">High Risks</a></li>
+      <li class="toc-item"><a href="#medium-risks">Medium Risks</a></li>
+
+      <li class="toc-section">Decisions</li>
+      <li class="toc-item"><a href="#decision-orders">Order History Migration</a></li>
+      <li class="toc-item"><a href="#decision-plugin">BC Bridge Ownership</a></li>
+      <li class="toc-item"><a href="#decision-variants">600 Variant Limit</a></li>
+      <li class="toc-item"><a href="#decision-checkout">Checkout Experience</a></li>
+      <li class="toc-item"><a href="#decision-feedonomics">Feedonomics Role</a></li>
+
+      <li class="toc-section">Status</li>
+      <li class="toc-item"><a href="#implementation-status">Implementation Status</a></li>
+      <li class="toc-item"><a href="#timeline">Proposed Timeline</a></li>
+      <li class="toc-item"><a href="#feedback">Feedback Request</a></li>
+
+      <li class="toc-section">Appendix</li>
+      <li class="toc-item"><a href="#architecture">Architecture Diagrams</a></li>
+      <li class="toc-item"><a href="#documentation">Supporting Docs</a></li>
+      <li class="toc-item"><a href="#glossary">Glossary</a></li>
+    </ul>
+  </nav>
+
+  <main class="main">
+    <!-- Executive Summary -->
+    <div class="section" id="executive-summary">
+      <h1>WooCommerce Migration Solution: Review Package</h1>
+      <div class="meta">
+        <strong>Status:</strong> Ready for Review |
+        <strong>Date:</strong> December 2025
+      </div>
+      <h2>Executive Summary</h2>
+
+      <h3>The Problem</h3>
+      <p>WooCommerce merchants want to upgrade to BigCommerce but face two barriers:</p>
+      <ol>
+        <li><strong>Migration complexity</strong> - Data migration is manual, error-prone, and expensive</li>
+        <li><strong>WordPress lock-in</strong> - They don't want to abandon their WordPress content, SEO equity, and editorial workflows</li>
+      </ol>
+
+      <h3>The Solution</h3>
+      <p>A <strong>migration toolkit + WordPress integration</strong> that lets merchants:</p>
+      <ul>
+        <li>Keep WordPress (content, blog, theme, SEO)</li>
+        <li>Move commerce operations to BigCommerce</li>
+        <li>Migrate data automatically (products, categories, customers)</li>
+        <li>Minimize downtime and data loss</li>
+      </ul>
+
+      <div class="info-box">
+        <strong>Key Value Proposition:</strong> "Keep WordPress. Upgrade Commerce."
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-value">~50%</div>
+          <div class="stat-label">Current Implementation</div>
+        </div>
+        <div class="stat-card secondary">
+          <div class="stat-value">5</div>
+          <div class="stat-label">Key Decisions Needed</div>
+        </div>
+        <div class="stat-card warning">
+          <div class="stat-value">20+</div>
+          <div class="stat-label">Assumptions to Validate</div>
+        </div>
+        <div class="stat-card wpe">
+          <div class="stat-value">12 wks</div>
+          <div class="stat-label">Proposed Timeline</div>
+        </div>
+      </div>
+
+      <h3>Review Requested From</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Organization</th>
+            <th>Stakeholders</th>
+            <th>Primary Focus</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-wpe">WPEngine</span></td>
+            <td>Product/Engineering representative</td>
+            <td>WordPress integration, BC Bridge plugin ownership</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-primary">Commerce.com</span></td>
+            <td>Jordan Sim, Platform team</td>
+            <td>BC API capabilities, variant limits, architecture</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-info">Feedonomics</span></td>
+            <td>Technical lead</td>
+            <td>ETL capabilities, WC connector</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-success">Makeswift</span></td>
+            <td>Technical lead</td>
+            <td>Non-Catalyst integration path</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- How to Use -->
+    <div class="section" id="how-to-use">
+      <h2>How to Use This Document</h2>
+      <p>This document is designed for <strong>technical reviewers who have 30-60 minutes</strong> to assess the proposed solution.</p>
+
+      <div class="two-col">
+        <div>
+          <h4>Document Structure</h4>
+          <ol>
+            <li><strong>Overview</strong> - Summarizes the approach (5 min)</li>
+            <li><strong>Assumptions</strong> - Lists assumptions that need validation</li>
+            <li><strong>Risks</strong> - Identifies technical risks with mitigations</li>
+            <li><strong>Decisions</strong> - Presents decision points requiring input</li>
+            <li><strong>Status</strong> - Current implementation and timeline</li>
+          </ol>
+        </div>
+        <div>
+          <h4>Your Feedback Requested On</h4>
+          <ul>
+            <li><span class="badge badge-success">Validate</span> Confirm or correct assumptions</li>
+            <li><span class="badge badge-warning">Identify</span> Risks I've missed</li>
+            <li><span class="badge badge-danger">Flag</span> Blocking issues that change the approach</li>
+            <li><span class="badge badge-info">Question</span> Gaps in my understanding</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Solution Components -->
+    <div class="section" id="solution-components">
+      <h2>Solution Components</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Component</th>
+            <th>What It Does</th>
+            <th>Status</th>
+            <th>Owner</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Assessment Engine</strong></td>
+            <td>Analyzes WC store, produces migration readiness report</td>
+            <td><span class="badge badge-warning">70%</span></td>
+            <td>Nino</td>
+          </tr>
+          <tr>
+            <td><strong>Data Migration Pipeline</strong></td>
+            <td>Extracts from WC, transforms, loads into BC</td>
+            <td><span class="badge badge-warning">50%</span></td>
+            <td>Nino</td>
+          </tr>
+          <tr>
+            <td><strong>BC Bridge Plugin</strong></td>
+            <td>WordPress plugin rendering BC data</td>
+            <td><span class="badge badge-danger">0%</span></td>
+            <td>TBD (WPEngine?)</td>
+          </tr>
+          <tr>
+            <td><strong>Validation Framework</strong></td>
+            <td>Verifies migration success</td>
+            <td><span class="badge badge-warning">45%</span></td>
+            <td>Nino</td>
+          </tr>
+          <tr>
+            <td><strong>Operational Tooling</strong></td>
+            <td>Cutover checklist, rollback, monitoring</td>
+            <td><span class="badge badge-danger">0%</span></td>
+            <td>TBD</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- BigCommerce Assumptions -->
+    <div class="section page-break" id="bc-assumptions">
+      <h2>Assumptions: BigCommerce Platform</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Assumption</th>
+            <th>Risk if Wrong</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>A1</strong></td>
+            <td>BC API supports batch product creation (10/request)</td>
+            <td><span class="badge badge-warning">Medium</span> - slower migration</td>
+            <td><span class="badge badge-info">Needs Validation</span></td>
+          </tr>
+          <tr>
+            <td><strong>A2</strong></td>
+            <td>BC variant limit is 600 per product</td>
+            <td><span class="badge badge-danger">High</span> - some WC products exceed this</td>
+            <td><span class="badge badge-info">Needs Validation</span></td>
+          </tr>
+          <tr>
+            <td><strong>A3</strong></td>
+            <td>BC can fetch product images from external URLs</td>
+            <td><span class="badge badge-warning">Medium</span> - would need image upload</td>
+            <td><span class="badge badge-info">Needs Validation</span></td>
+          </tr>
+          <tr>
+            <td><strong>A4</strong></td>
+            <td>BC Storefront API supports guest cart creation</td>
+            <td><span class="badge badge-danger">High</span> - breaks cart flow</td>
+            <td><span class="badge badge-info">Needs Validation</span></td>
+          </tr>
+          <tr>
+            <td><strong>A5</strong></td>
+            <td>BC webhooks can notify WordPress of product changes</td>
+            <td><span class="badge badge-warning">Medium</span> - cache invalidation breaks</td>
+            <td><span class="badge badge-info">Needs Validation</span></td>
+          </tr>
+          <tr>
+            <td><strong>A6</strong></td>
+            <td>BC allows custom_url to preserve SEO slugs</td>
+            <td><span class="badge badge-danger">High</span> - SEO disaster</td>
+            <td><span class="badge badge-info">Needs Validation</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="question-box">
+        <h4>Questions for BC Team</h4>
+        <ol>
+          <li>Is there a bulk import API beyond the batch endpoints?</li>
+          <li>Are there plans to increase the 600 variant limit?</li>
+          <li>What are the current API rate limits by plan tier?</li>
+          <li>Can orders be imported as "historical/completed" without triggering fulfillment workflows?</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- WooCommerce Assumptions -->
+    <div class="section" id="wc-assumptions">
+      <h2>Assumptions: WooCommerce</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Assumption</th>
+            <th>Risk if Wrong</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>B1</strong></td>
+            <td>WC REST API provides all product data we need</td>
+            <td><span class="badge badge-warning">Medium</span> - direct DB queries</td>
+            <td><span class="badge badge-info">Needs Validation</span></td>
+          </tr>
+          <tr>
+            <td><strong>B2</strong></td>
+            <td>WC allows duplicate SKUs (BC doesn't)</td>
+            <td><span class="badge badge-danger">High</span> - migration failures</td>
+            <td><span class="badge badge-success">Confirmed</span></td>
+          </tr>
+          <tr>
+            <td><strong>B3</strong></td>
+            <td>Customer passwords are bcrypt hashed, non-exportable</td>
+            <td><span class="badge badge-info">Low</span> - expected behavior</td>
+            <td><span class="badge badge-success">Confirmed</span></td>
+          </tr>
+          <tr>
+            <td><strong>B4</strong></td>
+            <td>HPOS (new order tables in WC 8.0+) is detectable</td>
+            <td><span class="badge badge-warning">Medium</span> - wrong order queries</td>
+            <td><span class="badge badge-info">Needs Testing</span></td>
+          </tr>
+          <tr>
+            <td><strong>B5</strong></td>
+            <td>WC plugins store data in predictable meta fields</td>
+            <td><span class="badge badge-danger">High</span> - plugin-specific handling</td>
+            <td><span class="badge badge-info">Needs Survey</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="question-box">
+        <h4>Questions for WPEngine Team</h4>
+        <ol>
+          <li>What percentage of WPEngine WC sites use HPOS?</li>
+          <li>What are the most common WC plugins on WPEngine sites?</li>
+          <li>Do you have aggregate data on average product/variant counts?</li>
+          <li>Any known issues with WC REST API on WPEngine infrastructure?</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- WordPress Integration Assumptions -->
+    <div class="section" id="wp-assumptions">
+      <h2>Assumptions: WordPress Integration</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Assumption</th>
+            <th>Risk if Wrong</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>C1</strong></td>
+            <td>WP rewrite rules can intercept /shop, /product/* after WC deactivation</td>
+            <td><span class="badge badge-danger">High</span> - routing breaks</td>
+            <td><span class="badge badge-info">Needs Testing</span></td>
+          </tr>
+          <tr>
+            <td><strong>C2</strong></td>
+            <td>WP transients provide adequate caching (object cache preferred)</td>
+            <td><span class="badge badge-warning">Medium</span> - performance issues</td>
+            <td><span class="badge badge-info">Needs Validation</span></td>
+          </tr>
+          <tr>
+            <td><strong>C3</strong></td>
+            <td>WC can be deactivated without breaking WordPress</td>
+            <td><span class="badge badge-info">Low</span> - known to work</td>
+            <td><span class="badge badge-success">Confirmed</span></td>
+          </tr>
+          <tr>
+            <td><strong>C4</strong></td>
+            <td>Existing WC themes can be adapted to BC Bridge</td>
+            <td><span class="badge badge-warning">Medium</span> - theme work required</td>
+            <td><span class="badge badge-info">Needs Assessment</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="question-box">
+        <h4>Questions for WPEngine Team</h4>
+        <ol>
+          <li>Does WPEngine provide object caching that WP transients can use?</li>
+          <li>Are there WPEngine-specific hooks we should be aware of?</li>
+          <li>What's the upgrade path for sites on older PHP versions?</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Feedonomics Assumptions -->
+    <div class="section" id="feedo-assumptions">
+      <h2>Assumptions: Feedonomics</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Assumption</th>
+            <th>Risk if Wrong</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>D1</strong></td>
+            <td>Feedonomics can serve as ETL for WC to BC migration</td>
+            <td><span class="badge badge-warning">Medium</span> - rebuild ETL</td>
+            <td><span class="badge badge-info">Needs Validation</span></td>
+          </tr>
+          <tr>
+            <td><strong>D2</strong></td>
+            <td>Feedonomics has WC connector</td>
+            <td><span class="badge badge-info">Low</span> - likely exists</td>
+            <td><span class="badge badge-info">Needs Confirmation</span></td>
+          </tr>
+          <tr>
+            <td><strong>D3</strong></td>
+            <td>Feedonomics transformation rules can handle WC schema</td>
+            <td><span class="badge badge-warning">Medium</span> - custom rules</td>
+            <td><span class="badge badge-info">Needs Assessment</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="question-box">
+        <h4>Questions for Feedonomics Team</h4>
+        <ol>
+          <li>Have you done WC to BC migrations before?</li>
+          <li>What's the typical throughput for product data processing?</li>
+          <li>Can Feedonomics handle ongoing delta sync post-migration?</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Makeswift Assumptions -->
+    <div class="section" id="makeswift-assumptions">
+      <h2>Assumptions: Makeswift</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Assumption</th>
+            <th>Risk if Wrong</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>E1</strong></td>
+            <td>Makeswift can render product pages from BC data</td>
+            <td><span class="badge badge-warning">Medium</span> - visual editor limits</td>
+            <td><span class="badge badge-info">Needs Validation</span></td>
+          </tr>
+          <tr>
+            <td><strong>E2</strong></td>
+            <td>Makeswift works without Catalyst</td>
+            <td><span class="badge badge-danger">High</span> - architecture change</td>
+            <td><span class="badge badge-info">Needs Confirmation</span></td>
+          </tr>
+          <tr>
+            <td><strong>E3</strong></td>
+            <td>Makeswift integrates with WordPress headless</td>
+            <td><span class="badge badge-warning">Medium</span> - additional work</td>
+            <td><span class="badge badge-info">Needs Scoping</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="question-box">
+        <h4>Questions for Makeswift Team</h4>
+        <ol>
+          <li>What's the current state of Makeswift + BC integration (non-Catalyst)?</li>
+          <li>Can Makeswift components fetch from BC GraphQL directly?</li>
+          <li>Is there a WordPress integration path?</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Critical Risks -->
+    <div class="section page-break" id="critical-risks">
+      <h2>Critical Risks</h2>
+
+      <div class="danger-box">
+        <strong>Critical risks can cause migration failures or significant data loss if not addressed.</strong>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Risk</th>
+            <th>Probability</th>
+            <th>Impact</th>
+            <th>Mitigation</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Products with &gt;600 variants can't migrate</strong></td>
+            <td><span class="badge badge-warning">Medium</span></td>
+            <td><span class="badge badge-danger">High</span></td>
+            <td>Product splitting strategy OR negotiate BC limit increase</td>
+            <td><span class="badge badge-warning">Needs Design</span></td>
+          </tr>
+          <tr>
+            <td><strong>Duplicate SKUs in WC cause BC failures</strong></td>
+            <td><span class="badge badge-danger">High</span></td>
+            <td><span class="badge badge-warning">Medium</span></td>
+            <td>Pre-migration validation + auto-deduplication</td>
+            <td><span class="badge badge-warning">Needs Implementation</span></td>
+          </tr>
+          <tr>
+            <td><strong>SEO rankings drop post-migration</strong></td>
+            <td><span class="badge badge-warning">Medium</span></td>
+            <td><span class="badge badge-danger">High</span></td>
+            <td>Preserve URLs via custom_url, comprehensive redirect mapping</td>
+            <td><span class="badge badge-success">Approach Defined</span></td>
+          </tr>
+          <tr>
+            <td><strong>Customer password reset friction</strong></td>
+            <td><span class="badge badge-danger">High</span></td>
+            <td><span class="badge badge-warning">Medium</span></td>
+            <td>Social login option, magic link fallback, clear communication</td>
+            <td><span class="badge badge-success">Approach Defined</span></td>
+          </tr>
+          <tr>
+            <td><strong>Cart persistence across WP / BC</strong></td>
+            <td><span class="badge badge-warning">Medium</span></td>
+            <td><span class="badge badge-danger">High</span></td>
+            <td>BC Storefront Cart API with cookie-based cart ID</td>
+            <td><span class="badge badge-warning">Needs Validation</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- High Risks -->
+    <div class="section" id="high-risks">
+      <h2>High Risks</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Risk</th>
+            <th>Probability</th>
+            <th>Impact</th>
+            <th>Mitigation</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>WC plugin data not accessible via API</strong></td>
+            <td><span class="badge badge-warning">Medium</span></td>
+            <td><span class="badge badge-warning">Medium</span></td>
+            <td>Direct DB queries as fallback, plugin-specific handlers</td>
+            <td><span class="badge badge-warning">Needs Inventory</span></td>
+          </tr>
+          <tr>
+            <td><strong>BC API rate limits slow large migrations</strong></td>
+            <td><span class="badge badge-danger">High</span></td>
+            <td><span class="badge badge-warning">Medium</span></td>
+            <td>Batching, backoff, off-hours execution</td>
+            <td><span class="badge badge-success">Implemented</span></td>
+          </tr>
+          <tr>
+            <td><strong>Category hierarchy depth exceeds BC limit (5)</strong></td>
+            <td><span class="badge badge-info">Low</span></td>
+            <td><span class="badge badge-danger">High</span></td>
+            <td>Flatten deep hierarchies with warnings</td>
+            <td><span class="badge badge-warning">Needs Implementation</span></td>
+          </tr>
+          <tr>
+            <td><strong>Image URLs inaccessible after migration</strong></td>
+            <td><span class="badge badge-warning">Medium</span></td>
+            <td><span class="badge badge-warning">Medium</span></td>
+            <td>Pre-validate image URLs, parallel upload option</td>
+            <td><span class="badge badge-warning">Needs Implementation</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Medium Risks -->
+    <div class="section" id="medium-risks">
+      <h2>Medium Risks</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Risk</th>
+            <th>Probability</th>
+            <th>Impact</th>
+            <th>Mitigation</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Order history access splits admin experience</strong></td>
+            <td><span class="badge badge-danger">High</span></td>
+            <td><span class="badge badge-info">Low</span></td>
+            <td>Historical order widget in WP admin</td>
+            <td><span class="badge badge-warning">Needs Design</span></td>
+          </tr>
+          <tr>
+            <td><strong>Theme incompatibility with BC Bridge</strong></td>
+            <td><span class="badge badge-warning">Medium</span></td>
+            <td><span class="badge badge-warning">Medium</span></td>
+            <td>Template override system, popular theme testing</td>
+            <td><span class="badge badge-warning">Needs Testing</span></td>
+          </tr>
+          <tr>
+            <td><strong>Subscription migration complexity</strong></td>
+            <td><span class="badge badge-danger">High*</span></td>
+            <td><span class="badge badge-danger">High</span></td>
+            <td>Manual migration path, customer communication</td>
+            <td><span class="badge badge-info">Documented</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="font-size: 12px; color: var(--color-text-secondary);">* High probability only if subscriptions exist in the source store</p>
+    </div>
+
+    <!-- Decision 1: Order History -->
+    <div class="section page-break" id="decision-orders">
+      <h2>Decision 1: Order History Migration</h2>
+
+      <p><strong>Question:</strong> Should we migrate historical orders to BigCommerce?</p>
+
+      <div class="decision-card recommended">
+        <div class="decision-header">
+          <span class="decision-title">Option A: Don't migrate</span>
+          <span class="badge badge-success">Recommended</span>
+        </div>
+        <p><strong>Pros:</strong> Simple, fast, no data loss risk</p>
+        <p><strong>Cons:</strong> Split admin (WP for old, BC for new)</p>
+        <p style="margin-bottom: 0;"><strong>Rationale:</strong> Most merchants accept split admin for historical data. This is the simplest path for MVP.</p>
+      </div>
+
+      <div class="decision-card">
+        <div class="decision-header">
+          <span class="decision-title">Option B: Import as read-only</span>
+          <span class="badge badge-info">Consider for Phase 2</span>
+        </div>
+        <p><strong>Pros:</strong> Unified view in BC</p>
+        <p style="margin-bottom: 0;"><strong>Cons:</strong> BC import limitations, risk of data issues</p>
+      </div>
+
+      <div class="decision-card">
+        <div class="decision-header">
+          <span class="decision-title">Option C: Unified dashboard</span>
+          <span class="badge badge-primary">Future Enhancement</span>
+        </div>
+        <p><strong>Pros:</strong> Best UX</p>
+        <p style="margin-bottom: 0;"><strong>Cons:</strong> Custom development required</p>
+      </div>
+
+      <div class="note">
+        <strong>Input needed from:</strong> Commerce.com Product, WPEngine customers
+      </div>
+    </div>
+
+    <!-- Decision 2: BC Bridge Plugin -->
+    <div class="section" id="decision-plugin">
+      <h2>Decision 2: BC Bridge Plugin Ownership</h2>
+
+      <p><strong>Question:</strong> Who builds and maintains the WordPress plugin?</p>
+
+      <div class="decision-card">
+        <div class="decision-header">
+          <span class="decision-title">Option A: WPEngine builds</span>
+          <span class="badge badge-wpe">WPEngine</span>
+        </div>
+        <p><strong>Pros:</strong> WordPress expertise, WPEngine integration</p>
+        <p style="margin-bottom: 0;"><strong>Cons:</strong> Resource allocation, roadmap alignment</p>
+      </div>
+
+      <div class="decision-card">
+        <div class="decision-header">
+          <span class="decision-title">Option B: Commerce.com builds</span>
+          <span class="badge badge-primary">Commerce.com</span>
+        </div>
+        <p><strong>Pros:</strong> Control, integration with migration tool</p>
+        <p style="margin-bottom: 0;"><strong>Cons:</strong> WordPress expertise gap</p>
+      </div>
+
+      <div class="decision-card">
+        <div class="decision-header">
+          <span class="decision-title">Option C: Partner/agency builds</span>
+          <span class="badge badge-info">External</span>
+        </div>
+        <p><strong>Pros:</strong> External resource</p>
+        <p style="margin-bottom: 0;"><strong>Cons:</strong> Coordination overhead, IP ownership</p>
+      </div>
+
+      <div class="decision-card">
+        <div class="decision-header">
+          <span class="decision-title">Option D: Open source community</span>
+          <span class="badge badge-success">Community</span>
+        </div>
+        <p><strong>Pros:</strong> Ecosystem, contributions</p>
+        <p style="margin-bottom: 0;"><strong>Cons:</strong> Quality control, support burden</p>
+      </div>
+
+      <div class="note">
+        <strong>Input needed from:</strong> WPEngine leadership, Commerce.com leadership
+      </div>
+    </div>
+
+    <!-- Decision 3: 600 Variant Limit -->
+    <div class="section" id="decision-variants">
+      <h2>Decision 3: Products Exceeding 600 Variants</h2>
+
+      <p><strong>Question:</strong> How do we handle WC products with more than 600 variants?</p>
+
+      <div class="decision-card recommended">
+        <div class="decision-header">
+          <span class="decision-title">Option A: Split into multiple BC products</span>
+          <span class="badge badge-success">Recommended</span>
+        </div>
+        <p><strong>Pros:</strong> Works within limits</p>
+        <p style="margin-bottom: 0;"><strong>Cons:</strong> Customer UX change, complexity</p>
+      </div>
+
+      <div class="decision-card">
+        <div class="decision-header">
+          <span class="decision-title">Option B: Use BC modifiers instead of variants</span>
+        </div>
+        <p><strong>Pros:</strong> Avoids limit</p>
+        <p style="margin-bottom: 0;"><strong>Cons:</strong> Different purchasing UX</p>
+      </div>
+
+      <div class="decision-card">
+        <div class="decision-header">
+          <span class="decision-title">Option C: Block migration, require manual restructure</span>
+          <span class="badge badge-warning">Fallback</span>
+        </div>
+        <p><strong>Pros:</strong> Clear, simple</p>
+        <p style="margin-bottom: 0;"><strong>Cons:</strong> Poor merchant experience</p>
+      </div>
+
+      <div class="decision-card">
+        <div class="decision-header">
+          <span class="decision-title">Option D: Negotiate BC limit increase</span>
+        </div>
+        <p><strong>Pros:</strong> Best UX</p>
+        <p style="margin-bottom: 0;"><strong>Cons:</strong> May not be possible</p>
+      </div>
+
+      <div class="note">
+        <strong>Input needed from:</strong> BC Platform team (is limit increase possible?)
+      </div>
+    </div>
+
+    <!-- Decision 4: Checkout -->
+    <div class="section" id="decision-checkout">
+      <h2>Decision 4: Checkout Experience</h2>
+
+      <p><strong>Question:</strong> Where does checkout happen?</p>
+
+      <div class="decision-card recommended">
+        <div class="decision-header">
+          <span class="decision-title">Option A: Redirect to BC hosted checkout</span>
+          <span class="badge badge-success">Recommended for MVP</span>
+        </div>
+        <p><strong>Pros:</strong> Simplest, PCI handled</p>
+        <p style="margin-bottom: 0;"><strong>Cons:</strong> UX transition, domain change visible</p>
+      </div>
+
+      <div class="decision-card">
+        <div class="decision-header">
+          <span class="decision-title">Option B: BC Embedded Checkout in WP</span>
+          <span class="badge badge-info">Future Enhancement</span>
+        </div>
+        <p><strong>Pros:</strong> Seamless UX</p>
+        <p style="margin-bottom: 0;"><strong>Cons:</strong> More integration work, iframe limitations</p>
+      </div>
+
+      <div class="decision-card">
+        <div class="decision-header">
+          <span class="decision-title">Option C: Custom checkout via BC API</span>
+        </div>
+        <p><strong>Pros:</strong> Full control</p>
+        <p style="margin-bottom: 0;"><strong>Cons:</strong> Highest complexity, PCI scope</p>
+      </div>
+
+      <div class="note">
+        <strong>Input needed from:</strong> Commerce.com Product, WPEngine (any checkout partnerships?)
+      </div>
+    </div>
+
+    <!-- Decision 5: Feedonomics -->
+    <div class="section" id="decision-feedonomics">
+      <h2>Decision 5: Feedonomics Role</h2>
+
+      <p><strong>Question:</strong> Should Feedonomics be the ETL layer for migrations?</p>
+
+      <div class="decision-card">
+        <div class="decision-header">
+          <span class="decision-title">Option A: Yes, use Feedonomics</span>
+        </div>
+        <p><strong>Pros:</strong> Existing asset, proven at scale</p>
+        <p style="margin-bottom: 0;"><strong>Cons:</strong> Adds dependency, may be overkill for migration</p>
+      </div>
+
+      <div class="decision-card">
+        <div class="decision-header">
+          <span class="decision-title">Option B: No, build custom ETL</span>
+        </div>
+        <p><strong>Pros:</strong> Tailored to migration, simpler</p>
+        <p style="margin-bottom: 0;"><strong>Cons:</strong> Duplicate capability</p>
+      </div>
+
+      <div class="decision-card">
+        <div class="decision-header">
+          <span class="decision-title">Option C: Hybrid</span>
+          <span class="badge badge-info">Likely Recommendation</span>
+        </div>
+        <p><strong>Pros:</strong> Feedonomics for ongoing sync, custom for initial migration</p>
+        <p style="margin-bottom: 0;"><strong>Cons:</strong> Complexity</p>
+      </div>
+
+      <div class="note">
+        <strong>Input needed from:</strong> Feedonomics team - need to understand capabilities first
+      </div>
+    </div>
+
+    <!-- Implementation Status -->
+    <div class="section page-break" id="implementation-status">
+      <h2>Implementation Status</h2>
+
+      <h3>What's Built</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Component</th>
+            <th>Status</th>
+            <th>Code Location</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>WooCommerce API client</td>
+            <td><span class="badge badge-success">Complete</span></td>
+            <td><code>src/assessment/wc-client.ts</code></td>
+          </tr>
+          <tr>
+            <td>BigCommerce API client</td>
+            <td><span class="badge badge-success">Complete</span></td>
+            <td><code>src/bigcommerce/bc-client.ts</code></td>
+          </tr>
+          <tr>
+            <td>Scale metrics collector</td>
+            <td><span class="badge badge-success">Complete</span></td>
+            <td><code>src/assessment/collectors/scale.ts</code></td>
+          </tr>
+          <tr>
+            <td>Complexity analyzer</td>
+            <td><span class="badge badge-warning">Basic</span></td>
+            <td><code>src/assessment/collectors/complexity.ts</code></td>
+          </tr>
+          <tr>
+            <td>Plugin mapper</td>
+            <td><span class="badge badge-warning">Partial (6 plugins)</span></td>
+            <td><code>src/assessment/plugin-mapper.ts</code></td>
+          </tr>
+          <tr>
+            <td>Assessment report generator</td>
+            <td><span class="badge badge-success">Complete</span></td>
+            <td><code>src/assessment/report.ts</code></td>
+          </tr>
+          <tr>
+            <td>Product transformer</td>
+            <td><span class="badge badge-success">Complete</span></td>
+            <td><code>src/migration/transformers/product.ts</code></td>
+          </tr>
+          <tr>
+            <td>Variant transformer</td>
+            <td><span class="badge badge-success">Complete</span></td>
+            <td><code>src/migration/transformers/variant.ts</code></td>
+          </tr>
+          <tr>
+            <td>Customer migrator</td>
+            <td><span class="badge badge-success">Complete</span></td>
+            <td><code>src/migration/customer-migrator.ts</code></td>
+          </tr>
+          <tr>
+            <td>Rate limiter</td>
+            <td><span class="badge badge-success">Complete</span></td>
+            <td><code>src/lib/rate-limiter.ts</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Critical Gaps (P0)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Gap</th>
+            <th>Impact</th>
+            <th>Effort</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Blocker detection (&gt;600 variants, duplicate SKUs)</td>
+            <td><span class="badge badge-danger">Migrations will fail</span></td>
+            <td>Medium</td>
+          </tr>
+          <tr>
+            <td>ID mapping persistence (WC ID to BC ID)</td>
+            <td><span class="badge badge-danger">Category-Product dependency breaks</span></td>
+            <td>Medium</td>
+          </tr>
+          <tr>
+            <td>Custom URL preservation</td>
+            <td><span class="badge badge-danger">SEO disaster</span></td>
+            <td>Low</td>
+          </tr>
+          <tr>
+            <td>SKU uniqueness validation/deduplication</td>
+            <td><span class="badge badge-danger">Migrations will fail</span></td>
+            <td>Medium</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>High Priority Gaps (P1)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Gap</th>
+            <th>Impact</th>
+            <th>Effort</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Product split strategy for &gt;600 variants</td>
+            <td><span class="badge badge-warning">Can't migrate some products</span></td>
+            <td>High</td>
+          </tr>
+          <tr>
+            <td>Category hierarchy ordering</td>
+            <td><span class="badge badge-warning">Parent categories must exist first</span></td>
+            <td>Medium</td>
+          </tr>
+          <tr>
+            <td>State/country code normalization</td>
+            <td><span class="badge badge-warning">Customer addresses may fail</span></td>
+            <td>Medium</td>
+          </tr>
+          <tr>
+            <td>Unit conversion (weight/dimensions)</td>
+            <td><span class="badge badge-warning">Incorrect product data</span></td>
+            <td>Medium</td>
+          </tr>
+          <tr>
+            <td>Dry-run mode</td>
+            <td><span class="badge badge-warning">Can't validate without side effects</span></td>
+            <td>Medium</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>See <code>docs/IMPLEMENTATION_GAP_ANALYSIS.md</code> for complete gap analysis.</p>
+    </div>
+
+    <!-- Timeline -->
+    <div class="section" id="timeline">
+      <h2>Proposed Timeline</h2>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-value">Phase 0</div>
+          <div class="stat-label">Validation (Current)</div>
+        </div>
+        <div class="stat-card secondary">
+          <div class="stat-value">Wk 3-4</div>
+          <div class="stat-label">Critical Gaps</div>
+        </div>
+        <div class="stat-card success">
+          <div class="stat-value">Wk 5-6</div>
+          <div class="stat-label">First Pilot</div>
+        </div>
+        <div class="stat-card wpe">
+          <div class="stat-value">Wk 9-12</div>
+          <div class="stat-label">Parallel Pilots</div>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Phase</th>
+            <th>Timeline</th>
+            <th>Goal</th>
+            <th>Activities</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="highlight-row">
+            <td><strong>Phase 0: Validation</strong></td>
+            <td>Weeks 0-2</td>
+            <td>Get approach vetted before heavy investment</td>
+            <td>Circulate review package, collect feedback, finalize approach</td>
+          </tr>
+          <tr>
+            <td><strong>Phase 1: Critical Gaps</strong></td>
+            <td>Weeks 3-4</td>
+            <td>Fix blockers that would cause migration failures</td>
+            <td>Blocker detection, SKU validation, ID mapping, custom URL preservation</td>
+          </tr>
+          <tr>
+            <td><strong>Phase 2: First Pilot</strong></td>
+            <td>Weeks 5-6</td>
+            <td>Migrate first real customer</td>
+            <td>End-to-end migration, document friction points, refine tooling</td>
+          </tr>
+          <tr>
+            <td><strong>Phase 3: Assessment Engine v1</strong></td>
+            <td>Weeks 7-8</td>
+            <td>Assessment engine ready for sales/pre-sales</td>
+            <td>Full blocker detection, effort estimation, polished report</td>
+          </tr>
+          <tr>
+            <td><strong>Phase 4: Parallel Pilots</strong></td>
+            <td>Weeks 9-12</td>
+            <td>Prove repeatability</td>
+            <td>Pilots #2 and #3, agency enablement, BC Bridge plugin MVP</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Feedback Request -->
+    <div class="section" id="feedback">
+      <h2>Feedback Request</h2>
+
+      <div class="info-box">
+        <strong>Feedback Due:</strong> [DATE] | <strong>Review Meeting:</strong> [DATE]
+      </div>
+
+      <h3>For Everyone</h3>
+      <ol>
+        <li><strong>Assumption validation:</strong> Are my assumptions correct? Flag any that are wrong.</li>
+        <li><strong>Missing risks:</strong> What risks have I missed?</li>
+        <li><strong>Blocking issues:</strong> Is there anything that fundamentally changes this approach?</li>
+      </ol>
+
+      <h3>For WPEngine</h3>
+      <ol start="4">
+        <li>What resources (if any) can WPEngine contribute to BC Bridge plugin?</li>
+        <li>Do you have customer data that could inform pilot selection?</li>
+        <li>What WPEngine-specific technical considerations should we account for?</li>
+      </ol>
+
+      <h3>For Commerce.com / BigCommerce</h3>
+      <ol start="7">
+        <li>Can we get confirmation on BC API capabilities (assumptions A1-A6)?</li>
+        <li>Is there appetite to negotiate variant limit increases for this use case?</li>
+        <li>Who should be the ongoing technical contact for BC platform questions?</li>
+      </ol>
+
+      <h3>For Feedonomics</h3>
+      <ol start="10">
+        <li>Can Feedonomics serve as the ETL layer? What's the effort?</li>
+        <li>What WC data can Feedonomics already ingest?</li>
+      </ol>
+
+      <h3>For Makeswift</h3>
+      <ol start="12">
+        <li>What's the non-Catalyst integration story?</li>
+        <li>Is WordPress integration on the roadmap?</li>
+      </ol>
+    </div>
+
+    <!-- Architecture Diagrams -->
+    <div class="section page-break" id="architecture">
+      <h2>Appendix: Architecture Diagrams</h2>
+
+      <h3>Migration Phase</h3>
+      <div style="text-align: center; margin: 20px 0;">
+        <img src="diagrams/migration-phase.svg" alt="Migration Phase Architecture Diagram" style="max-width: 100%; height: auto;">
+      </div>
+
+      <h3>Runtime Phase</h3>
+      <div style="text-align: center; margin: 20px 0;">
+        <img src="diagrams/runtime-phase.svg" alt="Runtime Phase Architecture Diagram" style="max-width: 100%; height: auto;">
+      </div>
+
+      <h3>Before / After</h3>
+      <div style="text-align: center; margin: 20px 0;">
+        <img src="diagrams/before-after.svg" alt="Before and After Architecture Comparison" style="max-width: 100%; height: auto;">
+      </div>
+    </div>
+
+    <!-- Supporting Documentation -->
+    <div class="section" id="documentation">
+      <h2>Appendix: Supporting Documentation</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Document</th>
+            <th>What It Covers</th>
+            <th>Read Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>docs/MIGRATION_ARCHITECTURE.md</code></td>
+            <td>Full technical architecture, data mappings, BC Bridge design</td>
+            <td>30 min</td>
+          </tr>
+          <tr>
+            <td><code>docs/ROADMAP_EARS.md</code></td>
+            <td>Detailed requirements in EARS format</td>
+            <td>45 min</td>
+          </tr>
+          <tr>
+            <td><code>docs/DATA_MAPPING_AND_MIGRATION_READINESS.md</code></td>
+            <td>Exhaustive field mappings, edge cases, BC limits</td>
+            <td>60 min</td>
+          </tr>
+          <tr>
+            <td><code>docs/IMPLEMENTATION_GAP_ANALYSIS.md</code></td>
+            <td>Current vs. required implementation</td>
+            <td>20 min</td>
+          </tr>
+          <tr>
+            <td><code>docs/VP_PRODUCT_ARCHITECTURE_90_DAY_PLAN.md</code></td>
+            <td>Broader role plan beyond migration</td>
+            <td>15 min</td>
+          </tr>
+          <tr>
+            <td><code>docs/strategy-kit/INDEX.md</code></td>
+            <td>Business context, WPEngine partnership</td>
+            <td>10 min</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Glossary -->
+    <div class="section" id="glossary">
+      <h2>Appendix: Glossary</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Term</th>
+            <th>Definition</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>BC</strong></td><td>BigCommerce</td></tr>
+          <tr><td><strong>WC</strong></td><td>WooCommerce</td></tr>
+          <tr><td><strong>BC Bridge</strong></td><td>Proposed WordPress plugin that renders BC data</td></tr>
+          <tr><td><strong>HPOS</strong></td><td>High-Performance Order Storage (WC 8.0+ feature)</td></tr>
+          <tr><td><strong>Variant</strong></td><td>A purchasable combination of product options (e.g., "Blue, Large")</td></tr>
+          <tr><td><strong>Option</strong></td><td>A product attribute that creates variants (e.g., "Color", "Size")</td></tr>
+          <tr><td><strong>Modifier</strong></td><td>A product customization that doesn't create variants</td></tr>
+          <tr><td><strong>Custom URL</strong></td><td>BC feature to set SEO-friendly URL paths</td></tr>
+          <tr><td><strong>Storefront API</strong></td><td>BC's client-side API for cart/checkout operations</td></tr>
+          <tr><td><strong>EARS</strong></td><td>Easy Approach to Requirements Syntax</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Footer -->
+    <div class="section" style="text-align: center; color: var(--color-text-secondary);">
+      <p><strong>Document Version:</strong> 1.0 | <strong>Last Updated:</strong> December 2025 | <strong>Status:</strong> Ready for Review</p>
+    </div>
+  </main>
+</body>
+</html>

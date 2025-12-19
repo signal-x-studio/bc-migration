@@ -1,0 +1,43 @@
+{
+    "name": "bc-bridge",
+    "version": "1.0.0",
+    "description": "Connect WordPress to BigCommerce for scalable commerce",
+    "main": "index.js",
+    "scripts": {
+        "build": "npm run build:css && npm run build:js",
+        "build:css": "npx cleancss -o assets/css/bc-bridge.min.css assets/css/bc-bridge.css && npx cleancss -o assets/css/bc-bridge-admin.min.css assets/css/bc-bridge-admin.css",
+        "build:js": "npx terser assets/js/bc-bridge.js -o assets/js/bc-bridge.min.js -c -m && npx terser assets/js/bc-bridge-admin.js -o assets/js/bc-bridge-admin.min.js -c -m",
+        "watch": "npm-watch",
+        "lint": "npm run lint:css && npm run lint:js",
+        "lint:css": "npx stylelint 'assets/css/**/*.css'",
+        "lint:js": "npx eslint 'assets/js/**/*.js'",
+        "zip": "node scripts/build-zip.js",
+        "release": "npm run build && npm run zip"
+    },
+    "watch": {
+        "build:css": {
+            "patterns": ["assets/css"],
+            "extensions": "css"
+        },
+        "build:js": {
+            "patterns": ["assets/js"],
+            "extensions": "js"
+        }
+    },
+    "devDependencies": {
+        "clean-css-cli": "^5.6.2",
+        "eslint": "^8.56.0",
+        "npm-watch": "^0.13.0",
+        "stylelint": "^16.1.0",
+        "stylelint-config-standard": "^36.0.0",
+        "terser": "^5.27.0"
+    },
+    "keywords": [
+        "wordpress",
+        "bigcommerce",
+        "ecommerce",
+        "headless"
+    ],
+    "author": "BigCommerce",
+    "license": "GPL-2.0-or-later"
+}

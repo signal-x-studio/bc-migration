@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment
+.env
+.env.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Migration state (may contain sensitive data)
+.migration-state.json
+
+# Test outputs
+coverage/
+.nyc_output/
+test-results/
+
+# Next.js
+.next/
+out/
+
+# Playwright
+.playwright-mcp/
+
+# Screenshots (temporary)
+*.png
+
+# Claude/Agent state
+.agent/
+.claude/

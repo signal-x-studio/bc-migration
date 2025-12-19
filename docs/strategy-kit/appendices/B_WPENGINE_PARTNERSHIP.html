@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WPEngine Partnership Analysis — Commerce.com Tiger Team</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      font-size: 100%;
+      -webkit-font-smoothing: antialiased;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #ffffff;
+      color: #111827;
+      line-height: 1.7;
+    }
+
+    :root {
+      --bg: #ffffff;
+      --bg-surface: #f9fafb;
+      --bg-white: #ffffff;
+      --bg-card: #f3f4f6;
+      --text: #111827;
+      --text-muted: #6b7280;
+      --text-dim: #9ca3af;
+      --accent: #7c3aed;
+      --accent-muted: rgba(124, 58, 237, 0.1);
+      --accent-orange: #ea580c;
+      --positive: #059669;
+      --negative: #dc2626;
+      --border: #e5e7eb;
+      --border-dark: #d1d5db;
+      --purple: #7c3aed;
+    }
+
+    .page-wrapper {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      background: var(--bg-white);
+      border-right: 1px solid var(--border);
+      padding: 2rem 1.5rem;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .sidebar-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-badge {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.625rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--purple);
+      background: var(--accent-muted);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 0.5rem;
+    }
+
+    .sidebar-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    .sidebar-meta {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-top: 0.5rem;
+    }
+
+    .nav-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .nav-section-title {
+      font-size: 0.625rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      margin-bottom: 0.75rem;
+    }
+
+    .nav-link {
+      display: block;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      margin-bottom: 0.125rem;
+      transition: all 0.15s ease;
+    }
+
+    .nav-link:hover {
+      background: rgba(14, 165, 233, 0.1);
+      color: var(--accent);
+    }
+
+    .back-link {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      margin-bottom: 1.5rem;
+    }
+
+    .back-link:hover {
+      color: var(--accent);
+    }
+
+    /* Main Content */
+    .main-content {
+      padding: 3rem 4rem;
+      max-width: 900px;
+    }
+
+    .doc-header {
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .doc-badge {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--purple);
+      background: var(--accent-muted);
+      padding: 0.375rem 0.75rem;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 1rem;
+    }
+
+    .source-badge {
+      display: inline-block;
+      font-size: 0.625rem;
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--accent);
+      background: rgba(14, 165, 233, 0.1);
+      padding: 0.125rem 0.5rem;
+      border-radius: 4px;
+      margin-left: 0.5rem;
+      vertical-align: middle;
+    }
+
+    .assumption-badge {
+      display: inline-block;
+      font-size: 0.625rem;
+      font-family: 'IBM Plex Mono', monospace;
+      color: var(--accent-orange);
+      background: rgba(249, 115, 22, 0.1);
+      padding: 0.125rem 0.5rem;
+      border-radius: 4px;
+      margin-left: 0.25rem;
+      vertical-align: middle;
+    }
+
+    h1 {
+      font-size: 2.25rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+
+    .doc-meta {
+      display: flex;
+      gap: 2rem;
+      font-size: 0.875rem;
+      color: var(--text-dim);
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-top: 3rem;
+      margin-bottom: 1rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+    }
+
+    h2:first-of-type {
+      border-top: none;
+      padding-top: 0;
+    }
+
+    h3 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-top: 2rem;
+      margin-bottom: 0.75rem;
+    }
+
+    h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-top: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      margin-bottom: 1rem;
+      color: var(--text-muted);
+    }
+
+    .lead {
+      font-size: 1.125rem;
+      color: var(--text);
+      margin-bottom: 2rem;
+    }
+
+    /* Highlight Box */
+    .highlight-box {
+      background: rgba(124, 58, 237, 0.06);
+      border-left: 4px solid var(--purple);
+      padding: 1.25rem 1.5rem;
+      border-radius: 0 8px 8px 0;
+      margin: 1.5rem 0;
+    }
+
+    .highlight-box p {
+      color: var(--text);
+      margin-bottom: 0;
+    }
+
+    .highlight-box.recommendation {
+      background: rgba(14, 165, 233, 0.08);
+      border-color: var(--accent);
+    }
+
+    /* Lists */
+    ul, ol {
+      margin-bottom: 1rem;
+      padding-left: 1.5rem;
+      color: var(--text-muted);
+    }
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+
+    li strong {
+      color: var(--text);
+    }
+
+    /* Tables */
+    .table-wrapper {
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+
+    th {
+      text-align: left;
+      font-weight: 600;
+      padding: 0.875rem 1rem;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    td {
+      padding: 0.875rem 1rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-muted);
+      vertical-align: top;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Code Blocks */
+    .code-block {
+      background: #1e293b;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      overflow-x: auto;
+    }
+
+    .code-block pre {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8125rem;
+      line-height: 1.6;
+      color: #e2e8f0;
+      white-space: pre;
+      margin: 0;
+    }
+
+    code {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.875em;
+      background: var(--bg-card);
+      padding: 0.125rem 0.375rem;
+      border-radius: 4px;
+      color: var(--accent);
+    }
+
+    /* Stakeholder Cards */
+    .stakeholder-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .stakeholder-card {
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+
+    .stakeholder-role {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+
+    .stakeholder-priority {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-bottom: 0.5rem;
+    }
+
+    .stakeholder-angle {
+      font-size: 0.8125rem;
+      color: var(--accent);
+    }
+
+    /* Value Props */
+    .value-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .value-card {
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+    }
+
+    .value-card h4 {
+      margin-top: 0;
+      color: var(--purple);
+    }
+
+    .value-card ul {
+      margin-bottom: 0;
+    }
+
+    /* Deal Options */
+    .deal-option {
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 1rem 0;
+    }
+
+    .deal-option h4 {
+      margin-top: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .option-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      background: rgba(14, 165, 233, 0.1);
+      color: var(--accent);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    .pros-cons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .pros-cons div {
+      font-size: 0.875rem;
+    }
+
+    .pros-cons strong {
+      color: var(--positive);
+    }
+
+    .pros-cons strong.con {
+      color: var(--negative);
+    }
+
+    /* Checklist */
+    .checklist {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .checklist li {
+      padding: 0.5rem 0;
+      padding-left: 1.75rem;
+      position: relative;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .checklist li:last-child {
+      border-bottom: none;
+    }
+
+    .checklist li::before {
+      content: "☐";
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+    }
+
+    /* Footer */
+    .doc-footer {
+      margin-top: 4rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .metadata-table th {
+      width: 150px;
+      background: transparent;
+      font-weight: 500;
+      color: var(--text-dim);
+    }
+
+    .footnote {
+      font-size: 0.875rem;
+      font-style: italic;
+      color: var(--text-dim);
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 1024px) {
+      .page-wrapper {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        display: none;
+      }
+      .main-content {
+        padding: 2rem 1.5rem;
+      }
+      .value-grid, .pros-cons {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+    <nav class="sidebar">
+      <a href="../INDEX.html" class="back-link">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Back to Index
+      </a>
+
+      <div class="sidebar-header">
+        <span class="sidebar-badge">Appendix B</span>
+        <h2 class="sidebar-title">WPEngine Partnership Analysis</h2>
+        <p class="sidebar-meta">Supporting Evidence — December 2025</p>
+      </div>
+
+      <div class="nav-section">
+        <h3 class="nav-section-title">Contents</h3>
+        <a href="#summary" class="nav-link">Executive Summary</a>
+        <a href="#profile" class="nav-link">1. Company Profile</a>
+        <a href="#challenge" class="nav-link">2. WooCommerce Challenge</a>
+        <a href="#stakeholders" class="nav-link">3. Stakeholder Mapping</a>
+        <a href="#intel" class="nav-link">4. Competitive Intelligence</a>
+        <a href="#approach" class="nav-link">5. Approach Strategy</a>
+        <a href="#value" class="nav-link">6. Value Proposition</a>
+        <a href="#deals" class="nav-link">7. Deal Structure Options</a>
+        <a href="#risk" class="nav-link">8. Risk Analysis</a>
+        <a href="#checklist" class="nav-link">9. Due Diligence</a>
+        <a href="#timeline" class="nav-link">10. Approach Timeline</a>
+      </div>
+
+      <div class="nav-section">
+        <h3 class="nav-section-title">Related</h3>
+        <a href="../STRATEGIC_ASSESSMENT.html" class="nav-link">Strategic Assessment</a>
+        <a href="A_MARKET_RESEARCH.html" class="nav-link">Market Research</a>
+        <a href="C_RED_TEAM.html" class="nav-link">Red Team Analysis</a>
+      </div>
+    </nav>
+
+    <main class="main-content">
+      <header class="doc-header">
+        <span class="doc-badge">Strategic — Confidential</span>
+        <h1>WPEngine Partnership Analysis</h1>
+        <div class="doc-meta">
+          <span>Version 1.0</span>
+          <span>December 2025</span>
+          <span>Complete</span>
+        </div>
+      </header>
+
+      <section id="summary">
+        <h2>Executive Summary</h2>
+        <p class="lead">This document provides a deep analysis of WPEngine as a strategic partnership target for the Commerce.com WordPress integration motion.</p>
+
+        <div class="highlight-box">
+          <p><strong>Key Finding:</strong> WPEngine has strong strategic incentive to partner with Commerce.com. Their premium customer segment (high-GMV WooCommerce) is eroding to Shopify, and they lack a retention counteroffer. Commerce.com can provide that counteroffer.</p>
+        </div>
+
+        <div class="highlight-box recommendation">
+          <p><strong>Recommendation:</strong> Approach WPEngine through existing SI partner relationships, not direct cold outreach. Position as "customer retention solution," not "commerce platform partnership."</p>
+        </div>
+      </section>
+
+      <section id="profile">
+        <h2>1. WPEngine Company Profile</h2>
+
+        <h3>1.1 Business Overview</h3>
+        <div class="table-wrapper">
+          <table>
+            <tbody>
+              <tr><th>Founded</th><td>2010</td></tr>
+              <tr><th>Headquarters</th><td>Austin, Texas</td></tr>
+              <tr><th>Employees</th><td>~1,200</td></tr>
+              <tr><th>Funding</th><td>$290M+ (PE-backed, Silver Lake)</td></tr>
+              <tr><th>Revenue (Est.)</th><td>$200-300M ARR</td></tr>
+              <tr><th>Customers</th><td>1.5M+ websites</td></tr>
+              <tr><th>Premium Focus</th><td>Enterprise WordPress hosting</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>1.2 Product Portfolio</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Description</th>
+                <th>Relevance</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>WP Engine Managed WordPress</strong></td>
+                <td>Core hosting platform</td>
+                <td>Primary customer base</td>
+              </tr>
+              <tr>
+                <td><strong>Flywheel</strong></td>
+                <td>Creative/agency-focused hosting</td>
+                <td>SMB segment</td>
+              </tr>
+              <tr>
+                <td><strong>Local</strong></td>
+                <td>Local development environment</td>
+                <td>Developer tooling</td>
+              </tr>
+              <tr>
+                <td><strong>Genesis Framework</strong></td>
+                <td>WordPress theme framework</td>
+                <td>Ecosystem lock-in</td>
+              </tr>
+              <tr>
+                <td><strong>Headless WordPress (Atlas)</strong></td>
+                <td>Headless CMS platform</td>
+                <td>Direct alignment with Catalyst</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>1.3 Strategic Positioning</h3>
+        <p>WPEngine positions as the <strong>enterprise-grade WordPress host</strong>—premium pricing justified by:</p>
+        <ul>
+          <li>Performance optimization (caching, CDN)</li>
+          <li>Security (managed updates, threat monitoring)</li>
+          <li>Developer experience (staging, Git integration)</li>
+          <li>Support quality (24/7, WordPress expertise)</li>
+        </ul>
+        <p><strong>Customer Profile:</strong> Mid-market to enterprise ($5K-$50K/year hosting spend), high-traffic sites, mission-critical WordPress deployments.</p>
+      </section>
+
+      <section id="challenge">
+        <h2>2. The WooCommerce Challenge</h2>
+
+        <h3>2.1 WPEngine's WooCommerce Revenue Exposure</h3>
+        <p><strong>WooCommerce Revenue Hypothesis:</strong> <span class="assumption-badge">TO VALIDATE</span></p>
+        <ul>
+          <li>WPEngine hosts 1.5M+ websites; WooCommerce likely represents a significant but unconfirmed segment</li>
+          <li>WooCommerce customers tend to be higher ARPU (more server resources needed)</li>
+          <li>Revenue at risk from WooCommerce churn is a key hypothesis to validate in Phase 0 via WPEngine data access</li>
+        </ul>
+
+        <p><strong>Risk Profile:</strong></p>
+        <ul>
+          <li>High-GMV WooCommerce stores are the <strong>highest value</strong> WPEngine customers</li>
+          <li>These same customers are the <strong>most likely</strong> to migrate to Shopify</li>
+          <li>Each migration = complete customer loss (Shopify hosts everything)</li>
+        </ul>
+
+        <h3>2.2 The Migration Bleeding</h3>
+        <div class="diagram-container" style="overflow-x: auto; background: #fafafa; border-radius: 8px; padding: 1rem; margin: 1rem 0;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" style="font-family: Inter, system-ui, sans-serif; max-width: 100%; height: auto;">
+            <defs>
+              <style>
+                .title { font-size: 22px; font-weight: 600; fill: #1e1e1e; }
+                .box-title { font-size: 13px; font-weight: 500; }
+                .box-text { font-size: 11px; fill: #1e1e1e; }
+                .box-note { font-size: 10px; fill: #666666; }
+                .box-stat { font-size: 12px; font-weight: 600; fill: #1e1e1e; }
+                .box-source { font-size: 9px; fill: #666666; }
+                .label { font-size: 11px; fill: #666666; }
+              </style>
+              <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#94a3b8"/></marker>
+              <marker id="arrowhead-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#ef4444"/></marker>
+              <marker id="arrowhead-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#22c55e"/></marker>
+            </defs>
+            <text x="400" y="30" class="title" text-anchor="middle">The WPEngine Bleeding Pattern</text>
+            <rect x="250" y="55" width="300" height="50" rx="8" fill="#22d3ee15" stroke="#22d3ee" stroke-width="2"/>
+            <text x="400" y="85" class="box-title" fill="#1e1e1e" text-anchor="middle">High-GMV WooCommerce Merchant</text>
+            <path d="M400 105 L400 135" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrowhead)"/>
+            <rect x="200" y="145" width="400" height="80" rx="8" fill="#ef444415" stroke="#ef4444" stroke-width="2"/>
+            <text x="400" y="168" class="box-title" fill="#ef4444" text-anchor="middle">Experiences Pain Points:</text>
+            <text x="400" y="190" class="box-text" text-anchor="middle">Performance issues  |  Plugin conflicts</text>
+            <text x="400" y="208" class="box-text" text-anchor="middle">Security anxiety  |  Checkout problems</text>
+            <path d="M400 225 L400 255" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrowhead)"/>
+            <text x="400" y="280" class="label" text-anchor="middle">Considers Options</text>
+            <path d="M300 290 L150 320" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrowhead)"/>
+            <path d="M400 290 L400 320" stroke="#ef4444" stroke-width="2" marker-end="url(#arrowhead-red)"/>
+            <path d="M500 290 L650 320" stroke="#22c55e" stroke-width="2" marker-end="url(#arrowhead-green)"/>
+            <rect x="50" y="330" width="200" height="110" rx="8" fill="#f1f5f915" stroke="#94a3b8" stroke-width="2"/>
+            <text x="150" y="355" class="box-title" fill="#1e1e1e" text-anchor="middle">Option A: Upgrade Hosting</text>
+            <text x="150" y="378" class="box-note" text-anchor="middle">(WPEngine's hope)</text>
+            <text x="150" y="405" class="box-note" text-anchor="middle">Often insufficient for</text>
+            <text x="150" y="420" class="box-note" text-anchor="middle">WooCommerce issues</text>
+            <rect x="300" y="330" width="200" height="110" rx="8" fill="#ef444415" stroke="#ef4444" stroke-width="2"/>
+            <text x="400" y="355" class="box-title" fill="#ef4444" text-anchor="middle">Option B: Shopify Migration</text>
+            <text x="400" y="380" class="box-stat" text-anchor="middle">48% of migrations</text>
+            <text x="400" y="398" class="box-source" text-anchor="middle">(Cart2Cart 2024)</text>
+            <text x="400" y="422" class="box-note" fill="#ef4444" text-anchor="middle">Complete customer loss</text>
+            <rect x="550" y="330" width="200" height="110" rx="8" fill="#22c55e15" stroke="#22c55e" stroke-width="3"/>
+            <text x="650" y="350" class="box-source" fill="#22c55e" text-anchor="middle">[MISSING OPTION]</text>
+            <text x="650" y="375" class="box-title" fill="#22c55e" text-anchor="middle">Option C: Commerce.com</text>
+            <text x="650" y="405" class="box-text" text-anchor="middle">WPEngine RETAINS</text>
+            <text x="650" y="422" class="box-text" text-anchor="middle">hosting revenue</text>
+          </svg>
+        </div>
+
+        <h3>2.3 Why WPEngine Can't Solve WooCommerce Problems</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Problem</th>
+                <th>Why WPEngine Can't Fix</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Plugin conflicts</td>
+                <td>WPEngine doesn't control plugin ecosystem</td>
+              </tr>
+              <tr>
+                <td>Checkout performance</td>
+                <td>WooCommerce architecture, not hosting</td>
+              </tr>
+              <tr>
+                <td>Security vulnerabilities</td>
+                <td>Plugin-level issues, not server-level</td>
+              </tr>
+              <tr>
+                <td>Database bloat (wp_postmeta)</td>
+                <td>Core WordPress/WooCommerce design</td>
+              </tr>
+              <tr>
+                <td>PCI compliance burden</td>
+                <td>Merchant responsibility, not host</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="highlight-box">
+          <p><strong>Conclusion:</strong> WPEngine can optimize the environment but cannot fix the product. They need a partner who can replace the product while preserving the environment.</p>
+        </div>
+      </section>
+
+      <section id="stakeholders">
+        <h2>3. Stakeholder Mapping</h2>
+
+        <h3>3.1 Key Decision Makers</h3>
+        <div class="stakeholder-grid">
+          <div class="stakeholder-card">
+            <div class="stakeholder-role">CEO</div>
+            <div class="stakeholder-priority">Revenue growth, competitive position</div>
+            <div class="stakeholder-angle">Market differentiation narrative</div>
+          </div>
+          <div class="stakeholder-card">
+            <div class="stakeholder-role">Chief Revenue Officer</div>
+            <div class="stakeholder-priority">Customer retention, expansion revenue</div>
+            <div class="stakeholder-angle">Churn reduction metrics</div>
+          </div>
+          <div class="stakeholder-card">
+            <div class="stakeholder-role">VP Customer Success</div>
+            <div class="stakeholder-priority">At-risk account retention</div>
+            <div class="stakeholder-angle">Access to migration-intent customers</div>
+          </div>
+          <div class="stakeholder-card">
+            <div class="stakeholder-role">VP Partnerships</div>
+            <div class="stakeholder-priority">Partner ecosystem value</div>
+            <div class="stakeholder-angle">Revenue share / referral model</div>
+          </div>
+          <div class="stakeholder-card">
+            <div class="stakeholder-role">VP Product (Atlas)</div>
+            <div class="stakeholder-priority">Headless adoption</div>
+            <div class="stakeholder-angle">Catalyst integration</div>
+          </div>
+        </div>
+
+        <h3>3.2 Potential Champions</h3>
+        <p><strong>Primary Champion Target: VP Customer Success</strong></p>
+        <ul>
+          <li>Direct visibility into at-risk WooCommerce accounts</li>
+          <li>Measured on churn reduction</li>
+          <li>Has the "pain" of losing customers to Shopify</li>
+          <li>Can identify and introduce pilot merchants</li>
+        </ul>
+
+        <p><strong>Secondary Champion Target: VP Product (Atlas)</strong></p>
+        <ul>
+          <li>Owns headless WordPress initiative</li>
+          <li>Catalyst + Atlas alignment is strong</li>
+          <li>Technical credibility to validate integration</li>
+          <li>May see this as "proof point" for headless</li>
+        </ul>
+
+        <h3>3.3 Potential Blockers</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Role</th>
+                <th>Potential Objection</th>
+                <th>Counter-Strategy</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>CFO</strong></td>
+                <td>"Why invest in partnership?"</td>
+                <td>Show customer retention ROI</td>
+              </tr>
+              <tr>
+                <td><strong>Legal</strong></td>
+                <td>"Competitive concerns"</td>
+                <td>Non-exclusive, customer-benefit framing</td>
+              </tr>
+              <tr>
+                <td><strong>Existing Partners</strong></td>
+                <td>"Conflicts with Shopify relationships"</td>
+                <td>Research WPEngine-Shopify ties first</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="intel">
+        <h2>4. Competitive Intelligence</h2>
+
+        <h3>4.1 WPEngine's Existing Commerce Partnerships</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Partner</th>
+                <th>Relationship Type</th>
+                <th>Threat Level</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>WooCommerce (Automattic)</strong></td>
+                <td>Ecosystem partner</td>
+                <td>Complex (see below)</td>
+              </tr>
+              <tr>
+                <td><strong>BigCommerce</strong></td>
+                <td>Unknown/minimal</td>
+                <td style="color: var(--positive);">Low (our opportunity)</td>
+              </tr>
+              <tr>
+                <td><strong>Shopify</strong></td>
+                <td>Unknown</td>
+                <td>Research required</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>4.2 The Automattic/WooCommerce Complication</h3>
+        <p><strong>Background:</strong></p>
+        <ul>
+          <li>Automattic (WordPress.com parent) owns WooCommerce</li>
+          <li>WPEngine hosts WooCommerce sites, driving revenue for both</li>
+          <li>Automattic and WPEngine have complex relationship (trademark dispute 2024)</li>
+        </ul>
+
+        <p><strong>Implication:</strong></p>
+        <ul>
+          <li>WPEngine may be motivated to reduce Automattic dependency</li>
+          <li>A Commerce.com partnership could be seen as "hedging"</li>
+          <li>Must navigate carefully—don't position as "anti-WooCommerce"</li>
+        </ul>
+
+        <div class="highlight-box">
+          <p><strong>Messaging Strategy:</strong> "We're not replacing WooCommerce for everyone—just for merchants who've outgrown it. WPEngine continues to serve WooCommerce customers who are happy. This is a retention option for the 5% who are leaving."</p>
+        </div>
+
+        <h3>4.3 WPEngine's Headless Direction</h3>
+        <p><strong>WPEngine Atlas:</strong></p>
+        <ul>
+          <li>Launched as headless WordPress platform</li>
+          <li>Uses Next.js/Node.js for frontend</li>
+          <li>Aligns directly with Catalyst architecture</li>
+        </ul>
+
+        <p><strong>Strategic Insight:</strong> WPEngine is already betting on headless. Catalyst integration is natural extension of Atlas vision. Commerce.com could be positioned as "commerce layer for Atlas."</p>
+      </section>
+
+      <section id="approach">
+        <h2>5. Partnership Approach Strategy</h2>
+
+        <h3>5.1 Approach Path Options</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Option</th>
+                <th>Description</th>
+                <th>Pros</th>
+                <th>Cons</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>A: Direct Outreach</strong></td>
+                <td>Cold contact to VP Partnerships</td>
+                <td>Fast</td>
+                <td>May be ignored</td>
+              </tr>
+              <tr style="background: rgba(14, 165, 233, 0.05);">
+                <td><strong>B: SI Partner Introduction</strong></td>
+                <td>Mutual agency partner facilitates</td>
+                <td>Warm, credible</td>
+                <td>Dependent on SI relationship</td>
+              </tr>
+              <tr>
+                <td><strong>C: Conference Connection</strong></td>
+                <td>Meet at WordCamp or industry event</td>
+                <td>Organic</td>
+                <td>Timing-dependent</td>
+              </tr>
+              <tr>
+                <td><strong>D: Customer-Led</strong></td>
+                <td>Pilot merchant requests integration</td>
+                <td>Strong signal</td>
+                <td>Slow, uncertain</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="highlight-box recommendation">
+          <p><strong>Recommendation: Option B (SI Partner Introduction)</strong></p>
+        </div>
+
+        <h3>5.2 SI Partner Identification</h3>
+        <p><strong>Ideal SI Partner Profile:</strong></p>
+        <ul>
+          <li>Active WPEngine partner (listed in WPEngine partner directory)</li>
+          <li>BigCommerce implementation experience</li>
+          <li>Existing relationship with Commerce.com</li>
+          <li>Credibility with enterprise WordPress clients</li>
+        </ul>
+
+        <p><strong>Potential Candidates (to be validated):</strong></p>
+        <ul>
+          <li>Bounteous (WordPress + Commerce)</li>
+          <li>Trellis (Agency, WordPress expertise)</li>
+          <li>WebDevStudios (WordPress-focused, enterprise)</li>
+          <li>Americaneagle.com (Enterprise WordPress + Commerce)</li>
+        </ul>
+      </section>
+
+      <section id="value">
+        <h2>6. Partnership Value Proposition</h2>
+
+        <div class="value-grid">
+          <div class="value-card">
+            <h4>Value to WPEngine</h4>
+            <ul>
+              <li><strong>Customer Retention:</strong> Retention option for at-risk WooCommerce accounts</li>
+              <li><strong>Revenue Preservation:</strong> Hosting revenue retained vs. total loss to Shopify</li>
+              <li><strong>Competitive Differentiation:</strong> Unique "keep WordPress" narrative</li>
+              <li><strong>Headless Validation:</strong> Atlas adoption proof point</li>
+              <li><strong>Referral Revenue:</strong> Potential per-deal referral fees</li>
+            </ul>
+            <p class="note" style="font-size: 0.8rem; color: var(--text-dim); margin-top: 0.5rem;"><em>Note: Quantification requires WPEngine data access in Phase 0</em></p>
+          </div>
+          <div class="value-card">
+            <h4>Value to Commerce.com</h4>
+            <ul>
+              <li><strong>Lead Source:</strong> Access to WPEngine's WooCommerce customer base (size to be validated)</li>
+              <li><strong>Warm Introductions:</strong> WPEngine CS surfaces at-risk accounts</li>
+              <li><strong>Credibility:</strong> WPEngine endorsement validates solution</li>
+              <li><strong>Integration Showcase:</strong> Catalyst + WordPress reference case</li>
+              <li><strong>Competitive Moat:</strong> WordPress partnership Shopify can't replicate</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3>6.3 Mutual Benefits</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Benefit</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Joint Marketing</strong></td>
+                <td>"WordPress + Enterprise Commerce" positioning</td>
+              </tr>
+              <tr>
+                <td><strong>SI Partner Alignment</strong></td>
+                <td>Both ecosystems have overlapping partners</td>
+              </tr>
+              <tr>
+                <td><strong>Enterprise Credibility</strong></td>
+                <td>Combined brand strength for enterprise deals</td>
+              </tr>
+              <tr>
+                <td><strong>Customer Success</strong></td>
+                <td>Merchant outcome focus (not platform politics)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="deals">
+        <h2>7. Deal Structure Options</h2>
+
+        <div class="deal-option">
+          <h4><span class="option-label">Option A</span> Informal Referral</h4>
+          <p>WPEngine informally recommends Commerce.com to at-risk accounts. No contractual obligation. Commerce.com provides sales support and technical resources.</p>
+          <div class="pros-cons">
+            <div><strong>Pros:</strong> Fast to implement, low commitment</div>
+            <div><strong class="con">Cons:</strong> No formalization, inconsistent execution</div>
+          </div>
+        </div>
+
+        <div class="deal-option" style="border-color: var(--accent);">
+          <h4><span class="option-label">Option B</span> Formalized Referral Agreement (Recommended Start)</h4>
+          <p>MOU defining referral process. WPEngine identifies and introduces qualified leads. Commerce.com pays referral fee.</p>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Element</th>
+                  <th>Proposed Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Referral Fee</td><td>$5,000 per closed migration</td></tr>
+                <tr><td>OR Revenue Share</td><td>10% of first-year platform fees</td></tr>
+                <tr><td>Exclusivity</td><td>None (either party can have other partners)</td></tr>
+                <tr><td>Term</td><td>12 months, renewable</td></tr>
+                <tr><td>Pilot Period</td><td>3 months before formalization</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="deal-option">
+          <h4><span class="option-label">Option C</span> Deep Integration Partnership</h4>
+          <p>Co-developed integration (WPEngine Atlas + Catalyst). Joint solution listing in WPEngine marketplace. Co-marketing investment. Shared customer success for joint customers.</p>
+          <div class="pros-cons">
+            <div><strong>Pros:</strong> Strongest competitive moat, highest value</div>
+            <div><strong class="con">Cons:</strong> Longer timeline, higher investment, more complexity</div>
+          </div>
+        </div>
+
+        <div class="highlight-box recommendation">
+          <p><strong>Recommendation:</strong> Start with Option A (informal) during Phase 0, evolve to Option B or C based on results.</p>
+        </div>
+      </section>
+
+      <section id="risk">
+        <h2>8. Risk Analysis</h2>
+
+        <h3>8.1 Partnership Risks</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Risk</th>
+                <th>Likelihood</th>
+                <th>Impact</th>
+                <th>Mitigation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>WPEngine declines</td>
+                <td>Medium</td>
+                <td>High</td>
+                <td>Backup approach via alternative hosts</td>
+              </tr>
+              <tr>
+                <td>Shopify counter-move</td>
+                <td>Low</td>
+                <td>Medium</td>
+                <td>Speed to market; establish first</td>
+              </tr>
+              <tr>
+                <td>Automattic interference</td>
+                <td>Medium</td>
+                <td>High</td>
+                <td>Frame as customer-beneficial</td>
+              </tr>
+              <tr>
+                <td>Exclusivity demand</td>
+                <td>Low</td>
+                <td>Medium</td>
+                <td>Offer right of first refusal</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>8.2 Alternative Partnership Targets</h3>
+        <p>If WPEngine declines, secondary targets include:</p>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Host</th>
+                <th>Pros</th>
+                <th>Cons</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Kinsta</strong></td>
+                <td>Growth-stage, might be more flexible</td>
+                <td>Smaller scale</td>
+              </tr>
+              <tr>
+                <td><strong>Pantheon</strong></td>
+                <td>Enterprise focus, WebOps positioning</td>
+                <td>Less WordPress-exclusive</td>
+              </tr>
+              <tr>
+                <td><strong>WordPress VIP</strong></td>
+                <td>Enterprise segment, Automattic-owned</td>
+                <td>Automattic politics</td>
+              </tr>
+              <tr>
+                <td><strong>Cloudways</strong></td>
+                <td>Growing managed WordPress player</td>
+                <td>Less brand recognition</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="checklist">
+        <h2>9. Due Diligence Checklist</h2>
+
+        <h3>9.1 Market Intelligence</h3>
+        <ul class="checklist">
+          <li>Confirm WPEngine WooCommerce customer segment size</li>
+          <li>Identify WPEngine-Shopify relationship status</li>
+          <li>Research recent WPEngine churn patterns</li>
+          <li>Review WPEngine Atlas adoption metrics</li>
+        </ul>
+
+        <h3>9.2 Relationship Mapping</h3>
+        <ul class="checklist">
+          <li>Identify SI partners with WPEngine relationships</li>
+          <li>Map SI partner contacts to WPEngine stakeholders</li>
+          <li>Research WPEngine partner program structure</li>
+          <li>Identify recent WPEngine partnership announcements</li>
+        </ul>
+
+        <h3>9.3 Technical Validation</h3>
+        <ul class="checklist">
+          <li>Confirm Catalyst + WPGraphQL integration works</li>
+          <li>Test Atlas + Catalyst deployment scenario</li>
+          <li>Document integration architecture</li>
+          <li>Prepare demo environment</li>
+        </ul>
+
+        <h3>9.4 Legal/Competitive</h3>
+        <ul class="checklist">
+          <li>Review WPEngine partner agreement terms</li>
+          <li>Assess Automattic relationship implications</li>
+          <li>Prepare non-disclosure agreement template</li>
+          <li>Define IP ownership for co-developed assets</li>
+        </ul>
+      </section>
+
+      <section id="timeline">
+        <h2>10. Approach Timeline</h2>
+        <div class="diagram-container" style="overflow-x: auto; background: #fafafa; border-radius: 8px; padding: 1rem; margin: 1rem 0;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 260" style="font-family: Inter, system-ui, sans-serif; min-width: 950px;">
+            <defs>
+              <style>
+                .title { font-size: 22px; font-weight: 600; fill: #1e1e1e; }
+                .week-title { font-size: 13px; font-weight: 600; }
+                .week-subtitle { font-size: 10px; fill: #1e1e1e; }
+                .week-items { font-size: 9px; fill: #666666; }
+                .legend { font-size: 9px; fill: #666666; }
+              </style>
+            </defs>
+            <text x="490" y="25" class="title" text-anchor="middle">WPEngine Partnership Approach</text>
+            <line x1="50" y1="55" x2="930" y2="55" stroke="#94a3b8" stroke-width="3"/>
+            <circle cx="80" cy="55" r="8" fill="#22d3ee"/>
+            <rect x="30" y="75" width="150" height="130" rx="6" fill="#22d3ee10" stroke="#22d3ee" stroke-width="2"/>
+            <text x="105" y="95" class="week-title" fill="#22d3ee" text-anchor="middle">WEEK 1</text>
+            <text x="105" y="112" class="week-subtitle" text-anchor="middle">Intelligence Gathering</text>
+            <text x="40" y="132" class="week-items"><tspan x="40" dy="0">- Due diligence checklist</tspan><tspan x="40" dy="14">- Identify 2-3 SI partners</tspan><tspan x="40" dy="14">- Prepare partnership</tspan><tspan x="40" dy="14">  one-pager</tspan></text>
+            <circle cx="230" cy="55" r="8" fill="#22d3ee"/>
+            <rect x="180" y="75" width="150" height="130" rx="6" fill="#22d3ee10" stroke="#22d3ee" stroke-width="2"/>
+            <text x="255" y="95" class="week-title" fill="#22d3ee" text-anchor="middle">WEEK 2</text>
+            <text x="255" y="112" class="week-subtitle" text-anchor="middle">SI Partner Outreach</text>
+            <text x="190" y="132" class="week-items"><tspan x="190" dy="0">- Contact priority SI</tspan><tspan x="190" dy="14">- Share opportunity brief</tspan><tspan x="190" dy="14">- Request introduction</tspan><tspan x="190" dy="14">  facilitation</tspan></text>
+            <circle cx="380" cy="55" r="8" fill="#f97316"/>
+            <rect x="330" y="75" width="150" height="130" rx="6" fill="#f9731610" stroke="#f97316" stroke-width="2"/>
+            <text x="405" y="95" class="week-title" fill="#f97316" text-anchor="middle">WEEKS 3-4</text>
+            <text x="405" y="112" class="week-subtitle" text-anchor="middle">WPEngine Contact</text>
+            <text x="340" y="132" class="week-items"><tspan x="340" dy="0">- SI facilitates intro</tspan><tspan x="340" dy="14">- Initial call: understand</tspan><tspan x="340" dy="14">  WooCommerce pain</tspan><tspan x="340" dy="14">- Share high-level concept</tspan></text>
+            <circle cx="530" cy="55" r="8" fill="#f97316"/>
+            <rect x="480" y="75" width="150" height="130" rx="6" fill="#f9731610" stroke="#f97316" stroke-width="2"/>
+            <text x="555" y="95" class="week-title" fill="#f97316" text-anchor="middle">WEEKS 5-6</text>
+            <text x="555" y="112" class="week-subtitle" text-anchor="middle">Exploration</text>
+            <text x="490" y="132" class="week-items"><tspan x="490" dy="0">- Technical discovery</tspan><tspan x="490" dy="14">  (Atlas, integrations)</tspan><tspan x="490" dy="14">- Customer Success align</tspan><tspan x="490" dy="14">- Interest assessment</tspan></text>
+            <circle cx="680" cy="55" r="8" fill="#a855f7"/>
+            <rect x="630" y="75" width="150" height="130" rx="6" fill="#a855f710" stroke="#a855f7" stroke-width="2"/>
+            <text x="705" y="95" class="week-title" fill="#a855f7" text-anchor="middle">WEEKS 7-8</text>
+            <text x="705" y="112" class="week-subtitle" text-anchor="middle">Pilot Proposal</text>
+            <text x="640" y="132" class="week-items"><tspan x="640" dy="0">- Formal pilot proposal</tspan><tspan x="640" dy="14">  (3 merchants, 3 months)</tspan><tspan x="640" dy="14">- Define success metrics</tspan><tspan x="640" dy="14">- Agree stealth criteria</tspan></text>
+            <circle cx="830" cy="55" r="8" fill="#22c55e"/>
+            <rect x="780" y="75" width="150" height="130" rx="6" fill="#22c55e10" stroke="#22c55e" stroke-width="2"/>
+            <text x="855" y="95" class="week-title" fill="#22c55e" text-anchor="middle">WEEK 9+</text>
+            <text x="855" y="112" class="week-subtitle" text-anchor="middle">Phase 0 Execution</text>
+            <text x="855" y="145" class="week-items" text-anchor="middle"><tspan x="855" dy="0">Covered in</tspan><tspan x="855" dy="14">Tiger Team GTM</tspan><tspan x="855" dy="14">document</tspan><tspan x="855" dy="22">Phase 0: 12 weeks</tspan></text>
+            <text x="50" y="230" class="legend">Phase:</text>
+            <circle cx="100" cy="227" r="6" fill="#22d3ee"/><text x="112" y="230" class="legend">Preparation</text>
+            <circle cx="190" cy="227" r="6" fill="#f97316"/><text x="202" y="230" class="legend">Engagement</text>
+            <circle cx="290" cy="227" r="6" fill="#a855f7"/><text x="302" y="230" class="legend">Proposal</text>
+            <circle cx="370" cy="227" r="6" fill="#22c55e"/><text x="382" y="230" class="legend">Execution</text>
+          </svg>
+        </div>
+      </section>
+
+      <footer class="doc-footer">
+        <div class="table-wrapper">
+          <table class="metadata-table">
+            <tbody>
+              <tr><th>Author</th><td>Strategic Analysis Team</td></tr>
+              <tr><th>Classification</th><td>Confidential - Partnership Strategy</td></tr>
+              <tr><th>Version</th><td>1.0</td></tr>
+              <tr><th>Last Updated</th><td>December 2025</td></tr>
+              <tr><th>Related Documents</th><td><a href="01_TIGER_TEAM_GTM.html" style="color: var(--accent);">01_COMMERCE_COM_TIGER_TEAM_GTM</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="footnote">This document contains competitive intelligence and partnership strategy. Limit distribution to tiger team members.</p>
+      </footer>
+    </main>
+  </div>
+
+  <!-- What's Next Section -->
+  <section class="whats-next">
+      <div class="whats-next-content">
+          <div class="whats-next-label">Continue Exploring Evidence</div>
+          <h2 class="whats-next-title">Next: Red Team Analysis</h2>
+
+          <a href="C_RED_TEAM.html" class="next-card">
+              <div class="next-card-content">
+                  <div class="next-card-label">Appendix C of C</div>
+                  <div class="next-card-title">Red Team Analysis</div>
+                  <div class="next-card-desc">9 adversarial personas stress-testing the strategy, plus AI Council audit results with 70.2/100 score.</div>
+              </div>
+              <div class="next-card-arrow">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </div>
+          </a>
+
+          <div class="related-section">
+              <div class="related-label">Or explore:</div>
+              <div class="related-links">
+                  <a href="A_MARKET_RESEARCH.html" class="related-link">Market Research</a>
+                  <a href="../STRATEGIC_ASSESSMENT.html" class="related-link">Back to Assessment</a>
+              </div>
+          </div>
+      </div>
+  </section>
+
+  <!-- Sequence Navigation Bar -->
+  <div class="sequence-nav">
+      <a href="A_MARKET_RESEARCH.html" class="sequence-link prev">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          <div class="sequence-text">
+              <span class="sequence-label">Previous</span>
+              <span class="sequence-title">Market Research</span>
+          </div>
+      </a>
+      <div class="sequence-position">
+          <span class="sequence-current">B</span>
+          <span class="sequence-total">/ C</span>
+      </div>
+      <a href="C_RED_TEAM.html" class="sequence-link next">
+          <div class="sequence-text">
+              <span class="sequence-label">Next</span>
+              <span class="sequence-title">Red Team Analysis</span>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+  </div>
+
+  <style>
+      /* What's Next Section - Dark navigation footer */
+      .whats-next {
+          background: linear-gradient(180deg, #1a1625 0%, #0d0a14 100%);
+          border-top: 1px solid #2d2640;
+          padding: 4rem 2rem 8rem;
+      }
+      .whats-next-content {
+          max-width: 700px;
+          margin: 0 auto;
+      }
+      .whats-next-label {
+          font-family: 'IBM Plex Mono', monospace;
+          font-size: 0.6875rem;
+          font-weight: 600;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          color: #f97316;
+          margin-bottom: 0.75rem;
+      }
+      .whats-next-title {
+          font-size: 1.75rem;
+          font-weight: 400;
+          color: #f9fafb;
+          margin-bottom: 2rem;
+      }
+
+      /* Next Card */
+      .next-card {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          background: #0d0a14;
+          border: 2px solid #f97316;
+          border-radius: 12px;
+          padding: 1.5rem 2rem;
+          text-decoration: none;
+          transition: all 0.2s ease;
+          margin-bottom: 2rem;
+      }
+      .next-card:hover {
+          transform: translateX(4px);
+          box-shadow: 0 4px 24px rgba(249, 115, 22, 0.2);
+      }
+      .next-card-label {
+          font-family: 'IBM Plex Mono', monospace;
+          font-size: 0.6875rem;
+          font-weight: 600;
+          letter-spacing: 0.05em;
+          text-transform: uppercase;
+          color: #6b7280;
+          margin-bottom: 0.5rem;
+      }
+      .next-card-title {
+          font-size: 1.25rem;
+          font-weight: 600;
+          color: #f9fafb;
+          margin-bottom: 0.5rem;
+      }
+      .next-card-desc {
+          font-size: 0.875rem;
+          color: #9ca3af;
+          line-height: 1.5;
+      }
+      .next-card-arrow {
+          color: #f97316;
+          flex-shrink: 0;
+          margin-left: 1.5rem;
+      }
+
+      /* Related Links */
+      .related-section {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          flex-wrap: wrap;
+      }
+      .related-label {
+          font-size: 0.8125rem;
+          color: #6b7280;
+      }
+      .related-links {
+          display: flex;
+          gap: 0.75rem;
+          flex-wrap: wrap;
+      }
+      .related-link {
+          font-size: 0.8125rem;
+          color: #9ca3af;
+          text-decoration: none;
+          padding: 0.375rem 0.75rem;
+          background: #1a1625;
+          border: 1px solid #2d2640;
+          border-radius: 6px;
+          transition: all 0.2s ease;
+      }
+      .related-link:hover {
+          color: #f97316;
+          border-color: #f97316;
+      }
+
+      /* Sequence Navigation Bar */
+      .sequence-nav {
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          background: #0d0a14;
+          border-top: 1px solid #2d2640;
+          padding: 1rem 2rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          z-index: 100;
+      }
+      .sequence-link {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          text-decoration: none;
+          color: #9ca3af;
+          transition: color 0.2s;
+      }
+      .sequence-link:hover { color: #f97316; }
+      .sequence-text { display: flex; flex-direction: column; }
+      .sequence-link.next .sequence-text { text-align: right; }
+      .sequence-label { font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.7; }
+      .sequence-title { font-size: 0.9375rem; font-weight: 500; color: #f9fafb; }
+      .sequence-position {
+          font-family: 'IBM Plex Mono', monospace;
+          font-size: 0.875rem;
+          color: #6b7280;
+      }
+      .sequence-current { color: #f97316; font-weight: 600; }
+      main { padding-bottom: 60px; }
+  </style>
+</body>
+</html>

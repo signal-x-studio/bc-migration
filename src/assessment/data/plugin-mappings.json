@@ -1,0 +1,32 @@
+{
+  "woocommerce-subscriptions": {
+    "target": "BigCommerce Subscriptions (Native) or Recharge",
+    "type": "native/app",
+    "notes": "Native subscriptions available for standard use cases. Recharge for advanced logic."
+  },
+  "woocommerce-memberships": {
+    "target": "Classic Information Systems (Membership App) or MemberStack",
+    "type": "app",
+    "notes": "Requires third-party app for equivalent functionality."
+  },
+  "advanced-custom-fields": {
+    "target": "BigCommerce Metafields",
+    "type": "native",
+    "notes": "Use Metafields for custom data. Use Shared Variant Modifiers for UI-impacting custom fields."
+  },
+  "wpml": {
+    "target": "BigCommerce Multi-Storefront (MSF)",
+    "type": "native",
+    "notes": "Native multi-language/multi-region support via MSF."
+  },
+  "yoast-seo": {
+    "target": "BigCommerce Native SEO",
+    "type": "native",
+    "notes": "BigCommerce has excellent native SEO. Use Meta Tags and SEO fields."
+  },
+  "stripe": {
+    "target": "BigCommerce Stripe Integration",
+    "type": "native",
+    "notes": "Seamless native configuration."
+  }
+}
