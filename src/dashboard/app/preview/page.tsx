@@ -12,6 +12,7 @@ import { PathSwitcher } from './components/PathSwitcher';
 import { ViewTabs } from './components/ViewTabs';
 import { PLPPreview } from './components/plp/PLPPreview';
 import { PDPPreview } from './components/pdp/PDPPreview';
+import { SEOPreview } from './components/SEOPreview';
 import { ValidationSummary } from './components/ValidationSummary';
 import { ProductSelector } from './components/ProductSelector';
 import type { PreviewPathId, PreviewView, BCProductPreview } from '@/lib/types';
@@ -194,7 +195,7 @@ export default function PreviewPage() {
           <PathSwitcher selectedPath={selectedPath} onPathChange={setSelectedPath} />
           <div className="w-px h-8 bg-slate-700" />
           <ViewTabs selectedView={selectedView} onViewChange={setSelectedView} />
-          {selectedView === 'pdp' && (
+          {(selectedView === 'pdp' || selectedView === 'seo') && (
             <>
               <div className="w-px h-8 bg-slate-700" />
               <ProductSelector
@@ -263,17 +264,25 @@ export default function PreviewPage() {
         {!isLoading && products.length > 0 && (
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <div className="lg:col-span-3">
-              {selectedView === 'plp' ? (
+              {selectedView === 'plp' && (
                 <PLPPreview
                   products={products}
                   selectedPath={selectedPath}
                   onProductClick={handleProductSelect}
                 />
-              ) : (
+              )}
+              {selectedView === 'pdp' && (
                 <PDPPreview
                   product={selectedProduct}
                   selectedPath={selectedPath}
                   onBack={() => setSelectedView('plp')}
+                />
+              )}
+              {selectedView === 'seo' && (
+                <SEOPreview
+                  product={selectedProduct}
+                  storeName={bcCredentials?.storeHash ? `Store ${bcCredentials.storeHash}` : 'Your Store'}
+                  storeUrl={bcCredentials?.storeHash ? `store-${bcCredentials.storeHash}.mybigcommerce.com` : 'yourstore.com'}
                 />
               )}
             </div>

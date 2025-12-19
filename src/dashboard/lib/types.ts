@@ -1144,7 +1144,7 @@ export interface MigrationOptions {
 // ============================================
 
 export type PreviewPathId = 'catalyst' | 'stencil' | 'makeswift';
-export type PreviewView = 'plp' | 'pdp';
+export type PreviewView = 'plp' | 'pdp' | 'seo';
 
 export interface BCImage {
   id: number;
@@ -1173,15 +1173,27 @@ export interface BCProductPreview {
   sku: string;
   price: number;
   sale_price?: number;
+  salePrice?: number; // Alias for GraphQL response
   description: string;
   images: BCImage[];
+  image?: string; // Main image URL
   variants: BCVariant[];
   categories: number[];
   inventory_level: number;
   is_visible: boolean;
+  inStock?: boolean;
   custom_url: { url: string };
+  path?: string; // Product URL path
   type: 'physical' | 'digital';
   weight: number;
+  brand?: string;
+  currency?: string;
+  reviewCount?: number;
+  rating?: number;
+  seo?: {
+    title: string;
+    description: string;
+  };
   _validation: PreviewValidation;
 }
 

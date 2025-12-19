@@ -1,6 +1,6 @@
 'use client';
 
-import { Grid, FileText } from 'lucide-react';
+import { Grid, FileText, Search } from 'lucide-react';
 import type { PreviewView } from '@/lib/types';
 
 interface ViewTabsProps {
@@ -36,6 +36,19 @@ export function ViewTabs({ selectedView, onViewChange }: ViewTabsProps) {
       >
         <FileText className="w-4 h-4" />
         <span className="text-sm font-medium">Product Detail</span>
+      </button>
+      <button
+        onClick={() => onViewChange('seo')}
+        className={`
+          flex items-center gap-2 px-3 py-2 rounded-md transition-all
+          ${selectedView === 'seo'
+            ? 'bg-slate-700 text-white'
+            : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/50'
+          }
+        `}
+      >
+        <Search className="w-4 h-4" />
+        <span className="text-sm font-medium">SEO Preview</span>
       </button>
     </div>
   );
