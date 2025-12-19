@@ -26,6 +26,7 @@ interface DetailedValidationResult {
   products: EntityStats;
   customers: EntityStats;
   categories: EntityStats;
+  orders: EntityStats;
   timestamp: string;
 }
 
@@ -67,6 +68,7 @@ export async function POST(request: NextRequest) {
       products: { total: 0, valid: 0, issues: 0, issueList: [] },
       customers: { total: 0, valid: 0, issues: 0, issueList: [] },
       categories: { total: 0, valid: 0, issues: 0, issueList: [] },
+      orders: { total: 0, valid: 0, issues: 0, issueList: [] },
       timestamp: new Date().toISOString(),
     };
 
@@ -247,9 +249,76 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Fetch BC orders
+    const bcOrders = await fetchBCOrders(bcCredentials.storeHash, bcCredentials.accessToken);
+    result.orders.total = bcOrders.length;
+
+    for (const order of bcOrders) {
+      const issues: ValidationIssue[] = [];
+
+      // Check for orders with zero total
+      if (order.total_inc_tax === 0) {
+        issues.push({
+          type: 'warning',
+          entity: 'order',
+          entityId: order.id,
+          entityName: `Order #${order.id}`,
+          issue: 'Zero total amount',
+          details: 'Order has no monetary value',
+        });
+      }
+
+      // Check for orders without products
+      if (!order.products || order.products.length === 0) {
+        issues.push({
+          type: 'warning',
+          entity: 'order',
+          entityId: order.id,
+          entityName: `Order #${order.id}`,
+          issue: 'No products',
+          details: 'Order has no line items',
+        });
+      }
+
+      // Check for incomplete shipping address
+      if (!order.billing_address?.city || !order.billing_address?.country) {
+        issues.push({
+          type: 'info',
+          entity: 'order',
+          entityId: order.id,
+          entityName: `Order #${order.id}`,
+          issue: 'Incomplete billing address',
+          details: 'Missing city or country in billing address',
+        });
+      }
+
+      // Check for old pending orders (status_id 1 = Pending)
+      if (order.status_id === 1) {
+        const orderDate = new Date(order.date_created);
+        const daysSinceCreation = Math.floor((Date.now() - orderDate.getTime()) / (1000 * 60 * 60 * 24));
+        if (daysSinceCreation > 30) {
+          issues.push({
+            type: 'info',
+            entity: 'order',
+            entityId: order.id,
+            entityName: `Order #${order.id}`,
+            issue: 'Old pending order',
+            details: `Pending for ${daysSinceCreation} days`,
+          });
+        }
+      }
+
+      if (issues.length > 0) {
+        result.orders.issues += issues.length;
+        result.orders.issueList.push(...issues);
+      } else {
+        result.orders.valid++;
+      }
+    }
+
     // Calculate overall score
-    const totalItems = result.products.total + result.customers.total + result.categories.total;
-    const validItems = result.products.valid + result.customers.valid + result.categories.valid;
+    const totalItems = result.products.total + result.customers.total + result.categories.total + result.orders.total;
+    const validItems = result.products.valid + result.customers.valid + result.categories.valid + result.orders.valid;
     result.overallScore = totalItems > 0 ? Math.round((validItems / totalItems) * 100) : 100;
 
     return NextResponse.json({
@@ -373,4 +442,62 @@ async function fetchBCCategories(storeHash: string, accessToken: string): Promis
   }
 
   return categories;
+}
+
+async function fetchBCOrders(storeHash: string, accessToken: string): Promise<Array<{
+  id: number;
+  status_id: number;
+  total_inc_tax: number;
+  date_created: string;
+  products: unknown[];
+  billing_address: {
+    city?: string;
+    country?: string;
+  } | null;
+}>> {
+  const orders: Array<{
+    id: number;
+    status_id: number;
+    total_inc_tax: number;
+    date_created: string;
+    products: unknown[];
+    billing_address: {
+      city?: string;
+      country?: string;
+    } | null;
+  }> = [];
+  let page = 1;
+  const limit = 250;
+
+  while (true) {
+    // BC Orders uses V2 API
+    const response = await fetch(
+      `https://api.bigcommerce.com/stores/${storeHash}/v2/orders?limit=${limit}&page=${page}`,
+      {
+        headers: {
+          'X-Auth-Token': accessToken,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (!response.ok) break;
+
+    const data = await response.json();
+    if (!Array.isArray(data) || data.length === 0) break;
+
+    orders.push(...data.map((order: Record<string, unknown>) => ({
+      id: order.id as number,
+      status_id: order.status_id as number,
+      total_inc_tax: parseFloat(order.total_inc_tax as string) || 0,
+      date_created: order.date_created as string,
+      products: (order.products as unknown[]) || [],
+      billing_address: order.billing_address as { city?: string; country?: string } | null,
+    })));
+
+    if (data.length < limit || page >= 5) break; // Max 1250 orders
+    page++;
+  }
+
+  return orders;
 }

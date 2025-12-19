@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Alert } from '@/components/ui/Alert';
 import {
   CheckCircle, AlertTriangle, XCircle, Info, Loader2,
-  Package, Users, FolderTree, ChevronDown, ChevronRight,
+  Package, Users, FolderTree, ShoppingCart, ChevronDown, ChevronRight,
   Download
 } from 'lucide-react';
 
@@ -31,6 +31,7 @@ interface DetailedValidationResult {
   products: EntityStats;
   customers: EntityStats;
   categories: EntityStats;
+  orders: EntityStats;
   timestamp: string;
 }
 
@@ -297,6 +298,12 @@ export function DetailedValidation({ wcCredentials, bcCredentials }: DetailedVal
                 <FolderTree className="w-5 h-5 text-blue-400" />,
                 result.categories,
                 'categories'
+              )}
+              {renderEntitySection(
+                'Orders',
+                <ShoppingCart className="w-5 h-5 text-orange-400" />,
+                result.orders,
+                'orders'
               )}
             </div>
           </>

@@ -24,6 +24,7 @@ import {
   saveValidationResult,
 } from '@/lib/storage';
 import type { ValidationResult, CountComparison, BCCredentials } from '@/lib/types';
+import { DetailedValidation } from './components/DetailedValidation';
 
 export default function ValidatePage() {
   const { credentials: wcCredentials, storeInfo } = useConnection();
@@ -288,6 +289,12 @@ export default function ValidatePage() {
                 color="green"
               />
             </div>
+
+            {/* Detailed Data Quality Validation */}
+            <DetailedValidation
+              wcCredentials={wcCredentials}
+              bcCredentials={bcCredentials}
+            />
 
             {/* Recommendations */}
             {validation.recommendations.length > 0 && (
