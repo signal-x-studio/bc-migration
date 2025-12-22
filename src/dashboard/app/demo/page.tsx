@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Zap, Loader2, AlertCircle, CheckCircle, Code } from 'lucide-react';
+import { Zap, Loader2, AlertCircle, CheckCircle, Code, Paintbrush } from 'lucide-react';
 import { useConnection } from '../../lib/contexts/ConnectionContext';
 import { useBCConnection } from '../../lib/contexts/BCConnectionContext';
 
@@ -152,13 +152,20 @@ export default function DemoPage() {
           </div>
 
           {/* Developer Links */}
-          <div className="mt-6 pt-6 border-t border-slate-700">
+          <div className="mt-6 pt-6 border-t border-slate-700 flex flex-col gap-3">
             <Link
               href="/demo/architecture"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition-colors text-sm"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition-colors text-sm"
             >
               <Code className="w-4 h-4" />
-              View Architecture Docs
+              Architecture Docs
+            </Link>
+            <Link
+              href="/demo/makeswift-guide"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-purple-900/50 hover:bg-purple-800/50 text-purple-300 border border-purple-500/30 rounded-lg transition-colors text-sm"
+            >
+              <Paintbrush className="w-4 h-4" />
+              Makeswift Decision Guide
             </Link>
           </div>
         </div>

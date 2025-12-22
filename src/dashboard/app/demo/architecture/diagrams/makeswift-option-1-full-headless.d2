@@ -1,0 +1,188 @@
+# Option 1: Makeswift Replaces WordPress Frontend (Full Headless)
+# WooCommerce → BigCommerce Migration Architecture
+
+direction: down
+
+title: |md
+  # Option 1: Full Headless with Makeswift
+  WordPress becomes headless CMS only
+| {
+  near: top-center
+  shape: text
+  style.font-size: 20
+  style.bold: true
+}
+
+# ============================================
+# MAKESWIFT STOREFRONT
+# ============================================
+
+storefront: MAKESWIFT + NEXT.JS STOREFRONT {
+  style.fill: "#faf5ff"
+  style.stroke: "#9333ea"
+  style.stroke-width: 3
+  style.border-radius: 12
+
+  label-hosting: |md
+    **Hosting:** Vercel / WPEngine Headless
+  | {
+    style.font-size: 10
+    style.fill: transparent
+    style.stroke: transparent
+  }
+
+  visual-builder: {
+    label: "Visual Page\nBuilder"
+    shape: rectangle
+    style.fill: "#f3e8ff"
+    style.stroke: "#a855f7"
+    style.stroke-width: 2
+    style.font-size: 12
+  }
+
+  product-pages: {
+    label: "Product Pages\n(from BC)"
+    shape: rectangle
+    style.fill: "#f3e8ff"
+    style.stroke: "#a855f7"
+    style.stroke-width: 2
+    style.font-size: 12
+  }
+
+  blog-content: {
+    label: "Blog/Content\n(from WP API)"
+    shape: rectangle
+    style.fill: "#f3e8ff"
+    style.stroke: "#a855f7"
+    style.stroke-width: 2
+    style.font-size: 12
+  }
+
+  checkout: {
+    label: "Cart &\nCheckout"
+    shape: rectangle
+    style.fill: "#f3e8ff"
+    style.stroke: "#a855f7"
+    style.stroke-width: 2
+    style.font-size: 12
+  }
+}
+
+# ============================================
+# BACKEND SERVICES
+# ============================================
+
+services: Backend Services {
+  style.fill: "#f8fafc"
+  style.stroke: "#64748b"
+  style.stroke-dash: 3
+  style.border-radius: 8
+
+  makeswift-api: {
+    label: |md
+      **Makeswift API**
+      Layouts & Components
+    |
+    shape: cylinder
+    style.fill: "#9333ea"
+    style.stroke: "#7e22ce"
+    style.stroke-width: 2
+    style.font-color: white
+    style.font-size: 11
+  }
+
+  bigcommerce: {
+    label: |md
+      **BigCommerce**
+      Storefront GraphQL
+      Catalog, Cart, Checkout
+    |
+    shape: cylinder
+    style.fill: "#16a34a"
+    style.stroke: "#15803d"
+    style.stroke-width: 2
+    style.font-color: white
+    style.font-size: 11
+  }
+
+  wordpress: {
+    label: |md
+      **WordPress**
+      REST API (Headless)
+      Blog, Pages, Media
+    |
+    shape: cylinder
+    style.fill: "#0ea5e9"
+    style.stroke: "#0284c7"
+    style.stroke-width: 2
+    style.font-color: white
+    style.font-size: 11
+  }
+}
+
+# ============================================
+# CONNECTIONS
+# ============================================
+
+storefront.visual-builder -> services.makeswift-api: {
+  style.stroke: "#9333ea"
+  style.stroke-width: 2
+}
+
+storefront.product-pages -> services.bigcommerce: {
+  style.stroke: "#16a34a"
+  style.stroke-width: 2
+}
+
+storefront.blog-content -> services.wordpress: {
+  style.stroke: "#0ea5e9"
+  style.stroke-width: 2
+}
+
+storefront.checkout -> services.bigcommerce: {
+  style.stroke: "#16a34a"
+  style.stroke-width: 2
+}
+
+# ============================================
+# PROS & CONS
+# ============================================
+
+pros: |md
+  **PROS**
+  ✓ Modern React/Next.js stack
+  ✓ Visual editing for marketers
+  ✓ Best performance (edge)
+  ✓ BC Catalyst starter available
+| {
+  near: bottom-left
+  style.fill: "#f0fdf4"
+  style.stroke: "#16a34a"
+  style.border-radius: 8
+  style.font-size: 10
+}
+
+cons: |md
+  **CONS**
+  ✗ WordPress becomes headless only
+  ✗ Lose WP theme investment
+  ✗ Content team learns new tool
+  ✗ Two systems to manage
+| {
+  near: bottom-right
+  style.fill: "#fef2f2"
+  style.stroke: "#dc2626"
+  style.border-radius: 8
+  style.font-size: 10
+}
+
+best-for: |md
+  **Best For:** Merchants ready to fully modernize, not attached to WP theme
+| {
+  near: bottom-center
+  style.fill: "#eff6ff"
+  style.stroke: "#3b82f6"
+  style.border-radius: 8
+  style.font-size: 11
+  style.bold: true
+}

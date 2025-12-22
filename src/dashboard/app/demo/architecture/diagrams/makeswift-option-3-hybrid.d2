@@ -1,0 +1,266 @@
+# Option 3: Makeswift Storefront + WordPress Blog (Recommended)
+# WooCommerce → BigCommerce Migration Architecture
+
+direction: down
+
+title: |md
+  # Option 3: Hybrid Architecture ⭐
+  Makeswift for commerce, WordPress for content
+| {
+  near: top-center
+  shape: text
+  style.font-size: 20
+  style.bold: true
+}
+
+# ============================================
+# MAKESWIFT STOREFRONT (PRIMARY)
+# ============================================
+
+storefront: MAKESWIFT STOREFRONT (Next.js) {
+  style.fill: "#faf5ff"
+  style.stroke: "#9333ea"
+  style.stroke-width: 3
+  style.border-radius: 12
+
+  label-note: |md
+    **Single Domain:** example.com
+  | {
+    style.font-size: 10
+    style.fill: transparent
+    style.stroke: transparent
+  }
+
+  homepage: {
+    label: "Homepage\n(visual builder)"
+    shape: rectangle
+    style.fill: "#f3e8ff"
+    style.stroke: "#a855f7"
+    style.stroke-width: 2
+    style.font-size: 11
+  }
+
+  plp: {
+    label: "PLPs\n(category pages)"
+    shape: rectangle
+    style.fill: "#f3e8ff"
+    style.stroke: "#a855f7"
+    style.stroke-width: 2
+    style.font-size: 11
+  }
+
+  pdp: {
+    label: "PDPs\n(product pages)"
+    shape: rectangle
+    style.fill: "#f3e8ff"
+    style.stroke: "#a855f7"
+    style.stroke-width: 2
+    style.font-size: 11
+  }
+
+  cart-checkout: {
+    label: "Cart &\nCheckout"
+    shape: rectangle
+    style.fill: "#dcfce7"
+    style.stroke: "#16a34a"
+    style.stroke-width: 2
+    style.font-size: 11
+  }
+
+  landing: {
+    label: "Landing Pages\n(campaigns)"
+    shape: rectangle
+    style.fill: "#f3e8ff"
+    style.stroke: "#a855f7"
+    style.stroke-width: 2
+    style.font-size: 11
+  }
+
+  blog-route: {
+    label: "/blog/*\n(from WP)"
+    shape: rectangle
+    style.fill: "#dbeafe"
+    style.stroke: "#3b82f6"
+    style.stroke-width: 2
+    style.font-size: 11
+  }
+}
+
+# ============================================
+# ROUTING LAYER
+# ============================================
+
+routing: Next.js Routing {
+  style.fill: "#fef9c3"
+  style.stroke: "#eab308"
+  style.stroke-width: 2
+  style.border-radius: 8
+
+  rewrite: |md
+    ```javascript
+    // next.config.js
+    rewrites: [{
+      source: '/blog/:path*',
+      destination: 'https://wp.example.com/:path*'
+    }]
+    ```
+  | {
+    style.font-size: 9
+    style.fill: "#fffbeb"
+  }
+}
+
+# ============================================
+# BACKEND SERVICES
+# ============================================
+
+services: Backend Services {
+  style.fill: "#f8fafc"
+  style.stroke: "#64748b"
+  style.stroke-dash: 3
+  style.border-radius: 8
+
+  bigcommerce: {
+    label: |md
+      **BigCommerce**
+      Storefront GraphQL
+      Catalog, Cart, Checkout
+      Orders, Customers
+    |
+    shape: cylinder
+    style.fill: "#16a34a"
+    style.stroke: "#15803d"
+    style.stroke-width: 2
+    style.font-color: white
+    style.font-size: 10
+  }
+
+  makeswift-api: {
+    label: |md
+      **Makeswift**
+      Components API
+      Visual Layouts
+    |
+    shape: cylinder
+    style.fill: "#9333ea"
+    style.stroke: "#7e22ce"
+    style.stroke-width: 2
+    style.font-color: white
+    style.font-size: 10
+  }
+
+  wordpress: {
+    label: |md
+      **WordPress**
+      REST API (Headless)
+      Blog Posts, RSS
+      Comments, SEO
+    |
+    shape: cylinder
+    style.fill: "#3b82f6"
+    style.stroke: "#2563eb"
+    style.stroke-width: 2
+    style.font-color: white
+    style.font-size: 10
+  }
+}
+
+# ============================================
+# CONNECTIONS
+# ============================================
+
+storefront.homepage -> services.makeswift-api: {
+  style.stroke: "#9333ea"
+  style.stroke-width: 2
+}
+
+storefront.plp -> services.bigcommerce: {
+  style.stroke: "#16a34a"
+  style.stroke-width: 2
+}
+
+storefront.pdp -> services.bigcommerce: {
+  style.stroke: "#16a34a"
+  style.stroke-width: 2
+}
+
+storefront.cart-checkout -> services.bigcommerce: {
+  style.stroke: "#16a34a"
+  style.stroke-width: 2
+}
+
+storefront.landing -> services.makeswift-api: {
+  style.stroke: "#9333ea"
+  style.stroke-width: 2
+}
+
+storefront -> routing: {
+  style.stroke: "#eab308"
+  style.stroke-width: 2
+}
+
+routing -> services.wordpress: "/blog/*" {
+  style.stroke: "#3b82f6"
+  style.stroke-width: 2
+}
+
+storefront.blog-route -> routing: {
+  style.stroke: "#3b82f6"
+  style.stroke-width: 1
+  style.stroke-dash: 3
+}
+
+# ============================================
+# PROS & CONS
+# ============================================
+
+pros: |md
+  **PROS**
+  ✓ Best of both worlds
+  ✓ Single domain (SEO friendly)
+  ✓ WP team keeps familiar tools
+  ✓ Commerce team gets visual builder
+  ✓ Modern performance
+| {
+  near: bottom-left
+  style.fill: "#f0fdf4"
+  style.stroke: "#16a34a"
+  style.border-radius: 8
+  style.font-size: 10
+}
+
+cons: |md
+  **CONS**
+  ✗ Requires Next.js expertise
+  ✗ WordPress reduced to blog role
+  ✗ Initial setup complexity
+  ✗ Two deployments to manage
+| {
+  near: bottom-right
+  style.fill: "#fef2f2"
+  style.stroke: "#dc2626"
+  style.border-radius: 8
+  style.font-size: 10
+}
+
+best-for: |md
+  **Best For:** Mid-market merchants with marketing teams who need visual control
+| {
+  near: bottom-center
+  style.fill: "#eff6ff"
+  style.stroke: "#3b82f6"
+  style.border-radius: 8
+  style.font-size: 11
+  style.bold: true
+}
+
+recommended: |md
+  ⭐ RECOMMENDED
+| {
+  near: top-left
+  style.fill: "#fef9c3"
+  style.stroke: "#f59e0b"
+  style.border-radius: 8
+  style.font-size: 14
+  style.bold: true
+}

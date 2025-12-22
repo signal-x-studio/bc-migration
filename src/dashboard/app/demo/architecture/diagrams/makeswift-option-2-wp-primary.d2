@@ -1,0 +1,221 @@
+# Option 2: WordPress Primary + Makeswift for Landing Pages
+# WooCommerce → BigCommerce Migration Architecture
+
+direction: down
+
+title: |md
+  # Option 2: WordPress Primary
+  Makeswift for landing pages only
+| {
+  near: top-center
+  shape: text
+  style.font-size: 20
+  style.bold: true
+}
+
+# ============================================
+# WORDPRESS PRIMARY
+# ============================================
+
+wordpress-site: WORDPRESS (WPEngine) {
+  style.fill: "#eff6ff"
+  style.stroke: "#3b82f6"
+  style.stroke-width: 3
+  style.border-radius: 12
+
+  blog-pages: {
+    label: "Blog & Pages\n(Native WP)"
+    shape: rectangle
+    style.fill: "#dbeafe"
+    style.stroke: "#2563eb"
+    style.stroke-width: 2
+    style.font-size: 12
+  }
+
+  bc-bridge: {
+    label: "BC Bridge Plugin\n(Products from BC)"
+    shape: rectangle
+    style.fill: "#dcfce7"
+    style.stroke: "#16a34a"
+    style.stroke-width: 2
+    style.font-size: 12
+  }
+
+  makeswift-embed: {
+    label: "Makeswift Embed\n(Landing Pages)"
+    shape: rectangle
+    style.fill: "#f3e8ff"
+    style.stroke: "#9333ea"
+    style.stroke-width: 2
+    style.font-size: 12
+  }
+}
+
+# ============================================
+# MAKESWIFT SUBDOMAIN
+# ============================================
+
+makeswift-sub: MAKESWIFT (Subdomain) {
+  style.fill: "#faf5ff"
+  style.stroke: "#9333ea"
+  style.stroke-width: 2
+  style.stroke-dash: 3
+  style.border-radius: 12
+
+  landing-pages: {
+    label: "Campaign\nLanding Pages"
+    shape: rectangle
+    style.fill: "#f3e8ff"
+    style.stroke: "#a855f7"
+    style.font-size: 11
+  }
+
+  promo-pages: {
+    label: "Promo &\nSeasonal Pages"
+    shape: rectangle
+    style.fill: "#f3e8ff"
+    style.stroke: "#a855f7"
+    style.font-size: 11
+  }
+}
+
+# ============================================
+# BACKEND SERVICES
+# ============================================
+
+services: Backend Services {
+  style.fill: "#f8fafc"
+  style.stroke: "#64748b"
+  style.stroke-dash: 3
+  style.border-radius: 8
+
+  wp-database: {
+    label: |md
+      **WordPress**
+      Database
+    |
+    shape: cylinder
+    style.fill: "#3b82f6"
+    style.stroke: "#2563eb"
+    style.stroke-width: 2
+    style.font-color: white
+    style.font-size: 11
+  }
+
+  bigcommerce: {
+    label: |md
+      **BigCommerce**
+      APIs
+    |
+    shape: cylinder
+    style.fill: "#16a34a"
+    style.stroke: "#15803d"
+    style.stroke-width: 2
+    style.font-color: white
+    style.font-size: 11
+  }
+
+  makeswift-api: {
+    label: |md
+      **Makeswift**
+      API
+    |
+    shape: cylinder
+    style.fill: "#9333ea"
+    style.stroke: "#7e22ce"
+    style.stroke-width: 2
+    style.font-color: white
+    style.font-size: 11
+  }
+}
+
+# ============================================
+# CONNECTIONS
+# ============================================
+
+wordpress-site.blog-pages -> services.wp-database: {
+  style.stroke: "#3b82f6"
+  style.stroke-width: 2
+}
+
+wordpress-site.bc-bridge -> services.bigcommerce: {
+  style.stroke: "#16a34a"
+  style.stroke-width: 2
+}
+
+wordpress-site.makeswift-embed -> makeswift-sub: "iframe/embed" {
+  style.stroke: "#9333ea"
+  style.stroke-width: 2
+  style.stroke-dash: 3
+}
+
+makeswift-sub -> services.makeswift-api: {
+  style.stroke: "#9333ea"
+  style.stroke-width: 2
+}
+
+makeswift-sub -> services.bigcommerce: "products" {
+  style.stroke: "#16a34a"
+  style.stroke-width: 1
+  style.stroke-dash: 3
+}
+
+# ============================================
+# DOMAIN STRUCTURE
+# ============================================
+
+domains: |md
+  **Domain Structure**
+  example.com → WordPress
+  promo.example.com → Makeswift
+  (or embedded via iframe)
+| {
+  near: top-right
+  style.fill: "#fef9c3"
+  style.stroke: "#eab308"
+  style.border-radius: 8
+  style.font-size: 10
+}
+
+# ============================================
+# PROS & CONS
+# ============================================
+
+pros: |md
+  **PROS**
+  ✓ WordPress stays primary
+  ✓ Familiar for content team
+  ✓ Gradual Makeswift adoption
+  ✓ Keep WP theme investment
+| {
+  near: bottom-left
+  style.fill: "#f0fdf4"
+  style.stroke: "#16a34a"
+  style.border-radius: 8
+  style.font-size: 10
+}
+
+cons: |md
+  **CONS**
+  ✗ Split experience (2 domains)
+  ✗ SEO complexity
+  ✗ Limited Makeswift-WP integration
+  ✗ Inconsistent UX possible
+| {
+  near: bottom-right
+  style.fill: "#fef2f2"
+  style.stroke: "#dc2626"
+  style.border-radius: 8
+  style.font-size: 10
+}
+
+best-for: |md
+  **Best For:** Merchants who want to test Makeswift without full commitment
+| {
+  near: bottom-center
+  style.fill: "#eff6ff"
+  style.stroke: "#3b82f6"
+  style.border-radius: 8
+  style.font-size: 11
+  style.bold: true
+}

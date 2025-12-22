@@ -1,0 +1,283 @@
+# Option 4: Catalyst + Makeswift (BigCommerce Native)
+# WooCommerce → BigCommerce Migration Architecture
+
+direction: down
+
+title: |md
+  # Option 4: Catalyst + Makeswift
+  BigCommerce's official headless starter
+| {
+  near: top-center
+  shape: text
+  style.font-size: 20
+  style.bold: true
+}
+
+# ============================================
+# CATALYST STOREFRONT
+# ============================================
+
+catalyst: CATALYST STOREFRONT {
+  style.fill: "#dcfce7"
+  style.stroke: "#16a34a"
+  style.stroke-width: 3
+  style.border-radius: 12
+
+  label-note: |md
+    **BigCommerce Official Starter**
+    Next.js + Makeswift Integration
+  | {
+    style.font-size: 10
+    style.fill: transparent
+    style.stroke: transparent
+  }
+
+  prebuilt: Pre-built Components {
+    style.fill: "#f0fdf4"
+    style.stroke: "#22c55e"
+    style.border-radius: 8
+
+    header: {
+      label: "Header"
+      shape: rectangle
+      style.fill: "#bbf7d0"
+      style.stroke: "#4ade80"
+      style.font-size: 10
+    }
+
+    footer: {
+      label: "Footer"
+      shape: rectangle
+      style.fill: "#bbf7d0"
+      style.stroke: "#4ade80"
+      style.font-size: 10
+    }
+
+    pdp: {
+      label: "PDP"
+      shape: rectangle
+      style.fill: "#bbf7d0"
+      style.stroke: "#4ade80"
+      style.font-size: 10
+    }
+
+    plp: {
+      label: "PLP"
+      shape: rectangle
+      style.fill: "#bbf7d0"
+      style.stroke: "#4ade80"
+      style.font-size: 10
+    }
+
+    cart: {
+      label: "Cart"
+      shape: rectangle
+      style.fill: "#bbf7d0"
+      style.stroke: "#4ade80"
+      style.font-size: 10
+    }
+  }
+
+  makeswift-layer: Makeswift Visual Layer {
+    style.fill: "#faf5ff"
+    style.stroke: "#9333ea"
+    style.border-radius: 8
+
+    customization: {
+      label: "Visual\nCustomization"
+      shape: rectangle
+      style.fill: "#f3e8ff"
+      style.stroke: "#a855f7"
+      style.font-size: 10
+    }
+
+    landing: {
+      label: "Landing\nPages"
+      shape: rectangle
+      style.fill: "#f3e8ff"
+      style.stroke: "#a855f7"
+      style.font-size: 10
+    }
+
+    content: {
+      label: "Content\nBlocks"
+      shape: rectangle
+      style.fill: "#f3e8ff"
+      style.stroke: "#a855f7"
+      style.font-size: 10
+    }
+  }
+}
+
+# ============================================
+# DEPLOYMENT
+# ============================================
+
+deployment: Deployment {
+  style.fill: "#f8fafc"
+  style.stroke: "#64748b"
+  style.stroke-dash: 3
+  style.border-radius: 8
+
+  vercel: {
+    label: "Vercel"
+    shape: rectangle
+    style.fill: "#18181b"
+    style.stroke: "#3f3f46"
+    style.font-color: white
+    style.font-size: 11
+  }
+
+  netlify: {
+    label: "Netlify"
+    shape: rectangle
+    style.fill: "#0e4f4f"
+    style.stroke: "#14b8a6"
+    style.font-color: white
+    style.font-size: 11
+  }
+}
+
+# ============================================
+# BACKEND SERVICES
+# ============================================
+
+services: Backend Services {
+  style.fill: "#f8fafc"
+  style.stroke: "#64748b"
+  style.stroke-dash: 3
+  style.border-radius: 8
+
+  bigcommerce: {
+    label: |md
+      **BigCommerce**
+      All Commerce
+      Catalog, Orders
+      Customers, Checkout
+    |
+    shape: cylinder
+    style.fill: "#16a34a"
+    style.stroke: "#15803d"
+    style.stroke-width: 2
+    style.font-color: white
+    style.font-size: 10
+  }
+
+  makeswift-api: {
+    label: |md
+      **Makeswift**
+      Components
+      Layouts
+    |
+    shape: cylinder
+    style.fill: "#9333ea"
+    style.stroke: "#7e22ce"
+    style.stroke-width: 2
+    style.font-color: white
+    style.font-size: 10
+  }
+
+  wordpress: {
+    label: |md
+      **WordPress**
+      (Optional)
+      Blog feed only
+      or use BC Blog
+    |
+    shape: cylinder
+    style.fill: "#94a3b8"
+    style.stroke: "#64748b"
+    style.stroke-width: 2
+    style.stroke-dash: 3
+    style.font-color: white
+    style.font-size: 10
+  }
+}
+
+# ============================================
+# CONNECTIONS
+# ============================================
+
+catalyst.prebuilt -> services.bigcommerce: {
+  style.stroke: "#16a34a"
+  style.stroke-width: 2
+}
+
+catalyst.makeswift-layer -> services.makeswift-api: {
+  style.stroke: "#9333ea"
+  style.stroke-width: 2
+}
+
+catalyst -> deployment: {
+  style.stroke: "#64748b"
+  style.stroke-width: 2
+}
+
+services.wordpress -> catalyst: "optional" {
+  style.stroke: "#94a3b8"
+  style.stroke-width: 1
+  style.stroke-dash: 5
+}
+
+# ============================================
+# CATALYST FEATURES
+# ============================================
+
+features: |md
+  **Catalyst Includes**
+  • Pre-built React components
+  • BC Storefront API integration
+  • Makeswift decorators built-in
+  • TypeScript + Tailwind CSS
+  • Optimized for Vercel Edge
+| {
+  near: top-right
+  style.fill: "#f0fdf4"
+  style.stroke: "#16a34a"
+  style.border-radius: 8
+  style.font-size: 10
+}
+
+# ============================================
+# PROS & CONS
+# ============================================
+
+pros: |md
+  **PROS**
+  ✓ Fastest path to modern headless
+  ✓ BC-supported & maintained
+  ✓ Makeswift integration built-in
+  ✓ One vendor relationship
+  ✓ Best practices included
+| {
+  near: bottom-left
+  style.fill: "#f0fdf4"
+  style.stroke: "#16a34a"
+  style.border-radius: 8
+  style.font-size: 10
+}
+
+cons: |md
+  **CONS**
+  ✗ WordPress essentially deprecated
+  ✗ Learning curve for content team
+  ✗ Less flexible than custom build
+  ✗ Tied to Catalyst patterns
+| {
+  near: bottom-right
+  style.fill: "#fef2f2"
+  style.stroke: "#dc2626"
+  style.border-radius: 8
+  style.font-size: 10
+}
+
+best-for: |md
+  **Best For:** Merchants ready to modernize with BC-supported path
+| {
+  near: bottom-center
+  style.fill: "#eff6ff"
+  style.stroke: "#3b82f6"
+  style.border-radius: 8
+  style.font-size: 11
+  style.bold: true
+}
