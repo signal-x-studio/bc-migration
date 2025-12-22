@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Zap, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
+import Link from 'next/link';
+import { Zap, Loader2, AlertCircle, CheckCircle, Code } from 'lucide-react';
 import { useConnection } from '../../lib/contexts/ConnectionContext';
 import { useBCConnection } from '../../lib/contexts/BCConnectionContext';
 
@@ -148,6 +149,17 @@ export default function DemoPage() {
               <br />
               For production use, enter your own API credentials.
             </p>
+          </div>
+
+          {/* Developer Links */}
+          <div className="mt-6 pt-6 border-t border-slate-700">
+            <Link
+              href="/demo/architecture"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition-colors text-sm"
+            >
+              <Code className="w-4 h-4" />
+              View Architecture Docs
+            </Link>
           </div>
         </div>
       </div>
