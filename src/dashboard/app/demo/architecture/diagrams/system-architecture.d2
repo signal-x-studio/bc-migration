@@ -1,0 +1,286 @@
+# BC Migration Dashboard - System Architecture
+# D2 Diagram for Excalidraw export
+
+direction: down
+
+title: |md
+  # BC Migration Dashboard
+  System Architecture
+| {
+  near: top-center
+  shape: text
+  style.font-size: 24
+  style.bold: true
+}
+
+# ============================================
+# PRESENTATION LAYER
+# ============================================
+
+presentation: PRESENTATION LAYER {
+  style.fill: "#eff6ff"
+  style.stroke: "#3b82f6"
+  style.stroke-width: 2
+  style.border-radius: 8
+
+  migrate: {
+    label: "/migrate\nWizard"
+    shape: rectangle
+    style.fill: "#dbeafe"
+    style.stroke: "#2563eb"
+    style.stroke-width: 2
+    style.font-size: 12
+  }
+
+  preview: {
+    label: "/preview\nPDP/PLP"
+    shape: rectangle
+    style.fill: "#dbeafe"
+    style.stroke: "#2563eb"
+    style.stroke-width: 2
+    style.font-size: 12
+  }
+
+  validate: {
+    label: "/validate\nReports"
+    shape: rectangle
+    style.fill: "#dbeafe"
+    style.stroke: "#2563eb"
+    style.stroke-width: 2
+    style.font-size: 12
+  }
+
+  golive: {
+    label: "/go-live\nChecklist"
+    shape: rectangle
+    style.fill: "#dbeafe"
+    style.stroke: "#2563eb"
+    style.stroke-width: 2
+    style.font-size: 12
+  }
+
+  components: {
+    label: |md
+      **Shared Components**
+      WizardProgress, MigrationStep
+      ProductSelector, ValidationSummary
+    |
+    shape: rectangle
+    style.fill: "#f0f9ff"
+    style.stroke: "#0ea5e9"
+    style.font-size: 10
+  }
+}
+
+# ============================================
+# STATE MANAGEMENT LAYER
+# ============================================
+
+state: STATE MANAGEMENT {
+  style.fill: "#f5f3ff"
+  style.stroke: "#8b5cf6"
+  style.stroke-width: 2
+  style.border-radius: 8
+
+  connection-ctx: {
+    label: "ConnectionContext\n(WC creds)"
+    shape: hexagon
+    style.fill: "#ede9fe"
+    style.stroke: "#7c3aed"
+    style.stroke-width: 2
+    style.font-size: 11
+  }
+
+  bc-ctx: {
+    label: "BCConnectionContext\n(BC creds)"
+    shape: hexagon
+    style.fill: "#ede9fe"
+    style.stroke: "#7c3aed"
+    style.stroke-width: 2
+    style.font-size: 11
+  }
+
+  assessment-ctx: {
+    label: "AssessmentContext\n(cached data)"
+    shape: hexagon
+    style.fill: "#ede9fe"
+    style.stroke: "#7c3aed"
+    style.stroke-width: 2
+    style.font-size: 11
+  }
+
+  wizard-hook: {
+    label: |md
+      **useMigrationWizard**
+      Reducer-based state
+      localStorage persist
+    |
+    shape: rectangle
+    style.fill: "#faf5ff"
+    style.stroke: "#a855f7"
+    style.font-size: 10
+  }
+}
+
+# ============================================
+# API LAYER
+# ============================================
+
+api: API LAYER (Next.js Route Handlers) {
+  style.fill: "#fef3c7"
+  style.stroke: "#f59e0b"
+  style.stroke-width: 2
+  style.border-radius: 8
+
+  assess: {
+    label: "/api/assess/*\nWC data collection"
+    shape: rectangle
+    style.fill: "#fef9c3"
+    style.stroke: "#eab308"
+    style.stroke-width: 2
+    style.font-size: 11
+  }
+
+  migrate-api: {
+    label: "/api/migrate/*\nData transform + BC writes\n(SSE streams)"
+    shape: rectangle
+    style.fill: "#fef9c3"
+    style.stroke: "#eab308"
+    style.stroke-width: 2
+    style.font-size: 11
+  }
+
+  validate-api: {
+    label: "/api/validate/*\nPost-migration verify"
+    shape: rectangle
+    style.fill: "#fef9c3"
+    style.stroke: "#eab308"
+    style.stroke-width: 2
+    style.font-size: 11
+  }
+
+  export: {
+    label: "/api/export/*\nCSV/JSON exports"
+    shape: rectangle
+    style.fill: "#fef9c3"
+    style.stroke: "#eab308"
+    style.stroke-width: 2
+    style.font-size: 11
+  }
+
+  verify: {
+    label: "/api/verify/*\nGo-live checks"
+    shape: rectangle
+    style.fill: "#fef9c3"
+    style.stroke: "#eab308"
+    style.stroke-width: 2
+    style.font-size: 11
+  }
+}
+
+# ============================================
+# EXTERNAL SERVICES
+# ============================================
+
+external: EXTERNAL SERVICES {
+  style.fill: "#f9fafb"
+  style.stroke: "#6b7280"
+  style.stroke-dash: 5
+  style.border-radius: 8
+
+  woocommerce: {
+    label: |md
+      **WooCommerce**
+      REST API
+      Products, Categories
+      Customers, Orders
+      Coupons, Reviews
+    |
+    shape: cylinder
+    style.fill: "#7c3aed"
+    style.stroke: "#5b21b6"
+    style.stroke-width: 2
+    style.font-color: white
+    style.font-size: 10
+  }
+
+  bigcommerce: {
+    label: |md
+      **BigCommerce**
+      Catalog API
+      Customers API
+      Orders API
+      Storefront GQL
+      Redirects API
+    |
+    shape: cylinder
+    style.fill: "#16a34a"
+    style.stroke: "#15803d"
+    style.stroke-width: 2
+    style.font-color: white
+    style.font-size: 10
+  }
+
+  wordpress: {
+    label: |md
+      **WordPress**
+      REST API
+      Pages, Posts
+      Media
+    |
+    shape: cylinder
+    style.fill: "#0ea5e9"
+    style.stroke: "#0284c7"
+    style.stroke-width: 2
+    style.font-color: white
+    style.font-size: 10
+  }
+}
+
+# ============================================
+# CONNECTIONS
+# ============================================
+
+# Presentation to State
+presentation -> state: "hooks & contexts" {
+  style.stroke: "#8b5cf6"
+  style.stroke-width: 2
+}
+
+# State to API
+state -> api: "fetch / SSE" {
+  style.stroke: "#f59e0b"
+  style.stroke-width: 2
+}
+
+# API to External Services
+api -> external.woocommerce: "Read" {
+  style.stroke: "#7c3aed"
+  style.stroke-width: 2
+}
+
+api -> external.bigcommerce: "Read/Write" {
+  style.stroke: "#16a34a"
+  style.stroke-width: 2
+}
+
+api -> external.wordpress: "Read" {
+  style.stroke: "#0ea5e9"
+  style.stroke-width: 2
+}
+
+# ============================================
+# LEGEND
+# ============================================
+
+legend: |md
+  **TECH STACK**
+  Next.js 16 · React 19 · TypeScript 5
+  Tailwind CSS 4 · Playwright E2E
+| {
+  near: bottom-right
+  style.fill: "#f8fafc"
+  style.stroke: "#94a3b8"
+  style.border-radius: 8
+  style.font-size: 11
+}

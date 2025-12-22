@@ -1,0 +1,237 @@
+# BC Migration Dashboard - Migration Flow
+# D2 Diagram for Excalidraw export
+
+direction: right
+
+title: |md
+  # Migration Wizard Flow
+  4-Phase Data Migration Pipeline
+| {
+  near: top-center
+  shape: text
+  style.font-size: 20
+  style.bold: true
+}
+
+# ============================================
+# PHASE 1: FOUNDATION
+# ============================================
+
+phase1: {
+  label: "PHASE 1\nFoundation"
+  style.fill: "#dbeafe"
+  style.stroke: "#2563eb"
+  style.stroke-width: 3
+  style.border-radius: 12
+  style.font-size: 14
+  style.bold: true
+
+  categories: {
+    label: "Categories\n(hierarchy)"
+    shape: rectangle
+    style.fill: "#eff6ff"
+    style.stroke: "#3b82f6"
+    style.font-size: 11
+  }
+
+  mapping: {
+    label: "ID Mapping\nWC → BC"
+    shape: oval
+    style.fill: "#3b82f6"
+    style.font-color: white
+    style.font-size: 10
+  }
+}
+
+# ============================================
+# PHASE 2: CORE DATA
+# ============================================
+
+phase2: {
+  label: "PHASE 2\nCore Data"
+  style.fill: "#dcfce7"
+  style.stroke: "#16a34a"
+  style.stroke-width: 3
+  style.border-radius: 12
+  style.font-size: 14
+  style.bold: true
+
+  products: {
+    label: "Products\n(per category)"
+    shape: rectangle
+    style.fill: "#f0fdf4"
+    style.stroke: "#22c55e"
+    style.font-size: 11
+  }
+
+  customers: {
+    label: "Customers\n(bulk)"
+    shape: rectangle
+    style.fill: "#f0fdf4"
+    style.stroke: "#22c55e"
+    style.font-size: 11
+  }
+
+  sse: {
+    label: "SSE\nProgress"
+    shape: oval
+    style.fill: "#16a34a"
+    style.font-color: white
+    style.font-size: 10
+  }
+}
+
+# ============================================
+# PHASE 3: TRANSACTIONS
+# ============================================
+
+phase3: {
+  label: "PHASE 3\nTransactions"
+  style.fill: "#fef3c7"
+  style.stroke: "#f59e0b"
+  style.stroke-width: 3
+  style.border-radius: 12
+  style.font-size: 14
+  style.bold: true
+
+  orders: {
+    label: "Orders\n(V2 API)"
+    shape: rectangle
+    style.fill: "#fefce8"
+    style.stroke: "#eab308"
+    style.font-size: 11
+  }
+
+  coupons: {
+    label: "Coupons\n(type mapping)"
+    shape: rectangle
+    style.fill: "#fefce8"
+    style.stroke: "#eab308"
+    style.font-size: 11
+  }
+
+  status: {
+    label: "Status\nMapping"
+    shape: oval
+    style.fill: "#f59e0b"
+    style.font-color: white
+    style.font-size: 10
+  }
+}
+
+# ============================================
+# PHASE 4: CONTENT
+# ============================================
+
+phase4: {
+  label: "PHASE 4\nContent"
+  style.fill: "#ede9fe"
+  style.stroke: "#8b5cf6"
+  style.stroke-width: 3
+  style.border-radius: 12
+  style.font-size: 14
+  style.bold: true
+
+  reviews: {
+    label: "Reviews\n(ratings)"
+    shape: rectangle
+    style.fill: "#f5f3ff"
+    style.stroke: "#a78bfa"
+    style.font-size: 11
+  }
+
+  pages: {
+    label: "Pages\n(WP → BC)"
+    shape: rectangle
+    style.fill: "#f5f3ff"
+    style.stroke: "#a78bfa"
+    style.font-size: 11
+  }
+
+  blog: {
+    label: "Blog\n(posts)"
+    shape: rectangle
+    style.fill: "#f5f3ff"
+    style.stroke: "#a78bfa"
+    style.font-size: 11
+  }
+}
+
+# ============================================
+# VALIDATION
+# ============================================
+
+validation: {
+  label: "VALIDATION"
+  style.fill: "#fce7f3"
+  style.stroke: "#db2777"
+  style.stroke-width: 3
+  style.border-radius: 12
+  style.font-size: 14
+  style.bold: true
+
+  counts: {
+    label: "Count\nMatching"
+    shape: rectangle
+    style.fill: "#fdf2f8"
+    style.stroke: "#ec4899"
+    style.font-size: 11
+  }
+
+  data: {
+    label: "Data\nIntegrity"
+    shape: rectangle
+    style.fill: "#fdf2f8"
+    style.stroke: "#ec4899"
+    style.font-size: 11
+  }
+}
+
+# ============================================
+# CONNECTIONS (Phase Dependencies)
+# ============================================
+
+phase1 -> phase2: "unlocks" {
+  style.stroke: "#16a34a"
+  style.stroke-width: 3
+}
+
+phase2 -> phase3: "unlocks" {
+  style.stroke: "#f59e0b"
+  style.stroke-width: 3
+}
+
+phase1 -> phase4: "unlocks" {
+  style.stroke: "#8b5cf6"
+  style.stroke-width: 2
+  style.stroke-dash: 3
+}
+
+phase3 -> validation: "triggers" {
+  style.stroke: "#db2777"
+  style.stroke-width: 2
+}
+
+phase4 -> validation: "triggers" {
+  style.stroke: "#db2777"
+  style.stroke-width: 2
+}
+
+# ============================================
+# PERSISTENCE
+# ============================================
+
+storage: {
+  label: |md
+    **localStorage**
+    State per store-pair
+    wc-migration-wizard-state
+    -{wcUrl}-{bcHash}
+  |
+  near: bottom-center
+  shape: rectangle
+  style.fill: "#f1f5f9"
+  style.stroke: "#64748b"
+  style.stroke-dash: 3
+  style.font-size: 10
+}

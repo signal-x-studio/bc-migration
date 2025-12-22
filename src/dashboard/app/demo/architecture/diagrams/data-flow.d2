@@ -1,0 +1,239 @@
+# BC Migration Dashboard - Data Flow
+# D2 Diagram for Excalidraw export
+
+direction: down
+
+title: |md
+  # Migration Data Flow
+  WooCommerce → BigCommerce Pipeline
+| {
+  near: top-center
+  shape: text
+  style.font-size: 20
+  style.bold: true
+}
+
+# ============================================
+# SOURCE: WOOCOMMERCE
+# ============================================
+
+wc: WooCommerce Store {
+  style.fill: "#f5f3ff"
+  style.stroke: "#7c3aed"
+  style.stroke-width: 2
+  style.border-radius: 8
+
+  products: {
+    label: "Products\n(simple, variable)"
+    shape: rectangle
+    style.fill: "#ede9fe"
+    style.stroke: "#8b5cf6"
+    style.font-size: 11
+  }
+
+  categories: {
+    label: "Categories\n(parent/child)"
+    shape: rectangle
+    style.fill: "#ede9fe"
+    style.stroke: "#8b5cf6"
+    style.font-size: 11
+  }
+
+  customers: {
+    label: "Customers\n(no passwords)"
+    shape: rectangle
+    style.fill: "#ede9fe"
+    style.stroke: "#8b5cf6"
+    style.font-size: 11
+  }
+
+  orders: {
+    label: "Orders\n(historical)"
+    shape: rectangle
+    style.fill: "#ede9fe"
+    style.stroke: "#8b5cf6"
+    style.font-size: 11
+  }
+}
+
+# ============================================
+# TRANSFORM LAYER
+# ============================================
+
+transform: Transformation Layer {
+  style.fill: "#fef3c7"
+  style.stroke: "#f59e0b"
+  style.stroke-width: 2
+  style.border-radius: 8
+
+  zod: {
+    label: "Zod Validation\n(schemas)"
+    shape: hexagon
+    style.fill: "#fef9c3"
+    style.stroke: "#eab308"
+    style.font-size: 11
+  }
+
+  mapping: {
+    label: "ID Mapping\nWC ID → BC ID"
+    shape: hexagon
+    style.fill: "#fef9c3"
+    style.stroke: "#eab308"
+    style.font-size: 11
+  }
+
+  rate: {
+    label: "Rate Limiter\nBottleneck\n150 req/30s"
+    shape: hexagon
+    style.fill: "#fef9c3"
+    style.stroke: "#eab308"
+    style.font-size: 11
+  }
+
+  retry: {
+    label: "Retry Logic\np-retry\nExp backoff"
+    shape: hexagon
+    style.fill: "#fef9c3"
+    style.stroke: "#eab308"
+    style.font-size: 11
+  }
+}
+
+# ============================================
+# TARGET: BIGCOMMERCE
+# ============================================
+
+bc: BigCommerce Store {
+  style.fill: "#dcfce7"
+  style.stroke: "#16a34a"
+  style.stroke-width: 2
+  style.border-radius: 8
+
+  catalog: {
+    label: "Catalog API\nProducts + Variants"
+    shape: rectangle
+    style.fill: "#f0fdf4"
+    style.stroke: "#22c55e"
+    style.font-size: 11
+  }
+
+  customers-api: {
+    label: "Customers API\n(V3)"
+    shape: rectangle
+    style.fill: "#f0fdf4"
+    style.stroke: "#22c55e"
+    style.font-size: 11
+  }
+
+  orders-api: {
+    label: "Orders API\n(V2)"
+    shape: rectangle
+    style.fill: "#f0fdf4"
+    style.stroke: "#22c55e"
+    style.font-size: 11
+  }
+
+  redirects: {
+    label: "Redirects API\n301 preservation"
+    shape: rectangle
+    style.fill: "#f0fdf4"
+    style.stroke: "#22c55e"
+    style.font-size: 11
+  }
+}
+
+# ============================================
+# CONNECTIONS
+# ============================================
+
+# WC to Transform
+wc.products -> transform.zod: "fetch" {
+  style.stroke: "#7c3aed"
+  style.stroke-width: 2
+}
+
+wc.categories -> transform.zod: "fetch" {
+  style.stroke: "#7c3aed"
+  style.stroke-width: 2
+}
+
+wc.customers -> transform.zod: "fetch" {
+  style.stroke: "#7c3aed"
+  style.stroke-width: 2
+}
+
+wc.orders -> transform.zod: "fetch" {
+  style.stroke: "#7c3aed"
+  style.stroke-width: 2
+}
+
+# Transform internal
+transform.zod -> transform.mapping: {
+  style.stroke: "#94a3b8"
+  style.stroke-width: 1
+}
+
+transform.mapping -> transform.rate: {
+  style.stroke: "#94a3b8"
+  style.stroke-width: 1
+}
+
+transform.rate -> transform.retry: {
+  style.stroke: "#94a3b8"
+  style.stroke-width: 1
+}
+
+# Transform to BC
+transform.retry -> bc.catalog: "POST" {
+  style.stroke: "#16a34a"
+  style.stroke-width: 2
+}
+
+transform.retry -> bc.customers-api: "POST" {
+  style.stroke: "#16a34a"
+  style.stroke-width: 2
+}
+
+transform.retry -> bc.orders-api: "POST" {
+  style.stroke: "#16a34a"
+  style.stroke-width: 2
+}
+
+transform.retry -> bc.redirects: "POST" {
+  style.stroke: "#16a34a"
+  style.stroke-width: 2
+}
+
+# ============================================
+# KEY TRANSFORMS
+# ============================================
+
+transforms: |md
+  **Data Transformations**
+  • SKU: auto-generate if missing (wc-{id})
+  • URLs: Add leading / for custom_url
+  • Status: publish → is_visible:true
+  • Type: variable → physical + variants
+  • Hierarchy: parent_id mapping
+  • HTML: Entity decode for display
+| {
+  near: bottom-left
+  style.fill: "#f8fafc"
+  style.stroke: "#94a3b8"
+  style.border-radius: 8
+  style.font-size: 10
+}
+
+limits: |md
+  **API Limits**
+  BC: 150 req / 30s
+  BC Batch: 10 items/req
+  BC Variants: 600/product
+  WC: Paginated (100/page)
+| {
+  near: bottom-right
+  style.fill: "#fef2f2"
+  style.stroke: "#dc2626"
+  style.border-radius: 8
+  style.font-size: 10
+}

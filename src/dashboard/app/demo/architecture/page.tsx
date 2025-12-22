@@ -16,6 +16,8 @@ import {
   FolderTree,
   Zap,
   Shield,
+  FileImage,
+  ExternalLink,
 } from 'lucide-react';
 
 export default function ArchitecturePage() {
@@ -117,6 +119,54 @@ export default function ArchitecturePage() {
               ]}
               color="pink"
             />
+          </div>
+        </section>
+
+        {/* D2 Diagrams Section */}
+        <section>
+          <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
+            <FileImage className="w-6 h-6 text-indigo-400" />
+            Architecture Diagrams (D2)
+          </h2>
+
+          <p className="text-slate-400 mb-6">
+            These diagrams are defined in D2 format for easy editing and can be exported to Excalidraw or rendered with the D2 CLI.
+          </p>
+
+          <div className="grid md:grid-cols-3 gap-4 mb-8">
+            <DiagramCard
+              title="System Architecture"
+              description="Layered architecture showing presentation, state, API, and external services"
+              filename="system-architecture.d2"
+              path="app/demo/architecture/diagrams/system-architecture.d2"
+            />
+            <DiagramCard
+              title="Migration Flow"
+              description="4-phase wizard flow with dependencies and state persistence"
+              filename="migration-flow.d2"
+              path="app/demo/architecture/diagrams/migration-flow.d2"
+            />
+            <DiagramCard
+              title="Data Flow"
+              description="WooCommerce to BigCommerce data transformation pipeline"
+              filename="data-flow.d2"
+              path="app/demo/architecture/diagrams/data-flow.d2"
+            />
+          </div>
+
+          <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-4 text-sm">
+            <h4 className="font-medium text-slate-200 mb-2">Rendering D2 Diagrams</h4>
+            <pre className="text-slate-400 font-mono text-xs">{`# Install D2 CLI
+brew install d2
+
+# Render to SVG
+d2 diagrams/system-architecture.d2 system-architecture.svg
+
+# Render to PNG
+d2 diagrams/system-architecture.d2 system-architecture.png --theme 200
+
+# Watch mode for development
+d2 --watch diagrams/system-architecture.d2 output.svg`}</pre>
           </div>
         </section>
 
@@ -680,6 +730,42 @@ function DependencyCard({
         <span className="text-xs text-slate-500">{purpose}</span>
         <span className="text-xs text-slate-600">{version}</span>
       </div>
+    </div>
+  );
+}
+
+// Component: Diagram Card
+function DiagramCard({
+  title,
+  description,
+  filename,
+  path,
+}: {
+  title: string;
+  description: string;
+  filename: string;
+  path: string;
+}) {
+  return (
+    <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-indigo-500/30 rounded-xl p-5">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <FileImage className="w-5 h-5 text-indigo-400" />
+          <h3 className="font-semibold text-slate-100">{title}</h3>
+        </div>
+        <a
+          href={`https://github.com/nino-chavez/bc-migration/blob/main/src/dashboard/${path}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-slate-500 hover:text-indigo-400 transition-colors"
+        >
+          <ExternalLink className="w-4 h-4" />
+        </a>
+      </div>
+      <p className="text-slate-400 text-sm mb-3">{description}</p>
+      <code className="text-xs text-indigo-300 bg-indigo-500/10 px-2 py-1 rounded">
+        {filename}
+      </code>
     </div>
   );
 }
