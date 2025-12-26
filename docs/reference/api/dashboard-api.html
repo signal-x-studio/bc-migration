@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard API Reference</title>
+    <meta name="description" content="Complete reference for dashboard API routes">
+    <!-- frontmatter
+title: "Dashboard API Reference"
+description: "Complete reference for dashboard API routes"
+category: "reference"
+order: 2
+-->
+</head>
+<body>
+
+<h1>Dashboard API Reference</h1>
+
+<p>Complete reference for all API routes available in the migration dashboard.</p>
+
+<h2>Base URL</h2>
+
+<p>All API routes are prefixed with <code>/api</code>:</p>
+
+<pre><code>https://your-dashboard.com/api
+</code></pre>
+
+<h2>Assessment Endpoints</h2>
+
+<h3>Assess Products</h3>
+
+<pre><code class="language-http">POST /api/assess/products
+</code></pre>
+
+<p>Analyze product catalog for migration readiness.</p>
+
+<h3>Assess Categories</h3>
+
+<pre><code class="language-http">POST /api/assess/categories
+</code></pre>
+
+<p>Analyze category structure.</p>
+
+<h3>Assess Customers</h3>
+
+<pre><code class="language-http">POST /api/assess/customers
+</code></pre>
+
+<p>Analyze customer data.</p>
+
+<h3>Assess Orders</h3>
+
+<pre><code class="language-http">POST /api/assess/orders
+</code></pre>
+
+<p>Analyze order history.</p>
+
+<h3>Assess SEO</h3>
+
+<pre><code class="language-http">POST /api/assess/seo
+</code></pre>
+
+<p>Analyze SEO elements.</p>
+
+<h3>Assess Plugins</h3>
+
+<pre><code class="language-http">POST /api/assess/plugins
+</code></pre>
+
+<p>Analyze installed plugins.</p>
+
+<h3>Assess Custom Data</h3>
+
+<pre><code class="language-http">POST /api/assess/customData
+</code></pre>
+
+<p>Analyze custom data structures.</p>
+
+<h2>Migration Endpoints</h2>
+
+<h3>Setup Categories</h3>
+
+<pre><code class="language-http">POST /api/migrate/setup-categories
+</code></pre>
+
+<p>Migrate categories (Phase 1: Foundation).</p>
+
+<h3>Migrate Category Products</h3>
+
+<pre><code class="language-http">POST /api/migrate/category
+</code></pre>
+
+<p>Migrate products for a specific category.</p>
+
+<h3>Migrate Customers</h3>
+
+<pre><code class="language-http">POST /api/migrate/customers
+</code></pre>
+
+<p>Migrate customer accounts.</p>
+
+<h3>Migrate Orders</h3>
+
+<pre><code class="language-http">POST /api/migrate/orders
+</code></pre>
+
+<p>Migrate order history.</p>
+
+<h3>Migrate Coupons</h3>
+
+<pre><code class="language-http">POST /api/migrate/coupons
+</code></pre>
+
+<p>Migrate discount codes.</p>
+
+<h3>Migrate Reviews</h3>
+
+<pre><code class="language-http">POST /api/migrate/reviews
+</code></pre>
+
+<p>Migrate product reviews.</p>
+
+<h3>Migrate Pages</h3>
+
+<pre><code class="language-http">POST /api/migrate/pages
+</code></pre>
+
+<p>Migrate CMS pages.</p>
+
+<h3>Migrate Blog</h3>
+
+<pre><code class="language-http">POST /api/migrate/blog
+</code></pre>
+
+<p>Migrate blog posts.</p>
+
+<h2>Connection Endpoints</h2>
+
+<h3>Connect WooCommerce</h3>
+
+<pre><code class="language-http">POST /api/connect
+</code></pre>
+
+<p>Connect to WooCommerce store.</p>
+
+<h3>Connect BigCommerce</h3>
+
+<pre><code class="language-http">POST /api/bc/connect
+</code></pre>
+
+<p>Connect to BigCommerce store.</p>
+
+<h2>Validation Endpoints</h2>
+
+<h3>Validate Migration</h3>
+
+<pre><code class="language-http">POST /api/validate
+</code></pre>
+
+<p>Validate migrated data.</p>
+
+<h3>Detailed Validation</h3>
+
+<pre><code class="language-http">POST /api/validate/detailed
+</code></pre>
+
+<p>Perform detailed validation with sampling.</p>
+
+<h2>Export Endpoints</h2>
+
+<h3>Export Products</h3>
+
+<pre><code class="language-http">POST /api/export/products
+</code></pre>
+
+<p>Export product data.</p>
+
+<h3>Export Customers</h3>
+
+<pre><code class="language-http">POST /api/export/customers
+</code></pre>
+
+<p>Export customer data.</p>
+
+<h3>Export Migration Spec</h3>
+
+<pre><code class="language-http">POST /api/export/migration-spec
+</code></pre>
+
+<p>Export migration specification.</p>
+
+<h3>Export Redirects</h3>
+
+<pre><code class="language-http">POST /api/export/redirects
+</code></pre>
+
+<p>Export URL redirect mappings.</p>
+
+<h2>Preview Endpoints</h2>
+
+<h3>Preview Products</h3>
+
+<pre><code class="language-http">POST /api/preview/products
+</code></pre>
+
+<p>Preview product display.</p>
+
+<h3>Preview Live Store</h3>
+
+<pre><code class="language-http">POST /api/preview/live
+</code></pre>
+
+<p>Preview live storefront.</p>
+
+<h2>Verification Endpoints</h2>
+
+<h3>Verify SSL</h3>
+
+<pre><code class="language-http">POST /api/verify/ssl
+</code></pre>
+
+<p>Verify SSL certificate.</p>
+
+<h3>Verify Payment</h3>
+
+<pre><code class="language-http">POST /api/verify/payment
+</code></pre>
+
+<p>Verify payment gateway configuration.</p>
+
+<h3>Verify Shipping</h3>
+
+<pre><code class="language-http">POST /api/verify/shipping
+</code></pre>
+
+<p>Verify shipping configuration.</p>
+
+<h3>Verify Tax</h3>
+
+<pre><code class="language-http">POST /api/verify/tax
+</code></pre>
+
+<p>Verify tax settings.</p>
+
+<h3>Verify Analytics</h3>
+
+<pre><code class="language-http">POST /api/verify/analytics
+</code></pre>
+
+<p>Verify analytics setup.</p>
+
+<h2>Related Documentation</h2>
+
+<ul>
+<li><a href="woocommerce-api.html">WooCommerce API Reference</a></li>
+<li><a href="bigcommerce-api.html">BigCommerce API Reference</a></li>
+</ul>
+
+</body>
+</html>
+

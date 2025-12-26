@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Getting Started for Solution Architects</title>
+    <meta name="description" content="System design and integration patterns for solution architects">
+    <!-- frontmatter
+title: "Getting Started for Solution Architects"
+description: "System design and integration patterns for solution architects"
+category: "getting-started"
+order: 6
+-->
+</head>
+<body>
+
+<h1>Getting Started for Solution Architects</h1>
+
+<p>This guide covers system design, integration patterns, and architectural considerations for WooCommerce to BigCommerce migrations.</p>
+
+<h2>System Architecture</h2>
+
+<p>The migration system implements a headless commerce architecture:</p>
+
+<ul>
+<li><strong>Frontend:</strong> WordPress (or custom frontend)</li>
+<li><strong>Backend:</strong> BigCommerce (product data, inventory, checkout)</li>
+<li><strong>Integration:</strong> BC Bridge plugin or custom API integration</li>
+</ul>
+
+<h2>Migration Paths</h2>
+
+<h3>BC Bridge</h3>
+
+<p>WordPress plugin that connects WordPress to BigCommerce:</p>
+
+<ul>
+<li>Real-time API calls</li>
+<li>Intelligent caching</li>
+<li>Theme-agnostic</li>
+</ul>
+
+<h3>Headless</h3>
+
+<p>Custom frontend with BigCommerce backend:</p>
+
+<ul>
+<li>Full control over frontend</li>
+<li>Modern tech stack</li>
+<li>Requires frontend development</li>
+</ul>
+
+<h3>Stencil</h3>
+
+<p>BigCommerce Stencil theme:</p>
+
+<ul>
+<li>Native BigCommerce theme</li>
+<li>Full feature support</li>
+<li>Requires theme development</li>
+</ul>
+
+<h2>Integration Patterns</h2>
+
+<h3>API Integration</h3>
+
+<p>Direct REST API integration with:</p>
+
+<ul>
+<li>Rate limiting</li>
+<li>Retry logic</li>
+<li>Error handling</li>
+</ul>
+
+<h3>Caching Strategy</h3>
+
+<p>Multi-layer caching:</p>
+
+<ul>
+<li>API response caching</li>
+<li>Object cache (WordPress)</li>
+<li>CDN caching</li>
+</ul>
+
+<h2>Related Documentation</h2>
+
+<ul>
+<li><a href="../platform/architecture/MIGRATION_ARCHITECTURE.html">Migration Architecture</a></li>
+<li><a href="../platform/architecture/rate-limiting.html">Rate Limiting</a></li>
+<li><a href="../platform/architecture/caching.html">Caching Architecture</a></li>
+</ul>
+
+</body>
+</html>
+

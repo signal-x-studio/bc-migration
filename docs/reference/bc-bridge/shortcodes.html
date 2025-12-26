@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BC Bridge Shortcodes Reference</title>
+    <meta name="description" content="Complete reference of BC Bridge shortcodes">
+    <!-- frontmatter
+title: "BC Bridge Shortcodes Reference"
+description: "Complete reference of BC Bridge shortcodes"
+category: "reference"
+order: 3
+-->
+</head>
+<body>
+
+<h1>BC Bridge Shortcodes Reference</h1>
+
+<p>Complete reference of all shortcodes available in BC Bridge for displaying products, cart, and checkout functionality.</p>
+
+<h2>[bc_products]</h2>
+
+<p>Display a grid of products.</p>
+
+<h3>Attributes</h3>
+
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>limit</code></td>
+<td>12</td>
+<td>Number of products to display</td>
+</tr>
+<tr>
+<td><code>columns</code></td>
+<td>4</td>
+<td>Grid columns (2, 3, or 4)</td>
+</tr>
+<tr>
+<td><code>category</code></td>
+<td>-</td>
+<td>Filter by category slug</td>
+</tr>
+<tr>
+<td><code>orderby</code></td>
+<td>date</td>
+<td>Sort by: date, price, title</td>
+</tr>
+<tr>
+<td><code>order</code></td>
+<td>desc</td>
+<td>Sort order: asc, desc</td>
+</tr>
+</tbody>
+</table>
+
+<h3>Examples</h3>
+
+<pre><code class="language-html">// Basic product grid
+[bc_products]
+
+// 8 products, 3 columns
+[bc_products limit="8" columns="3"]
+
+// Products from specific category
+[bc_products category="clothing" limit="12"]
+
+// Sorted by price, ascending
+[bc_products orderby="price" order="asc"]
+</code></pre>
+
+<h2>[bc_product]</h2>
+
+<p>Display a single product.</p>
+
+<h3>Attributes</h3>
+
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>-</td>
+<td>BigCommerce product ID</td>
+</tr>
+<tr>
+<td><code>slug</code></td>
+<td>-</td>
+<td>Product URL slug</td>
+</tr>
+</tbody>
+</table>
+
+<h3>Examples</h3>
+
+<pre><code class="language-html">// By product ID
+[bc_product id="123"]
+
+// By product slug
+[bc_product slug="awesome-product"]
+</code></pre>
+
+<h2>[bc_cart]</h2>
+
+<p>Display the shopping cart. No attributes.</p>
+
+<h3>Example</h3>
+
+<pre><code class="language-html">[bc_cart]
+</code></pre>
+
+<h2>[bc_checkout]</h2>
+
+<p>Display checkout. Renders embedded checkout or redirects based on settings.</p>
+
+<h3>Attributes</h3>
+
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>type</code></td>
+<td>auto</td>
+<td>Checkout type: auto, embedded, redirect</td>
+</tr>
+</tbody>
+</table>
+
+<h3>Example</h3>
+
+<pre><code class="language-html">[bc_checkout]
+
+// Force embedded checkout
+[bc_checkout type="embedded"]
+
+// Force redirect checkout
+[bc_checkout type="redirect"]
+</code></pre>
+
+<h2>Customizing Shortcode Output</h2>
+
+<h3>Using Filters</h3>
+
+<pre><code class="language-php">// Modify shortcode output
+add_filter('bc_bridge_shortcode_output', function($output, $shortcode, $atts) {
+    if ($shortcode === 'bc_products') {
+        // Customize output
+        $output = '&lt;div class="custom-products"&gt;' . $output . '&lt;/div&gt;';
+    }
+    return $output;
+}, 10, 3);
+</code></pre>
+
+<h3>Creating Custom Shortcodes</h3>
+
+<pre><code class="language-php">// In your theme's functions.php
+function my_custom_product_shortcode($atts) {
+    $atts = shortcode_atts([
+        'id' => 0,
+        'featured' => false,
+    ], $atts);
+    
+    if ($atts['featured']) {
+        $products = bc_bridge()->api->get_products(['featured' => true]);
+    } else {
+        $product = bc_bridge()->api->get_product($atts['id']);
+    }
+    
+    ob_start();
+    // Render your custom template
+    include get_template_directory() . '/bc-bridge/custom-product.php';
+    return ob_get_clean();
+}
+add_shortcode('my_custom_product', 'my_custom_product_shortcode');
+</code></pre>
+
+<h2>Best Practices</h2>
+
+<ul>
+<li>Use shortcodes for flexible content placement</li>
+<li>Combine with page builders for easy customization</li>
+<li>Test shortcodes in different contexts</li>
+<li>Consider performance when using multiple shortcodes</li>
+</ul>
+
+<h2>Related Documentation</h2>
+
+<ul>
+<li><a href="../../guides/bc-bridge/customization.html">Customization Guide</a></li>
+<li><a href="templates.html">Templates Guide</a></li>
+<li><a href="hooks.html">Hooks Reference</a></li>
+</ul>
+
+</body>
+</html>
+

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Migration Getting Started</title>
+    <meta name="description" content="Quick start guide for migrating from WooCommerce to BigCommerce">
+    <!-- frontmatter
+title: "Migration Getting Started"
+description: "Quick start guide for migrating from WooCommerce to BigCommerce"
+category: "guides"
+order: 1
+-->
+</head>
+<body>
+<h1>Migration Getting Started</h1>
+<p>Quick start guide for migrating your WooCommerce store to BigCommerce.</p>
+<h2>Prerequisites</h2>
+<p>Before starting migration, ensure you have:</p>
+<ol>
+<li><p><strong>WooCommerce Store Access</strong></p>
+<ul>
+<li>REST API credentials (Consumer Key/Secret)</li>
+<li>Admin access to verify data</li>
+</ul>
+</li>
+<li><p><strong>BigCommerce Store</strong></p>
+<ul>
+<li>BigCommerce account created</li>
+<li>Store Hash and Access Token</li>
+<li>Store configured (currency, tax, shipping)</li>
+</ul>
+</li>
+<li><p><strong>Migration Tool</strong></p>
+<ul>
+<li>Node.js 18+ installed</li>
+<li>BC Migration tool installed (<code>npm install</code>)</li>
+</ul>
+</li>
+</ol>
+<h2>Quick Start</h2>
+<h3>1. Assess Your Store</h3>
+<p>First, run an assessment to understand your store:</p>
+<pre><code class="language-bash">npm run assess
+</code></pre>
+<p>Review the report in <code>./reports/</code> to identify:</p>
+<ul>
+<li>Data volume (products, customers, orders)</li>
+<li>Complexity indicators</li>
+<li>Potential blockers</li>
+</ul>
+<h3>2. Configure Credentials</h3>
+<p>Set up your <code>.env</code> file:</p>
+<pre><code class="language-env"># WooCommerce
+WC_URL=https://your-store.com
+WC_CONSUMER_KEY=ck_xxxxx
+WC_CONSUMER_SECRET=cs_xxxxx
+
+# BigCommerce
+BC_STORE_HASH=your-store-hash
+BC_ACCESS_TOKEN=your-api-token
+</code></pre>
+<h3>3. Validate Connections</h3>
+<p>Test both connections:</p>
+<pre><code class="language-bash"># Test BigCommerce
+npm run validate-target
+
+# Test WooCommerce (runs assessment)
+npm run assess
+</code></pre>
+<h3>4. Run Migration</h3>
+<p>Migrate all data types:</p>
+<pre><code class="language-bash">npm run migrate
+</code></pre>
+<p>Or migrate specific types:</p>
+<pre><code class="language-bash"># Categories first (required for products)
+npx tsx src/cli.ts migrate --type=categories
+
+# Then products
+npx tsx src/cli.ts migrate --type=products
+
+# Then customers
+npx tsx src/cli.ts migrate --type=customers
+
+# Finally orders (optional)
+npx tsx src/cli.ts migrate --type=orders
+</code></pre>
+<h3>5. Validate Results</h3>
+<p>Verify migration completeness:</p>
+<pre><code class="language-bash">npm run validate
+</code></pre>
+<p>This checks:</p>
+<ul>
+<li>Product counts match</li>
+<li>Category counts match</li>
+<li>Customer counts match</li>
+<li>Sample data accuracy</li>
+</ul>
+<h2>Migration Order</h2>
+<p>Data must be migrated in this order:</p>
+<ol>
+<li><strong>Categories</strong> - Required before products</li>
+<li><strong>Products</strong> - Depends on categories</li>
+<li><strong>Customers</strong> - Independent</li>
+<li><strong>Orders</strong> - Depends on products and customers (optional)</li>
+</ol>
+<h2>What Gets Migrated</h2>
+<table>
+<thead>
+<tr>
+<th>Data Type</th>
+<th>Migrated?</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Categories</td>
+<td>Yes</td>
+<td>With hierarchy and descriptions</td>
+</tr>
+<tr>
+<td>Products</td>
+<td>Yes</td>
+<td>Including variants, images, prices</td>
+</tr>
+<tr>
+<td>Product Variants</td>
+<td>Yes</td>
+<td>As part of products</td>
+</tr>
+<tr>
+<td>Customers</td>
+<td>Yes</td>
+<td>Password reset required</td>
+</tr>
+<tr>
+<td>Orders</td>
+<td>Optional</td>
+<td>Historical orders</td>
+</tr>
+<tr>
+<td>Coupons</td>
+<td>Partial</td>
+<td>Basic coupons only</td>
+</tr>
+<tr>
+<td>Reviews</td>
+<td>Partial</td>
+<td>Product reviews</td>
+</tr>
+</tbody></table>
+<h2>What Doesn&#39;t Get Migrated</h2>
+<ul>
+<li>WordPress content (pages, posts, media)</li>
+<li>WooCommerce settings (configured in BC)</li>
+<li>Payment gateway settings (configured in BC)</li>
+<li>Shipping methods (configured in BC)</li>
+<li>Tax settings (configured in BC)</li>
+<li>Custom post types (stays in WordPress)</li>
+</ul>
+<h2>Next Steps</h2>
+<ul>
+<li><a href="step-by-step.html">Step-by-Step Migration Guide</a> - Detailed process</li>
+<li><a href="troubleshooting.html">Troubleshooting Guide</a> - Common issues</li>
+<li><a href="../../platform/architecture/MIGRATION_ARCHITECTURE.html">Migration Architecture</a> - Technical details</li>
+</ul>
+
+</body>
+</html>

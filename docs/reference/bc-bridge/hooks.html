@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BC Bridge Hooks Reference</title>
+    <meta name="description" content="Complete reference of WordPress hooks and filters in BC Bridge">
+    <!-- frontmatter
+title: "BC Bridge Hooks Reference"
+description: "Complete reference of WordPress hooks and filters in BC Bridge"
+category: "reference"
+order: 1
+-->
+</head>
+<body>
+
+<h1>BC Bridge Hooks Reference</h1>
+
+<p>Complete reference of all WordPress actions and filters available in BC Bridge for customization and extension.</p>
+
+<h2>Actions</h2>
+
+<h3>Template Actions</h3>
+
+<h4>bc_bridge_before_product_content</h4>
+
+<p>Fired before product content is displayed.</p>
+
+<pre><code class="language-php">add_action('bc_bridge_before_product_content', function($product) {
+    // $product - Product data array
+    echo '&lt;div class="custom-banner"&gt;Special Offer!&lt;/div&gt;';
+});
+</code></pre>
+
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>$product</code> (array) - Product data</li>
+</ul>
+
+<h4>bc_bridge_after_product_content</h4>
+
+<p>Fired after product content is displayed.</p>
+
+<pre><code class="language-php">add_action('bc_bridge_after_product_content', function($product) {
+    echo '&lt;div class="related-products"&gt;...&lt;/div&gt;';
+});
+</code></pre>
+
+<h4>bc_bridge_before_product_grid</h4>
+
+<p>Fired before product grid is displayed.</p>
+
+<pre><code class="language-php">add_action('bc_bridge_before_product_grid', function($products) {
+    // $products - Array of product data
+    echo '&lt;div class="grid-header"&gt;' . count($products) . ' products&lt;/div&gt;';
+});
+</code></pre>
+
+<h4>bc_bridge_after_product_grid</h4>
+
+<p>Fired after product grid is displayed.</p>
+
+<pre><code class="language-php">add_action('bc_bridge_after_product_grid', function($products) {
+    echo '&lt;div class="grid-footer"&gt;End of products&lt;/div&gt;';
+});
+</code></pre>
+
+<h3>Cart Actions</h3>
+
+<h4>bc_bridge_before_add_to_cart</h4>
+
+<p>Fired before adding item to cart.</p>
+
+<pre><code class="language-php">add_action('bc_bridge_before_add_to_cart', function($product_id, $quantity, $variant_id) {
+    // Validate, log, etc.
+});
+</code></pre>
+
+<h4>bc_bridge_after_add_to_cart</h4>
+
+<p>Fired after adding item to cart.</p>
+
+<pre><code class="language-php">add_action('bc_bridge_after_add_to_cart', function($cart_id, $item) {
+    // Update analytics, send notifications, etc.
+});
+</code></pre>
+
+<h4>bc_bridge_cart_updated</h4>
+
+<p>Fired when cart is updated.</p>
+
+<pre><code class="language-php">add_action('bc_bridge_cart_updated', function($cart) {
+    // Update cart display, sync with external systems, etc.
+});
+</code></pre>
+
+<h3>API Actions</h3>
+
+<h4>bc_bridge_api_request</h4>
+
+<p>Fired before API request is made.</p>
+
+<pre><code class="language-php">add_action('bc_bridge_api_request', function($method, $endpoint, $data) {
+    // Log API requests
+    error_log("BC Bridge API: {$method} {$endpoint}");
+});
+</code></pre>
+
+<h4>bc_bridge_api_response</h4>
+
+<p>Fired after API response is received.</p>
+
+<pre><code class="language-php">add_action('bc_bridge_api_response', function($method, $endpoint, $response) {
+    // Log API responses
+    error_log("BC Bridge API Response: {$endpoint}");
+});
+</code></pre>
+
+<h2>Filters</h2>
+
+<h3>Data Filters</h3>
+
+<h4>bc_bridge_product_data</h4>
+
+<p>Filter product data before display.</p>
+
+<pre><code class="language-php">add_filter('bc_bridge_product_data', function($product) {
+    // Add custom fields
+    $product['custom_field'] = get_post_meta($product['id'], 'custom_field', true);
+    return $product;
+});
+</code></pre>
+
+<h4>bc_bridge_products_data</h4>
+
+<p>Filter products array before display.</p>
+
+<pre><code class="language-php">add_filter('bc_bridge_products_data', function($products) {
+    // Modify products array
+    foreach ($products as &$product) {
+        $product['custom_price'] = $product['price'] * 0.9; // 10% discount
+    }
+    return $products;
+});
+</code></pre>
+
+<h4>bc_bridge_cart_data</h4>
+
+<p>Filter cart data before display.</p>
+
+<pre><code class="language-php">add_filter('bc_bridge_cart_data', function($cart) {
+    // Add custom calculations
+    $cart['custom_total'] = $cart['base_amount'] + 10;
+    return $cart;
+});
+</code></pre>
+
+<h3>Template Filters</h3>
+
+<h4>bc_bridge_template_path</h4>
+
+<p>Filter template file path.</p>
+
+<pre><code class="language-php">add_filter('bc_bridge_template_path', function($template, $template_name) {
+    // Override template path
+    if ($template_name === 'shop.php') {
+        return get_template_directory() . '/custom-shop.php';
+    }
+    return $template;
+}, 10, 2);
+</code></pre>
+
+<h4>bc_bridge_template_vars</h4>
+
+<p>Filter template variables.</p>
+
+<pre><code class="language-php">add_filter('bc_bridge_template_vars', function($vars, $template_name) {
+    // Add custom variables
+    $vars['custom_var'] = 'custom_value';
+    return $vars;
+}, 10, 2);
+</code></pre>
+
+<h3>API Filters</h3>
+
+<h4>bc_bridge_api_base_url</h4>
+
+<p>Filter API base URL.</p>
+
+<pre><code class="language-php">add_filter('bc_bridge_api_base_url', function($url) {
+    // Use custom API endpoint
+    return 'https://custom-api.example.com/v3';
+});
+</code></pre>
+
+<h4>bc_bridge_api_request_args</h4>
+
+<p>Filter API request arguments.</p>
+
+<pre><code class="language-php">add_filter('bc_bridge_api_request_args', function($args, $method, $endpoint) {
+    // Add custom headers
+    $args['headers']['X-Custom-Header'] = 'value';
+    return $args;
+}, 10, 3);
+</code></pre>
+
+<h4>bc_bridge_api_response</h4>
+
+<p>Filter API response data.</p>
+
+<pre><code class="language-php">add_filter('bc_bridge_api_response', function($response, $endpoint) {
+    // Modify response data
+    if ($endpoint === '/catalog/products') {
+        // Transform product data
+    }
+    return $response;
+}, 10, 2);
+</code></pre>
+
+<h3>Cache Filters</h3>
+
+<h4>bc_bridge_cache_key</h4>
+
+<p>Filter cache key.</p>
+
+<pre><code class="language-php">add_filter('bc_bridge_cache_key', function($key, $group) {
+    // Add prefix or modify key
+    return 'my_prefix_' . $key;
+}, 10, 2);
+</code></pre>
+
+<h4>bc_bridge_cache_expiration</h4>
+
+<p>Filter cache expiration time.</p>
+
+<pre><code class="language-php">add_filter('bc_bridge_cache_expiration', function($expiration, $group) {
+    // Custom expiration per group
+    if ($group === 'products') {
+        return 2 * HOUR_IN_SECONDS; // 2 hours
+    }
+    return $expiration;
+}, 10, 2);
+</code></pre>
+
+<h3>Cart Filters</h3>
+
+<h4>bc_bridge_cart_id</h4>
+
+<p>Filter cart ID.</p>
+
+<pre><code class="language-php">add_filter('bc_bridge_cart_id', function($cart_id) {
+    // Use custom cart ID logic
+    return get_user_meta(get_current_user_id(), 'bc_cart_id', true);
+});
+</code></pre>
+
+<h4>bc_bridge_checkout_url</h4>
+
+<p>Filter checkout URL.</p>
+
+<pre><code class="language-php">add_filter('bc_bridge_checkout_url', function($url, $cart_id) {
+    // Custom checkout URL
+    return home_url('/custom-checkout/');
+}, 10, 2);
+</code></pre>
+
+<h2>JavaScript Events</h2>
+
+<h3>bc_bridge_added_to_cart</h3>
+
+<p>Fired when item is added to cart.</p>
+
+<pre><code class="language-javascript">document.addEventListener('bc_bridge_added_to_cart', function(e) {
+    const data = e.detail;
+    console.log('Added to cart:', data);
+    // Show notification, update cart count, etc.
+});
+</code></pre>
+
+<h3>bc_bridge_cart_updated</h3>
+
+<p>Fired when cart is updated.</p>
+
+<pre><code class="language-javascript">document.addEventListener('bc_bridge_cart_updated', function(e) {
+    const cart = e.detail;
+    console.log('Cart updated:', cart);
+    // Update cart display
+});
+</code></pre>
+
+<h3>bc_bridge_before_checkout</h3>
+
+<p>Fired before redirecting to checkout.</p>
+
+<pre><code class="language-javascript">document.addEventListener('bc_bridge_before_checkout', function(e) {
+    // Validate cart, show loading, etc.
+    e.preventDefault(); // Prevent default checkout
+    // Custom checkout logic
+});
+</code></pre>
+
+<h2>Related Documentation</h2>
+
+<ul>
+<li><a href="../../guides/bc-bridge/development.html">Development Guide</a></li>
+<li><a href="../../guides/bc-bridge/customization.html">Customization Guide</a></li>
+<li><a href="templates.html">Templates Guide</a></li>
+<li><a href="shortcodes.html">Shortcodes Reference</a></li>
+</ul>
+
+</body>
+</html>
+

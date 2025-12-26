@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Migration Guides</title>
+    <meta name="description" content="">
+    <!-- frontmatter
+title: "Migration Guides"
+description: ""
+category: ""
+order: 999
+-->
+</head>
+<body>
+<h1>Migration Guides</h1>
+<p>Step-by-step guides for migrating from WooCommerce to BigCommerce.</p>
+<h2>Documentation</h2>
+<ul>
+<li><a href="getting-started.html">Getting Started</a> - Quick start guide for migration</li>
+<li><a href="step-by-step.html">Step-by-Step Guide</a> - Detailed migration process</li>
+<li><a href="troubleshooting.html">Troubleshooting</a> - Common issues and solutions</li>
+</ul>
+<h2>Migration Process</h2>
+<ol>
+<li><strong>Assessment</strong> - Analyze your WooCommerce store</li>
+<li><strong>Preparation</strong> - Set up BigCommerce store and credentials</li>
+<li><strong>Migration</strong> - Run the migration tool</li>
+<li><strong>Validation</strong> - Verify migration completeness</li>
+<li><strong>Go Live</strong> - Launch your new BigCommerce-powered store</li>
+</ol>
+<h2>Quick Start</h2>
+<pre><code class="language-bash"># Run full migration
+npm run migrate
+
+# Migrate specific data type
+npx tsx src/cli.ts migrate --type=products
+</code></pre>
+<h2>Related Documentation</h2>
+<ul>
+<li><a href="../../platform/architecture/MIGRATION_ARCHITECTURE.html">Migration Architecture</a> - Technical architecture</li>
+<li><a href="../../platform/architecture/DATA_MAPPING_AND_MIGRATION_READINESS.html">Data Mapping</a> - Data transformation details</li>
+<li><a href="../../reference/api/">API Reference</a> - API documentation</li>
+</ul>
+
+</body>
+</html>

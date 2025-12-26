@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Getting Started for Merchants</title>
+    <meta name="description" content="Simple guide for store owners migrating from WooCommerce to BigCommerce">
+    <!-- frontmatter
+title: "Getting Started for Merchants"
+description: "Simple guide for store owners migrating from WooCommerce to BigCommerce"
+category: "getting-started"
+order: 1
+-->
+</head>
+<body>
+<h1>Getting Started for Merchants</h1>
+<p>Welcome! This guide helps you migrate your WooCommerce store to BigCommerce without rebuilding your website.</p>
+<h2>What is BC Migration?</h2>
+<p>BC Migration is a tool that helps you upgrade from WooCommerce to BigCommerce as your commerce backend while keeping your WordPress site intact. You keep your:</p>
+<ul>
+<li>WordPress content and pages</li>
+<li>Theme and design</li>
+<li>SEO rankings</li>
+<li>Existing plugins (for non-commerce features)</li>
+</ul>
+<p>Only the commerce engine changes—everything else stays the same.</p>
+<h2>Why Migrate?</h2>
+<p><strong>WooCommerce limitations:</strong></p>
+<ul>
+<li>Doesn&#39;t scale well beyond ~$5M in annual sales</li>
+<li>Requires significant infrastructure investment to grow</li>
+<li>Plugin conflicts and maintenance burden</li>
+</ul>
+<p><strong>BigCommerce benefits:</strong></p>
+<ul>
+<li>Built-in scalability and reliability</li>
+<li>No infrastructure management needed</li>
+<li>Enterprise-grade features out of the box</li>
+<li>Better performance and uptime</li>
+</ul>
+<h2>Quick Start</h2>
+<h3>Step 1: Assess Your Store</h3>
+<p>Run an assessment to see if your store is ready for migration:</p>
+<pre><code class="language-bash">npm run assess
+</code></pre>
+<p>This analyzes your store and generates a readiness report showing:</p>
+<ul>
+<li>What data will be migrated</li>
+<li>Any potential issues or blockers</li>
+<li>Estimated migration time</li>
+<li>Complexity score</li>
+</ul>
+<h3>Step 2: Review Your Report</h3>
+<p>Check the assessment report in <code>./reports/</code> to understand:</p>
+<ul>
+<li><strong>GREEN</strong> - Your store is ideal for automated migration</li>
+<li><strong>YELLOW</strong> - Migration is feasible with some manual configuration</li>
+<li><strong>RED</strong> - High complexity, may need technical review</li>
+</ul>
+<h3>Step 3: Plan Your Migration</h3>
+<p>Review the <a href="../guides/migration/getting-started.html">migration guide</a> to understand:</p>
+<ul>
+<li>What data gets migrated (products, customers, orders)</li>
+<li>What stays in WordPress (content, pages, blog)</li>
+<li>Timeline and process</li>
+</ul>
+<h3>Step 4: Set Up BigCommerce</h3>
+<ol>
+<li>Create a BigCommerce account</li>
+<li>Get your API credentials (Store Hash and Access Token)</li>
+<li>Configure your store settings</li>
+</ol>
+<h3>Step 5: Run the Migration</h3>
+<pre><code class="language-bash">npm run migrate
+</code></pre>
+<p>The tool will:</p>
+<ol>
+<li>Migrate categories</li>
+<li>Migrate products (with variants)</li>
+<li>Migrate customers</li>
+<li>Migrate orders (optional)</li>
+</ol>
+<h3>Step 6: Validate Results</h3>
+<pre><code class="language-bash">npm run validate
+</code></pre>
+<p>This verifies that all data migrated correctly.</p>
+<h2>What Gets Migrated?</h2>
+<table>
+<thead>
+<tr>
+<th>Data Type</th>
+<th>Migrated?</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Products</td>
+<td>Yes</td>
+<td>Including variants and images</td>
+</tr>
+<tr>
+<td>Categories</td>
+<td>Yes</td>
+<td>With hierarchy preserved</td>
+</tr>
+<tr>
+<td>Customers</td>
+<td>Yes</td>
+<td>Password reset required</td>
+</tr>
+<tr>
+<td>Orders</td>
+<td>Optional</td>
+<td>Historical orders</td>
+</tr>
+<tr>
+<td>Content/Pages</td>
+<td>No</td>
+<td>Stays in WordPress</td>
+</tr>
+<tr>
+<td>Blog Posts</td>
+<td>No</td>
+<td>Stays in WordPress</td>
+</tr>
+<tr>
+<td>Media</td>
+<td>No</td>
+<td>Images served from BigCommerce CDN</td>
+</tr>
+</tbody></table>
+<h2>Common Questions</h2>
+<h3>Will my site go down during migration?</h3>
+<p>No. The migration runs separately from your live site. Your WooCommerce store continues operating normally until you&#39;re ready to switch.</p>
+<h3>How long does migration take?</h3>
+<p>Depends on your store size:</p>
+<ul>
+<li>Small stores (&lt; 1,000 products): 1-2 hours</li>
+<li>Medium stores (1,000-10,000 products): 2-4 hours</li>
+<li>Large stores (&gt; 10,000 products): 4-8 hours</li>
+</ul>
+<h3>Will I lose my SEO rankings?</h3>
+<p>No. Your WordPress URLs and content stay the same. The BC Bridge plugin ensures your product URLs continue working.</p>
+<h3>What about my existing plugins?</h3>
+<p>Non-commerce plugins (like contact forms, SEO tools) continue working. Commerce-related plugins are replaced by BigCommerce features.</p>
+<h3>Do I need technical knowledge?</h3>
+<p>Basic technical knowledge helps, but the tool is designed to be straightforward. You&#39;ll need to:</p>
+<ul>
+<li>Run command-line tools</li>
+<li>Get API credentials from WooCommerce and BigCommerce</li>
+<li>Follow step-by-step guides</li>
+</ul>
+<h2>Next Steps</h2>
+<ol>
+<li><a href="../guides/assessment/HOW_TO_ASSESS.html">Run an Assessment</a></li>
+<li><a href="../guides/migration/getting-started.html">Read the Migration Guide</a></li>
+<li><a href="../platform/architecture/MIGRATION_ARCHITECTURE.html">Understand the Architecture</a> (optional, technical)</li>
+</ol>
+<h2>Getting Help</h2>
+<ul>
+<li>Check the <a href="../guides/migration/troubleshooting.html">Troubleshooting Guide</a></li>
+<li>Review <a href="../guides/migration/troubleshooting.html#common-issues">Common Issues</a></li>
+<li>Contact BigCommerce support</li>
+</ul>
+
+</body>
+</html>

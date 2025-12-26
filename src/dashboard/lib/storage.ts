@@ -40,6 +40,9 @@ const STORAGE_KEYS = {
   GO_LIVE_CHECKLIST: 'wc-migration-go-live-checklist',
   MIGRATION_MODE: 'wc-migration-mode',
   MIGRATION_OPTIONS: 'wc-migration-options',
+  // WordPress content integration
+  WP_SITE_URL: 'wc-migration-wp-site-url',
+  WP_REMEMBER_ME: 'wc-migration-wp-remember-me',
 } as const;
 
 // ============================================
@@ -1142,4 +1145,64 @@ export function downloadMigrationExport(wcStoreUrl: string, bcStoreHash: string)
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+}
+
+// ============================================
+// WordPress Site URL Storage
+// ============================================
+
+export function saveWPSiteUrl(url: string): void {
+  if (typeof window === 'undefined') return;
+
+  try {
+    localStorage.setItem(STORAGE_KEYS.WP_SITE_URL, url);
+  } catch (error) {
+    console.error('Failed to save WP site URL:', error);
+  }
+}
+
+export function loadWPSiteUrl(): string | null {
+  if (typeof window === 'undefined') return null;
+
+  try {
+    return localStorage.getItem(STORAGE_KEYS.WP_SITE_URL);
+  } catch (error) {
+    console.error('Failed to load WP site URL:', error);
+    return null;
+  }
+}
+
+export function clearWPSiteUrl(): void {
+  if (typeof window === 'undefined') return;
+
+  try {
+    localStorage.removeItem(STORAGE_KEYS.WP_SITE_URL);
+  } catch (error) {
+    console.error('Failed to clear WP site URL:', error);
+  }
+}
+
+export function getWPRememberMe(): boolean {
+  if (typeof window === 'undefined') return false;
+
+  try {
+    return localStorage.getItem(STORAGE_KEYS.WP_REMEMBER_ME) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+export function setWPRememberMe(remember: boolean): void {
+  if (typeof window === 'undefined') return;
+
+  try {
+    if (remember) {
+      localStorage.setItem(STORAGE_KEYS.WP_REMEMBER_ME, 'true');
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.WP_REMEMBER_ME);
+      clearWPSiteUrl();
+    }
+  } catch (error) {
+    console.error('Failed to set WP remember me:', error);
+  }
 }

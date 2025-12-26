@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Architecture</title>
+    <meta name="description" content="">
+    <!-- frontmatter
+title: "Architecture"
+description: ""
+category: ""
+order: 999
+-->
+</head>
+<body>
+<h1>Architecture</h1>
+<p>Technical architecture, data models, and integration patterns for WooCommerce to BigCommerce migration.</p>
+<h2>Core Documents</h2>
+<ul>
+<li><a href="MIGRATION_ARCHITECTURE.html">Migration Architecture</a> - Complete technical architecture and design</li>
+<li><a href="DATA_MAPPING_AND_MIGRATION_READINESS.html">Data Mapping &amp; Readiness</a> - Comprehensive field mappings and edge cases</li>
+<li><a href="IMPLEMENTATION_GAP_ANALYSIS.html">Implementation Gap Analysis</a> - Current implementation status vs. requirements</li>
+</ul>
+<h2>Visual Diagrams</h2>
+<ul>
+<li><a href="diagrams/">Architecture Diagrams</a> - System architecture visualizations<ul>
+<li>Before/After architecture</li>
+<li>Migration phase flow</li>
+<li>Runtime phase architecture</li>
+</ul>
+</li>
+</ul>
+<h2>Key Concepts</h2>
+<h3>Migration Approach</h3>
+<ul>
+<li><strong>Headless Commerce Bridge</strong> - WordPress frontend with BigCommerce backend</li>
+<li><strong>Stateless Architecture</strong> - No data sync, real-time API calls</li>
+<li><strong>Idempotent Operations</strong> - Safe to re-run migrations</li>
+</ul>
+<h3>Data Flow</h3>
+<ol>
+<li>Assessment → Analyze WooCommerce store</li>
+<li>Migration → Transform and migrate data to BigCommerce</li>
+<li>Validation → Verify migration completeness</li>
+<li>Runtime → BC Bridge plugin serves commerce via APIs</li>
+</ol>
+<h2>Related Documentation</h2>
+<ul>
+<li><a href="../assessment-engine/ASSESSMENT_ENGINE.html">Assessment Engine</a> - Assessment system architecture</li>
+<li><a href="../bc-bridge/BC_BRIDGE_INTENT.html">BC Bridge Plugin</a> - Plugin architecture</li>
+<li><a href="../../reference/api/">API Reference</a> - API endpoints and usage</li>
+</ul>
+
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Getting Started for Developers</title>
+    <meta name="description" content="Technical setup and integration guide for engineers">
+    <!-- frontmatter
+title: "Getting Started for Developers"
+description: "Technical setup and integration guide for engineers"
+category: "getting-started"
+order: 2
+-->
+</head>
+<body>
+<h1>Getting Started for Developers</h1>
+<p>Technical setup and integration guide for the BC Migration tooling.</p>
+<h2>Prerequisites</h2>
+<ul>
+<li>Node.js 18+</li>
+<li>npm 9+</li>
+<li>WooCommerce REST API credentials (Consumer Key/Secret)</li>
+<li>BigCommerce API credentials (Store Hash/Access Token)</li>
+</ul>
+<h2>Installation</h2>
+<h3>1. Clone and Install</h3>
+<pre><code class="language-bash">git clone &lt;repo-url&gt;
+cd bc-migration
+npm install
+</code></pre>
+<h3>2. Configure Environment</h3>
+<pre><code class="language-bash">cp .env.example .env
+</code></pre>
+<p>Edit <code>.env</code> with your credentials:</p>
+<pre><code class="language-env"># WooCommerce
+WC_URL=https://your-store.com
+WC_CONSUMER_KEY=ck_xxxxx
+WC_CONSUMER_SECRET=cs_xxxxx
+
+# BigCommerce
+BC_STORE_HASH=your-store-hash
+BC_ACCESS_TOKEN=your-api-token
+</code></pre>
+<h3>3. Test Connections</h3>
+<pre><code class="language-bash"># Test BigCommerce connection
+npm run validate-target
+
+# Test WooCommerce connection
+npm run assess
+</code></pre>
+<h2>Quick Start</h2>
+<h3>Run Assessment</h3>
+<pre><code class="language-bash">npm run assess
+
+# Or with explicit credentials
+npx tsx src/cli.ts assess --url https://store.com --key ck_xxx --secret cs_xxx
+</code></pre>
+<h3>Run Migration</h3>
+<pre><code class="language-bash"># Migrate all data types
+npm run migrate
+
+# Migrate specific type
+npx tsx src/cli.ts migrate --type=products
+npx tsx src/cli.ts migrate --type=categories
+npx tsx src/cli.ts migrate --type=customers
+npx tsx src/cli.ts migrate --type=orders
+
+# Delta migration (only changed items)
+npx tsx src/cli.ts migrate --delta
+</code></pre>
+<h3>Validate Results</h3>
+<pre><code class="language-bash">npm run validate
+
+# With custom sample size
+npx tsx src/cli.ts validate --sample 20
+</code></pre>
+<h2>Project Structure</h2>
+<pre><code>bc-migration/
+├── src/
+│   ├── cli.ts                    # CLI entry point
+│   ├── assessment/               # Store assessment engine
+│   │   ├── orchestrator.ts       # Assessment coordinator
+│   │   ├── wc-client.ts          # WooCommerce API client
+│   │   └── collectors/           # Data collectors
+│   ├── bigcommerce/
+│   │   └── bc-client.ts          # BC API client (rate-limited)
+│   ├── migration/
+│   │   ├── category-migrator.ts  # Category migration
+│   │   ├── product-migrator.ts   # Product migration (with variants)
+│   │   ├── customer-migrator.ts  # Customer migration
+│   │   ├── order-migrator.ts     # Order migration
+│   │   ├── state-tracker.ts      # Delta sync state
+│   │   └── transformers/         # Data transformers
+│   ├── validation/
+│   │   ├── data-validator.ts     # Post-migration validation
+│   │   └── report.ts             # Report generator
+│   └── lib/                      # Shared utilities
+│       ├── rate-limiter.ts       # Bottleneck rate limiting
+│       ├── retry.ts              # Exponential backoff
+│       ├── logger.ts             # Pino structured logging
+│       └── batch.ts              # Batch processing
+├── docs/                         # Documentation
+└── package.json
+</code></pre>
+<h2>Architecture Overview</h2>
+<h3>Assessment Engine</h3>
+<p>Analyzes WooCommerce stores for migration readiness:</p>
+<ul>
+<li>Scale metrics (product count, variant count, etc.)</li>
+<li>Complexity scoring</li>
+<li>Plugin compatibility analysis</li>
+<li>SEO structure analysis</li>
+</ul>
+<h3>Migration System</h3>
+<p>Transforms and migrates data from WooCommerce to BigCommerce:</p>
+<ul>
+<li><strong>Transformers</strong> - Convert WC data format to BC format</li>
+<li><strong>Migrators</strong> - Handle API calls and rate limiting</li>
+<li><strong>State Tracker</strong> - Track migration progress for delta syncs</li>
+</ul>
+<h3>Validation System</h3>
+<p>Verifies migration completeness:</p>
+<ul>
+<li>Count comparisons (WC vs BC)</li>
+<li>Sample data validation</li>
+<li>Image accessibility checks</li>
+</ul>
+<h2>API Integration</h2>
+<h3>WooCommerce REST API</h3>
+<p>Used for reading source data:</p>
+<ul>
+<li><code>GET /wp-json/wc/v3/products</code> - Products</li>
+<li><code>GET /wp-json/wc/v3/products/categories</code> - Categories</li>
+<li><code>GET /wp-json/wc/v3/customers</code> - Customers</li>
+<li><code>GET /wp-json/wc/v3/orders</code> - Orders</li>
+</ul>
+<h3>BigCommerce REST API</h3>
+<p>Used for writing target data:</p>
+<ul>
+<li><code>POST /v3/catalog/products</code> - Create products</li>
+<li><code>POST /v3/catalog/categories</code> - Create categories</li>
+<li><code>POST /v3/customers</code> - Create customers</li>
+<li><code>POST /v3/orders</code> - Create orders</li>
+</ul>
+<p><strong>Rate Limits:</strong></p>
+<ul>
+<li>150 requests per 30 seconds</li>
+<li>10 items per batch operation</li>
+<li>600 variants per product (hard limit)</li>
+</ul>
+<h2>Development Workflow</h2>
+<h3>Running Tests</h3>
+<pre><code class="language-bash"># Run all tests
+npm test
+
+# Watch mode
+npm run test:watch
+
+# Coverage report
+npm run test:coverage
+</code></pre>
+<h3>Development Mode</h3>
+<pre><code class="language-bash"># Run CLI in development
+npm run dev
+
+# Run dashboard
+cd src/dashboard
+npm run dev
+</code></pre>
+<h3>Building</h3>
+<pre><code class="language-bash"># Build TypeScript
+npm run build
+
+# Run compiled CLI
+node dist/cli.js assess
+</code></pre>
+<h2>Key Concepts</h2>
+<h3>Idempotent Operations</h3>
+<p>All migration operations are idempotent—safe to re-run without creating duplicates:</p>
+<ul>
+<li>Categories: Skipped if name already exists</li>
+<li>Products: Matched by SKU or <code>wc-{id}</code> pattern</li>
+<li>Customers: Matched by email</li>
+</ul>
+<h3>Rate Limiting</h3>
+<p>BigCommerce API rate limiting is handled automatically:</p>
+<ul>
+<li>Uses Bottleneck library</li>
+<li>Exponential backoff on rate limit errors</li>
+<li>Request queuing for bursts</li>
+</ul>
+<h3>Error Handling</h3>
+<ul>
+<li>Structured logging with Pino</li>
+<li>Retry logic with exponential backoff</li>
+<li>Graceful degradation on non-critical errors</li>
+</ul>
+<h2>Documentation</h2>
+<ul>
+<li><a href="../platform/architecture/MIGRATION_ARCHITECTURE.html">Migration Architecture</a> - Technical design</li>
+<li><a href="../reference/api/">API Reference</a> - API documentation</li>
+<li><a href="../reference/cli/commands.html">CLI Commands</a> - Command reference</li>
+<li><a href="../reference/schemas/data-models.html">Data Models</a> - Type definitions</li>
+</ul>
+<h2>Troubleshooting</h2>
+<h3>Connection Errors</h3>
+<p><strong>WooCommerce 401 Unauthorized</strong></p>
+<ul>
+<li>Verify <code>WC_CONSUMER_KEY</code> and <code>WC_CONSUMER_SECRET</code></li>
+<li>Ensure REST API is enabled</li>
+<li>Check API key permissions (read required)</li>
+</ul>
+<p><strong>BigCommerce 401/403</strong></p>
+<ul>
+<li>Verify <code>BC_STORE_HASH</code> and <code>BC_ACCESS_TOKEN</code></li>
+<li>Ensure token has required scopes</li>
+</ul>
+<h3>Rate Limiting</h3>
+<p>Rate limit errors are handled automatically, but you can:</p>
+<ul>
+<li>Check <code>logs/migration-*.log</code> for timing details</li>
+<li>Reduce batch sizes for very large migrations</li>
+</ul>
+<h3>Missing Data</h3>
+<ul>
+<li>Run <code>npm run validate</code> to check for discrepancies</li>
+<li>Check logs for transformation warnings</li>
+<li>Products without SKUs get auto-generated SKUs (<code>wc-{id}</code>)</li>
+</ul>
+<h2>Next Steps</h2>
+<ol>
+<li><a href="../platform/architecture/MIGRATION_ARCHITECTURE.html">Read the Architecture Docs</a></li>
+<li><a href="../reference/api/">Review API Reference</a></li>
+<li><a href="../resources/strategy/HANDOFF.html">Check the Handoff Guide</a> for project context</li>
+</ol>
+
+</body>
+</html>

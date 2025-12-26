@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phase 2: Core Data - Products and Customers</title>
+    <meta name="description" content="Migrate your product catalog and customer accounts to BigCommerce">
+    <!-- frontmatter
+title: "Phase 2: Core Data - Products and Customers"
+description: "Migrate your product catalog and customer accounts to BigCommerce"
+category: "guides"
+order: 2
+-->
+</head>
+<body>
+
+<h1>Phase 2: Core Data - Products and Customers</h1>
+
+<p>The Core Data phase migrates your essential commerce data: products and customers. This is the second required phase and depends on the Foundation phase being completed first.</p>
+
+<h2>Overview</h2>
+
+<p>This phase migrates:</p>
+
+<ul>
+<li><strong>Products:</strong> All product types (simple, variable, grouped, external) with variations, images, attributes, and metadata</li>
+<li><strong>Customers:</strong> Customer accounts with addresses, contact information, and authentication settings</li>
+</ul>
+
+<h2>Dependencies</h2>
+
+<p><strong>Requires Phase 1 (Foundation):</strong> Products need categories to be properly organized. The category ID mapping from Phase 1 is used to assign products to the correct categories in BigCommerce.</p>
+
+<h2>Products Migration</h2>
+
+<h3>What Gets Migrated</h3>
+
+<ul>
+<li><strong>Product Data:</strong> Name, description, SKU, price, stock status, weight, dimensions</li>
+<li><strong>Product Images:</strong> Featured image and gallery images</li>
+<li><strong>Product Attributes:</strong> Custom attributes and options</li>
+<li><strong>Product Variations:</strong> Variable product variations with their own SKUs, prices, and inventory</li>
+<li><strong>Product Categories:</strong> Category assignments (using ID mapping from Phase 1)</li>
+<li><strong>Product Metadata:</strong> Custom fields and meta data</li>
+</ul>
+
+<h3>Product Types Supported</h3>
+
+<ul>
+<li><strong>Simple Products:</strong> Standard products with fixed attributes</li>
+<li><strong>Variable Products:</strong> Products with variations (sizes, colors, etc.)</li>
+<li><strong>Grouped Products:</strong> Product bundles (migrated as individual products with relationships)</li>
+<li><strong>External Products:</strong> Affiliate products (migrated with external URLs)</li>
+</ul>
+
+<h3>Product Migration Process</h3>
+
+<ol>
+<li><strong>Build Category Map:</strong> Maps BigCommerce category names to IDs</li>
+<li><strong>Fetch Products:</strong> Retrieves all products from WooCommerce (paginated, 50 per page)</li>
+<li><strong>Fetch Variations:</strong> For variable products, fetches all variations</li>
+<li><strong>Transform Products:</strong> Converts WooCommerce product format to BigCommerce format</li>
+<li><strong>Validate:</strong> Ensures required fields are present and valid</li>
+<li><strong>Create Products:</strong> Creates products in BigCommerce via API</li>
+<li><strong>Track Progress:</strong> Maintains product ID mapping for use in later phases</li>
+</ol>
+
+<h3>Product Transformation</h3>
+
+<p>Products are transformed using the <code>transformProduct</code> function in <code>src/migration/transformers/index.ts</code>:</p>
+
+<pre><code class="language-typescript">const transformResult = await transformProduct(
+  wcProduct,
+  variations, // For variable products
+  categoryMap // From Phase 1
+);
+</code></pre>
+
+<p>Key transformations:</p>
+
+<ul>
+<li>WooCommerce product types → BigCommerce product types</li>
+<li>WooCommerce categories → BigCommerce categories (via ID mapping)</li>
+<li>WooCommerce attributes → BigCommerce options and modifiers</li>
+<li>WooCommerce variations → BigCommerce variants</li>
+<li>WooCommerce images → BigCommerce images</li>
+</ul>
+
+<h3>Delta Migration</h3>
+
+<p>The Product Migrator supports delta (incremental) migration:</p>
+
+<ul>
+<li>Only migrates products modified since the last run</li>
+<li>Tracks last migration timestamp using <code>StateTracker</code></li>
+<li>Useful for syncing ongoing changes</li>
+</ul>
+
+<h3>Product Migration Statistics</h3>
+
+<p>After completion, you'll receive:</p>
+
+<ul>
+<li><strong>Total:</strong> Total products found in WooCommerce</li>
+<li><strong>Migrated:</strong> Products successfully created in BigCommerce</li>
+<li><strong>Skipped:</strong> Products that already existed (by SKU)</li>
+<li><strong>Failed:</strong> Products that encountered errors</li>
+<li><strong>Mapping:</strong> WC Product ID → BC Product ID mapping</li>
+</ul>
+
+<h2>Customers Migration</h2>
+
+<h3>What Gets Migrated</h3>
+
+<ul>
+<li><strong>Customer Data:</strong> Email, first name, last name, phone number</li>
+<li><strong>Billing Address:</strong> Complete billing address information</li>
+<li><strong>Shipping Address:</strong> Shipping address (if different from billing)</li>
+<li><strong>Authentication:</strong> Password reset flag (passwords cannot be migrated)</li>
+</ul>
+
+<h3>Important: Password Migration</h3>
+
+<p><strong>Passwords cannot be migrated</strong> for security reasons. All migrated customers will need to reset their passwords using the "Forgot Password" flow in BigCommerce.</p>
+
+<h3>Customer Migration Process</h3>
+
+<ol>
+<li><strong>Fetch Customers:</strong> Retrieves all customers from WooCommerce (paginated, 50 per page)</li>
+<li><strong>Validate Email:</strong> Ensures each customer has a valid email address</li>
+<li><strong>Check Existing:</strong> Skips customers that already exist in BigCommerce (by email)</li>
+<li><strong>Build Addresses:</strong> Converts WooCommerce addresses to BigCommerce format</li>
+<li><strong>Create Customer:</strong> Creates customer in BigCommerce with addresses</li>
+<li><strong>Track Progress:</strong> Maintains customer ID mapping for use in Phase 3</li>
+</ol>
+
+<h3>Address Transformation</h3>
+
+<p>Customer addresses are transformed as follows:</p>
+
+<pre><code class="language-typescript">const addresses: BCAddress[] = [];
+
+// Billing address
+if (wcCustomer.billing?.address_1) {
+  addresses.push({
+    first_name: wcCustomer.billing.first_name,
+    last_name: wcCustomer.billing.last_name,
+    address1: wcCustomer.billing.address_1,
+    address2: wcCustomer.billing.address_2,
+    city: wcCustomer.billing.city,
+    state_or_province: wcCustomer.billing.state,
+    postal_code: wcCustomer.billing.postcode,
+    country_code: wcCustomer.billing.country,
+    phone: wcCustomer.billing.phone,
+    address_type: 'residential',
+  });
+}
+
+// Shipping address (if different)
+if (wcCustomer.shipping?.address_1 !== wcCustomer.billing?.address_1) {
+  // Add shipping address
+}
+</code></pre>
+
+<h3>Customer Migration Statistics</h3>
+
+<p>After completion, you'll receive:</p>
+
+<ul>
+<li><strong>Total:</strong> Total customers found in WooCommerce</li>
+<li><strong>Migrated:</strong> Customers successfully created in BigCommerce</li>
+<li><strong>Skipped:</strong> Customers that already existed (by email) or had no email</li>
+<li><strong>Failed:</strong> Customers that encountered errors</li>
+<li><strong>Mapping:</strong> WC Customer ID → BC Customer ID mapping</li>
+</ul>
+
+<h2>Using the Dashboard Wizard</h2>
+
+<h3>Product Migration</h3>
+
+<ol>
+<li>Navigate to Phase 2 in the Migration Wizard</li>
+<li>View your category structure (from Phase 1)</li>
+<li>Select a category to migrate its products</li>
+<li>Click <strong>Migrate Products</strong> for the selected category</li>
+<li>Monitor real-time progress</li>
+<li>Review results and product mappings</li>
+</ol>
+
+<h3>Customer Migration</h3>
+
+<ol>
+<li>In Phase 2, scroll to the Customers section</li>
+<li>Click <strong>Migrate Customers</strong></li>
+<li>Monitor progress in real-time</li>
+<li>Review customer migration statistics</li>
+</ol>
+
+<h3>Phase UI Features</h3>
+
+<ul>
+<li><strong>Category Tree:</strong> Browse categories and see product counts</li>
+<li><strong>Selective Migration:</strong> Migrate products by category</li>
+<li><strong>Real-time Progress:</strong> See products and customers being migrated</li>
+<li><strong>ID Mappings:</strong> View product and customer ID mappings</li>
+<li><strong>Error Reporting:</strong> See any failures with details</li>
+</ul>
+
+<h2>API Endpoints</h2>
+
+<h3>Migrate Products by Category</h3>
+
+<pre><code class="language-http">POST /api/migrate/category
+
+Request Body:
+{
+  "wcCredentials": { ... },
+  "bcCredentials": { ... },
+  "categoryId": 123,
+  "migratedProductIds": []
+}
+
+Response: (Streaming)
+data: {"type": "progress", "completedProducts": 5, "currentProduct": "Product Name"}
+data: {"type": "complete", "totalMigrated": 10, "mapping": {...}}
+</code></pre>
+
+<h3>Migrate Customers</h3>
+
+<pre><code class="language-http">POST /api/migrate/customers
+
+Request Body:
+{
+  "wcCredentials": { ... },
+  "bcCredentials": { ... }
+}
+
+Response:
+{
+  "success": true,
+  "data": {
+    "total": 150,
+    "migrated": 148,
+    "skipped": 2,
+    "failed": 0,
+    "mapping": { "1": 10, "2": 11, ... }
+  }
+}
+</code></pre>
+
+<h2>CLI Usage</h2>
+
+<pre><code class="language-bash"># Migrate products
+npm run migrate -- --phase core-data \
+  --wc-url https://your-store.com \
+  --wc-key YOUR_KEY \
+  --wc-secret YOUR_SECRET \
+  --bc-hash YOUR_HASH \
+  --bc-token YOUR_TOKEN
+
+# Delta migration (only modified products)
+npm run migrate -- --phase core-data --delta
+</code></pre>
+
+<h2>ID Mappings</h2>
+
+<p>Phase 2 generates critical ID mappings:</p>
+
+<pre><code class="language-typescript">productIdMapping: Record&lt;number, number&gt;
+// Example: { 1: 10, 2: 11, 3: 12 }
+// WC Product ID 1 → BC Product ID 10
+
+customerIdMapping: Record&lt;number, number&gt;
+// Example: { 1: 10, 2: 11, 3: 12 }
+// WC Customer ID 1 → BC Customer ID 10
+</code></pre>
+
+<p>These mappings are essential for:</p>
+
+<ul>
+<li>Order migration (Phase 3) - Orders reference products and customers by ID</li>
+<li>Review migration (Phase 4) - Reviews reference products by ID</li>
+</ul>
+
+<h2>Next Phases</h2>
+
+<p>After completing the Core Data phase, you can proceed to:</p>
+
+<ul>
+<li><strong>Phase 3: Transactions</strong> - Migrate orders and coupons (optional, requires Core Data)</li>
+<li><strong>Phase 4: Content</strong> - Migrate reviews, pages, and blog posts (optional, requires Core Data)</li>
+</ul>
+
+<h2>Troubleshooting</h2>
+
+<h3>Products Not Appearing</h3>
+
+<ul>
+<li>Verify categories were migrated in Phase 1</li>
+<li>Check product SKUs are unique</li>
+<li>Review transformation errors in logs</li>
+<li>Ensure required fields (name, price) are present</li>
+</ul>
+
+<h3>Variable Products Not Working</h3>
+
+<ul>
+<li>Check that variations have valid SKUs</li>
+<li>Verify option values match BigCommerce requirements</li>
+<li>Review attribute to option mapping</li>
+</ul>
+
+<h3>Customers Can't Login</h3>
+
+<ul>
+<li>This is expected - passwords cannot be migrated</li>
+<li>Customers must use "Forgot Password" to reset</li>
+<li>Consider sending a bulk email notification</li>
+</ul>
+
+<h3>Address Issues</h3>
+
+<ul>
+<li>Verify country codes are valid ISO codes</li>
+<li>Check that required address fields are present</li>
+<li>Review state/province format requirements</li>
+</ul>
+
+<h2>Best Practices</h2>
+
+<ul>
+<li><strong>Migrate by Category:</strong> Use category-based migration for better control</li>
+<li><strong>Test First:</strong> Migrate a small category first to verify transformation</li>
+<li><strong>Review Mappings:</strong> Check product and customer ID mappings for accuracy</li>
+<li><strong>Handle Variations:</strong> Ensure variable products have complete variation data</li>
+<li><strong>Customer Communication:</strong> Notify customers about password reset requirement</li>
+<li><strong>Backup:</strong> Always backup your BigCommerce store before migration</li>
+</ul>
+
+<h2>Related Documentation</h2>
+
+<ul>
+<li><a href="foundation.html">Phase 1: Foundation</a></li>
+<li><a href="transactions.html">Phase 3: Transactions</a></li>
+<li><a href="content.html">Phase 4: Content</a></li>
+<li><a href="../step-by-step.html">Step-by-Step Migration Guide</a></li>
+</ul>
+
+</body>
+</html>
+

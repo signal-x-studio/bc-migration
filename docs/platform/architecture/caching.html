@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caching Architecture</title>
+    <meta name="description" content="Caching strategy for API responses and data">
+    <!-- frontmatter
+title: "Caching Architecture"
+description: "Caching strategy for API responses and data"
+category: "platform"
+order: 4
+-->
+</head>
+<body>
+
+<h1>Caching Architecture</h1>
+
+<p>The system implements intelligent caching to reduce API calls and improve performance.</p>
+
+<h2>Cache Groups</h2>
+
+<p>Data is organized into cache groups with different TTLs:</p>
+
+<ul>
+<li><strong>products</strong> - 5 minutes (300 seconds)</li>
+<li><strong>categories</strong> - 15 minutes (900 seconds)</li>
+<li><strong>cart</strong> - No cache (0 seconds)</li>
+<li><strong>store</strong> - 1 hour (3600 seconds)</li>
+</ul>
+
+<h2>WordPress Implementation</h2>
+
+<p>BC Bridge plugin uses WordPress transients and object cache:</p>
+
+<pre><code class="language-php">// src/bc-bridge-plugin/includes/class-bc-bridge-cache.php
+class BC_Bridge_Cache {
+  // Get from cache
+  public static function get(string $key, string $group = 'products'): mixed;
+  
+  // Set in cache
+  public static function set(string $key, mixed $value, string $group = 'products', int $ttl = 0): bool;
+  
+  // Delete from cache
+  public static function delete(string $key, string $group = 'products'): bool;
+  
+  // Clear group
+  public static function clear_group(string $group): void;
+  
+  // Clear all
+  public static function clear_all(): void;
+}
+</code></pre>
+
+<h2>Usage</h2>
+
+<h3>Basic Caching</h3>
+
+<pre><code class="language-php">// Get from cache
+$cached = BC_Bridge_Cache::get('product_123', 'products');
+if ($cached !== false) {
+    return $cached;
+}
+
+// Fetch from API
+$product = $api->get_product(123);
+
+// Store in cache
+BC_Bridge_Cache::set('product_123', $product, 'products', HOUR_IN_SECONDS);
+</code></pre>
+
+<h3>Cache Invalidation</h3>
+
+<pre><code class="language-php">// Clear specific key
+BC_Bridge_Cache::delete('product_123', 'products');
+
+// Clear entire group
+BC_Bridge_Cache::clear_group('products');
+
+// Clear all caches
+BC_Bridge_Cache::clear_all();
+</code></pre>
+
+<h2>Cache Strategy</h2>
+
+<h3>Product Data</h3>
+
+<ul>
+<li>Cache individual products by ID</li>
+<li>Cache product lists with query parameters as key</li>
+<li>Invalidate on product updates</li>
+</ul>
+
+<h3>Category Data</h3>
+
+<ul>
+<li>Cache category trees</li>
+<li>Longer TTL (15 minutes) due to infrequent changes</li>
+<li>Invalidate on category structure changes</li>
+</ul>
+
+<h3>Cart Data</h3>
+
+<ul>
+<li>No caching (always fresh)</li>
+<li>Cart is user-specific and changes frequently</li>
+</ul>
+
+<h2>Best Practices</h2>
+
+<ul>
+<li>Use appropriate TTLs for each data type</li>
+<li>Invalidate cache when data changes</li>
+<li>Use cache groups for organized invalidation</li>
+<li>Monitor cache hit rates</li>
+<li>Consider cache warming for frequently accessed data</li>
+</ul>
+
+<h2>Related Documentation</h2>
+
+<ul>
+<li><a href="rate-limiting.html">Rate Limiting Architecture</a></li>
+<li><a href="api-clients.html">API Clients Architecture</a></li>
+</ul>
+
+</body>
+</html>
+

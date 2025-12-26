@@ -414,3 +414,264 @@ export class WPClient {
 export function createWPClient(siteUrl: string): WPClient {
   return new WPClient(siteUrl);
 }
+
+// ============================================
+// Extended Types for Embedded Content
+// ============================================
+
+export interface WPEmbeddedAuthor {
+  id: number;
+  name: string;
+  url: string;
+  description: string;
+  slug: string;
+  avatar_urls: Record<string, string>;
+}
+
+export interface WPEmbeddedFeaturedMedia {
+  id: number;
+  date: string;
+  slug: string;
+  type: string;
+  link: string;
+  title: { rendered: string };
+  caption: { rendered: string };
+  alt_text: string;
+  media_type: 'image' | 'file';
+  mime_type: string;
+  source_url: string;
+  media_details: {
+    width: number;
+    height: number;
+    file: string;
+    sizes?: Record<string, {
+      file: string;
+      width: number;
+      height: number;
+      source_url: string;
+    }>;
+  };
+}
+
+export interface WPPostWithEmbeds extends WPPost {
+  _embedded?: {
+    author?: WPEmbeddedAuthor[];
+    'wp:featuredmedia'?: WPEmbeddedFeaturedMedia[];
+    'wp:term'?: Array<Array<{
+      id: number;
+      name: string;
+      slug: string;
+      link: string;
+    }>>;
+  };
+}
+
+export interface WPPageWithEmbeds extends WPPage {
+  _embedded?: {
+    author?: WPEmbeddedAuthor[];
+    'wp:featuredmedia'?: WPEmbeddedFeaturedMedia[];
+  };
+}
+
+export interface WPSiteInfo {
+  name: string;
+  description: string;
+  url: string;
+  home: string;
+  gmt_offset: number;
+  timezone_string: string;
+}
+
+// ============================================
+// Extended WordPress Client
+// ============================================
+
+/**
+ * Extended WordPress REST API Client with single item fetch and search
+ */
+export class WPClientExtended extends WPClient {
+  private siteUrl: string;
+  private apiBaseUrl: string;
+
+  constructor(siteUrl: string) {
+    super(siteUrl);
+
+    // Normalize URL
+    let url = siteUrl.trim();
+    if (!url.startsWith('http')) {
+      url = 'https://' + url;
+    }
+    url = url.replace(/\/+$/, '');
+
+    this.siteUrl = url;
+    this.apiBaseUrl = `${url}/wp-json/wp/v2`;
+  }
+
+  /**
+   * Get site information
+   */
+  async getSiteInfo(): Promise<WPSiteInfo> {
+    const response = await fetch(`${this.siteUrl}/wp-json`);
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch site info: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return {
+      name: data.name || '',
+      description: data.description || '',
+      url: data.url || this.siteUrl,
+      home: data.home || this.siteUrl,
+      gmt_offset: data.gmt_offset || 0,
+      timezone_string: data.timezone_string || 'UTC',
+    };
+  }
+
+  /**
+   * Fetch a single post by ID with optional embedded content
+   */
+  async getPost(id: number, embed: boolean = true): Promise<WPPostWithEmbeds> {
+    const params = new URLSearchParams();
+    if (embed) {
+      params.set('_embed', 'true');
+    }
+
+    const response = await fetch(`${this.apiBaseUrl}/posts/${id}?${params.toString()}`);
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch post ${id}: ${response.status} ${response.statusText}`);
+    }
+
+    return await response.json();
+  }
+
+  /**
+   * Fetch a single page by ID with optional embedded content
+   */
+  async getPage(id: number, embed: boolean = true): Promise<WPPageWithEmbeds> {
+    const params = new URLSearchParams();
+    if (embed) {
+      params.set('_embed', 'true');
+    }
+
+    const response = await fetch(`${this.apiBaseUrl}/pages/${id}?${params.toString()}`);
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch page ${id}: ${response.status} ${response.statusText}`);
+    }
+
+    return await response.json();
+  }
+
+  /**
+   * Search posts by query
+   */
+  async searchPosts(query: string, limit: number = 10): Promise<WPPostWithEmbeds[]> {
+    const params = new URLSearchParams({
+      search: query,
+      per_page: limit.toString(),
+      _embed: 'true',
+    });
+
+    const response = await fetch(`${this.apiBaseUrl}/posts?${params.toString()}`);
+
+    if (!response.ok) {
+      throw new Error(`Failed to search posts: ${response.status} ${response.statusText}`);
+    }
+
+    return await response.json();
+  }
+
+  /**
+   * Search pages by query
+   */
+  async searchPages(query: string, limit: number = 10): Promise<WPPageWithEmbeds[]> {
+    const params = new URLSearchParams({
+      search: query,
+      per_page: limit.toString(),
+      _embed: 'true',
+    });
+
+    const response = await fetch(`${this.apiBaseUrl}/pages?${params.toString()}`);
+
+    if (!response.ok) {
+      throw new Error(`Failed to search pages: ${response.status} ${response.statusText}`);
+    }
+
+    return await response.json();
+  }
+
+  /**
+   * Get posts with embedded content and pagination info
+   */
+  async getPostsWithMeta(params: {
+    page?: number;
+    per_page?: number;
+    search?: string;
+    orderby?: string;
+    order?: 'asc' | 'desc';
+  } = {}): Promise<{ posts: WPPostWithEmbeds[]; total: number; totalPages: number }> {
+    const queryParams = new URLSearchParams({
+      _embed: 'true',
+    });
+
+    if (params.page) queryParams.set('page', params.page.toString());
+    if (params.per_page) queryParams.set('per_page', params.per_page.toString());
+    if (params.search) queryParams.set('search', params.search);
+    if (params.orderby) queryParams.set('orderby', params.orderby);
+    if (params.order) queryParams.set('order', params.order);
+
+    const response = await fetch(`${this.apiBaseUrl}/posts?${queryParams.toString()}`);
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch posts: ${response.status} ${response.statusText}`);
+    }
+
+    const posts = await response.json();
+    const total = parseInt(response.headers.get('X-WP-Total') || '0', 10);
+    const totalPages = parseInt(response.headers.get('X-WP-TotalPages') || '0', 10);
+
+    return { posts, total, totalPages };
+  }
+
+  /**
+   * Get pages with embedded content and pagination info
+   */
+  async getPagesWithMeta(params: {
+    page?: number;
+    per_page?: number;
+    search?: string;
+    orderby?: string;
+    order?: 'asc' | 'desc';
+  } = {}): Promise<{ pages: WPPageWithEmbeds[]; total: number; totalPages: number }> {
+    const queryParams = new URLSearchParams({
+      _embed: 'true',
+    });
+
+    if (params.page) queryParams.set('page', params.page.toString());
+    if (params.per_page) queryParams.set('per_page', params.per_page.toString());
+    if (params.search) queryParams.set('search', params.search);
+    if (params.orderby) queryParams.set('orderby', params.orderby);
+    if (params.order) queryParams.set('order', params.order);
+
+    const response = await fetch(`${this.apiBaseUrl}/pages?${queryParams.toString()}`);
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch pages: ${response.status} ${response.statusText}`);
+    }
+
+    const pages = await response.json();
+    const total = parseInt(response.headers.get('X-WP-Total') || '0', 10);
+    const totalPages = parseInt(response.headers.get('X-WP-TotalPages') || '0', 10);
+
+    return { pages, total, totalPages };
+  }
+}
+
+/**
+ * Create an extended WordPress client instance
+ */
+export function createWPClientExtended(siteUrl: string): WPClientExtended {
+  return new WPClientExtended(siteUrl);
+}

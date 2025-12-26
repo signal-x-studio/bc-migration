@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Getting Started for WordPress Developers</title>
+    <meta name="description" content="Get started with BC Bridge plugin development for WordPress">
+    <!-- frontmatter
+title: "Getting Started for WordPress Developers"
+description: "Get started with BC Bridge plugin development for WordPress"
+category: "getting-started"
+order: 4
+-->
+</head>
+<body>
+
+<h1>Getting Started for WordPress Developers</h1>
+
+<p>BC Bridge is a WordPress plugin that connects your WordPress site to BigCommerce, enabling you to display and sell products without rebuilding your theme. This guide will help you get started with BC Bridge development.</p>
+
+<h2>What is BC Bridge?</h2>
+
+<p>BC Bridge is a headless commerce solution that:</p>
+
+<ul>
+<li>Connects WordPress to BigCommerce via REST API</li>
+<li>Displays products, categories, and cart functionality in WordPress</li>
+<li>Uses intelligent caching to minimize API calls</li>
+<li>Works with any WordPress theme</li>
+<li>Supports embedded checkout or redirect checkout</li>
+</ul>
+
+<h2>Key Concepts</h2>
+
+<h3>Headless Commerce</h3>
+
+<p>BC Bridge implements a headless commerce architecture:</p>
+
+<ul>
+<li><strong>Frontend:</strong> WordPress handles the presentation layer</li>
+<li><strong>Backend:</strong> BigCommerce handles product data, inventory, and checkout</li>
+<li><strong>API:</strong> Real-time communication via BigCommerce REST API</li>
+</ul>
+
+<h3>No Product Sync</h3>
+
+<p>Unlike traditional e-commerce plugins, BC Bridge does not sync products to WordPress:</p>
+
+<ul>
+<li>Product data stays in BigCommerce</li>
+<li>WordPress fetches data on-demand via API</li>
+<li>Intelligent caching reduces API calls</li>
+<li>No database bloat from product data</li>
+</ul>
+
+<h3>Template System</h3>
+
+<p>BC Bridge uses WordPress template hierarchy:</p>
+
+<ul>
+<li>Default templates in <code>bc-bridge/templates/</code></li>
+<li>Theme overrides in <code>your-theme/bc-bridge/</code></li>
+<li>Standard WordPress template functions</li>
+<li>Customizable via hooks and filters</li>
+</ul>
+
+<h2>Requirements</h2>
+
+<h3>WordPress Requirements</h3>
+
+<ul>
+<li>WordPress 6.2 or higher</li>
+<li>PHP 8.1 or higher</li>
+<li>SSL certificate (required for checkout)</li>
+</ul>
+
+<h3>BigCommerce Requirements</h3>
+
+<ul>
+<li>BigCommerce store with API access</li>
+<li>API credentials (Store Hash and Access Token)</li>
+<li>Required API scopes:
+   <ul>
+   <li>Products: Read-only</li>
+   <li>Carts: Modify</li>
+   <li>Checkouts: Modify</li>
+   <li>Store Information: Read-only</li>
+   </ul>
+</li>
+</ul>
+
+<h2>Installation</h2>
+
+<h3>From ZIP (Production)</h3>
+
+<ol>
+<li>Download <code>bc-bridge-x.x.x.zip</code> from releases</li>
+<li>Go to Plugins > Add New > Upload Plugin</li>
+<li>Upload the ZIP file</li>
+<li>Activate the plugin</li>
+</ol>
+
+<h3>From Source (Development)</h3>
+
+<pre><code class="language-bash">cd wp-content/plugins
+git clone https://github.com/bigcommerce/bc-bridge.git
+cd bc-bridge
+make install
+</code></pre>
+
+<h3>Build Commands</h3>
+
+<pre><code class="language-bash"># Install dependencies
+make install
+
+# Build for production
+make build
+
+# Create distribution ZIP
+make zip
+
+# Deploy to test site
+WP_PLUGINS_DIR=/path/to/plugins make deploy
+
+# Create symlink for development
+WP_PLUGINS_DIR=/path/to/plugins make deploy-link
+
+# Watch for changes
+make watch
+
+# Run linters
+make lint
+
+# Bump version
+make version NEW_VERSION=1.1.0
+</code></pre>
+
+<h2>Configuration</h2>
+
+<h3>Get BigCommerce API Credentials</h3>
+
+<ol>
+<li>Log into your BigCommerce admin</li>
+<li>Go to Settings > API Accounts > Create API Account</li>
+<li>Name it "BC Bridge"</li>
+<li>Select required scopes:
+   <ul>
+   <li>Products: Read-only</li>
+   <li>Carts: Modify</li>
+   <li>Checkouts: Modify</li>
+   <li>Store Information: Read-only</li>
+   </ul>
+</li>
+<li>Copy the Store Hash and Access Token</li>
+</ol>
+
+<h3>Configure Plugin</h3>
+
+<ol>
+<li>Go to BC Bridge > Settings in WordPress admin</li>
+<li>Enter your Store Hash</li>
+<li>Enter your Access Token</li>
+<li>Click "Test Connection" to verify</li>
+<li>Save settings</li>
+</ol>
+
+<h2>Basic Usage</h2>
+
+<h3>Automatic Routes</h3>
+
+<p>BC Bridge automatically creates these routes:</p>
+
+<ul>
+<li><strong>Shop:</strong> <code>yoursite.com/shop/</code></li>
+<li><strong>Product:</strong> <code>yoursite.com/product/product-name/</code></li>
+<li><strong>Category:</strong> <code>yoursite.com/product-category/category-name/</code></li>
+<li><strong>Cart:</strong> <code>yoursite.com/cart/</code></li>
+<li><strong>Checkout:</strong> <code>yoursite.com/checkout/</code></li>
+</ul>
+
+<h3>Shortcodes</h3>
+
+<p>Use shortcodes to display products anywhere:</p>
+
+<pre><code class="language-php">// Product grid (12 products, 4 columns)
+[bc_products limit="12" columns="4"]
+
+// Products from specific category
+[bc_products category="clothing" limit="8"]
+
+// Single product by ID
+[bc_product id="123"]
+
+// Single product by slug
+[bc_product slug="awesome-product"]
+
+// Shopping cart
+[bc_cart]
+
+// Checkout
+[bc_checkout]
+</code></pre>
+
+<h3>PHP Functions</h3>
+
+<pre><code class="language-php">// Get API client instance
+$api = bc_bridge()->api;
+
+// Get products
+$products = $api->get_products([
+    'limit' => 12,
+    'page' => 1,
+    'categories:in' => 123,
+]);
+
+// Get single product
+$product = $api->get_product(123);
+
+// Get cart
+$cart = bc_bridge()->cart->get_cart();
+
+// Add to cart
+$result = bc_bridge()->cart->add_item($product_id, $quantity, $variant_id);
+
+// Get checkout URL
+$checkout_url = bc_bridge()->cart->get_checkout_url();
+
+// Clear cache
+BC_Bridge_Cache::clear_all();
+BC_Bridge_Cache::clear_group('products');
+</code></pre>
+
+<h2>Plugin Structure</h2>
+
+<pre><code>bc-bridge/
+├── admin/              # Admin interface
+│   ├── class-bc-bridge-admin.php
+│   ├── class-bc-bridge-settings.php
+│   └── class-bc-bridge-wizard.php
+├── assets/             # CSS, JS, images
+│   ├── css/
+│   ├── js/
+│   └── images/
+├── includes/           # Core classes
+│   ├── class-bc-bridge-api-client.php
+│   ├── class-bc-bridge-cache.php
+│   ├── class-bc-bridge-cart.php
+│   ├── class-bc-bridge-routes.php
+│   └── class-bc-bridge-templates.php
+├── templates/          # Default templates
+│   ├── shop.php
+│   ├── product.php
+│   ├── category.php
+│   ├── cart.php
+│   ├── checkout.php
+│   └── partials/
+├── languages/          # Translations
+├── tests/             # Unit tests
+└── bc-bridge.php      # Main plugin file
+</code></pre>
+
+<h2>Core Classes</h2>
+
+<h3>BC_Bridge</h3>
+
+<p>Main plugin class. Singleton pattern.</p>
+
+<pre><code class="language-php">$bridge = BC_Bridge::instance();
+$api = $bridge->api;
+$cart = $bridge->cart;
+</code></pre>
+
+<h3>BC_Bridge_API_Client</h3>
+
+<p>Handles all BigCommerce API communication.</p>
+
+<pre><code class="language-php">$api = bc_bridge()->api;
+$products = $api->get_products(['limit' => 12]);
+$product = $api->get_product(123);
+</code></pre>
+
+<h3>BC_Bridge_Cart</h3>
+
+<p>Manages shopping cart operations.</p>
+
+<pre><code class="language-php">$cart = bc_bridge()->cart;
+$cart_data = $cart->get_cart();
+$result = $cart->add_item($product_id, $quantity, $variant_id);
+</code></pre>
+
+<h3>BC_Bridge_Cache</h3>
+
+<p>Handles caching of API responses.</p>
+
+<pre><code class="language-php">BC_Bridge_Cache::clear_all();
+BC_Bridge_Cache::clear_group('products');
+</code></pre>
+
+<h2>Next Steps</h2>
+
+<ul>
+<li><a href="../guides/bc-bridge/development.html">Development Guide</a> - Learn about development workflow</li>
+<li><a href="../guides/bc-bridge/customization.html">Customization Guide</a> - Customize templates and functionality</li>
+<li><a href="../reference/bc-bridge/hooks.html">Hooks Reference</a> - WordPress hooks and filters</li>
+<li><a href="../reference/bc-bridge/templates.html">Templates Guide</a> - Template customization</li>
+<li><a href="../reference/bc-bridge/shortcodes.html">Shortcodes Reference</a> - Complete shortcode documentation</li>
+</ul>
+
+<h2>Related Documentation</h2>
+
+<ul>
+<li><a href="for-merchants.html">Getting Started for Merchants</a></li>
+<li><a href="for-developers.html">Getting Started for Developers</a></li>
+<li><a href="../guides/bc-bridge/installation.html">BC Bridge Installation</a></li>
+<li><a href="../guides/bc-bridge/configuration.html">BC Bridge Configuration</a></li>
+</ul>
+
+</body>
+</html>
+

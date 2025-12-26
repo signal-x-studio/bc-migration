@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BC Bridge Installation</title>
+    <meta name="description" content="How to install the BC Bridge WordPress plugin">
+    <!-- frontmatter
+title: "BC Bridge Installation"
+description: "How to install the BC Bridge WordPress plugin"
+category: "guides"
+order: 1
+-->
+</head>
+<body>
+<h1>BC Bridge Installation Guide</h1>
+<p>Step-by-step guide to installing the BC Bridge WordPress plugin.</p>
+<h2>Prerequisites</h2>
+<p>Before installing BC Bridge, ensure you have:</p>
+<ol>
+<li><p><strong>WordPress Site</strong></p>
+<ul>
+<li>WordPress 6.2 or higher</li>
+<li>PHP 8.1 or higher</li>
+<li>WooCommerce deactivated (or ready to deactivate)</li>
+</ul>
+</li>
+<li><p><strong>BigCommerce Store</strong></p>
+<ul>
+<li>BigCommerce account created</li>
+<li>Store configured and products migrated</li>
+<li>API credentials (Store Hash, Client ID, Access Token)</li>
+</ul>
+</li>
+<li><p><strong>BigCommerce Channel</strong></p>
+<ul>
+<li>Channel created for WordPress site</li>
+<li>Domain configured (if using custom domain)</li>
+</ul>
+</li>
+</ol>
+<h2>Installation Methods</h2>
+<h3>Method 1: WordPress Admin (Recommended)</h3>
+<ol>
+<li><p><strong>Download Plugin</strong></p>
+<ul>
+<li>Download BC Bridge plugin ZIP file</li>
+<li>Or get from WordPress.org (when available)</li>
+</ul>
+</li>
+<li><p><strong>Install Plugin</strong></p>
+<ul>
+<li>Go to WordPress Admin → Plugins → Add New</li>
+<li>Click &quot;Upload Plugin&quot;</li>
+<li>Choose the BC Bridge ZIP file</li>
+<li>Click &quot;Install Now&quot;</li>
+</ul>
+</li>
+<li><p><strong>Activate Plugin</strong></p>
+<ul>
+<li>After installation, click &quot;Activate Plugin&quot;</li>
+<li>Plugin will activate and show setup wizard</li>
+</ul>
+</li>
+</ol>
+<h3>Method 2: Manual Installation</h3>
+<ol>
+<li><p><strong>Upload Files</strong></p>
+<ul>
+<li>Extract BC Bridge ZIP file</li>
+<li>Upload <code>bc-bridge</code> folder to <code>/wp-content/plugins/</code></li>
+</ul>
+</li>
+<li><p><strong>Activate Plugin</strong></p>
+<ul>
+<li>Go to WordPress Admin → Plugins</li>
+<li>Find &quot;BC Bridge&quot; in plugin list</li>
+<li>Click &quot;Activate&quot;</li>
+</ul>
+</li>
+</ol>
+<h2>Initial Setup</h2>
+<p>After activation, BC Bridge will guide you through setup:</p>
+<h3>Step 1: API Credentials</h3>
+<p>Enter your BigCommerce API credentials:</p>
+<ul>
+<li><strong>Store Hash</strong>: Your BigCommerce store hash</li>
+<li><strong>Client ID</strong>: Your BigCommerce API client ID</li>
+<li><strong>Access Token</strong>: Your BigCommerce API access token</li>
+</ul>
+<p><strong>Where to find these:</strong></p>
+<ol>
+<li>Go to BigCommerce Admin → Settings → API Accounts</li>
+<li>Create new API account (or use existing)</li>
+<li>Copy Store Hash, Client ID, and Access Token</li>
+</ol>
+<h3>Step 2: Channel Selection</h3>
+<p>Select which BigCommerce channel to use:</p>
+<ul>
+<li>Choose from your available channels</li>
+<li>Or create a new channel for WordPress</li>
+</ul>
+<h3>Step 3: Test Connection</h3>
+<p>BC Bridge will test the connection:</p>
+<ul>
+<li><strong>Success</strong>: Connection verified, ready to use</li>
+<li><strong>Failure</strong>: Check credentials and try again</li>
+</ul>
+<h3>Step 4: Route Configuration</h3>
+<p>Configure which routes BC Bridge handles:</p>
+<ul>
+<li><code>/shop</code> - Product listing page</li>
+<li><code>/product/*</code> - Product detail pages</li>
+<li><code>/cart</code> - Shopping cart</li>
+<li><code>/checkout</code> - Checkout flow</li>
+</ul>
+<h2>Post-Installation</h2>
+<h3>Deactivate WooCommerce</h3>
+<p>If WooCommerce is still active:</p>
+<ol>
+<li>Go to Plugins → Installed Plugins</li>
+<li>Find WooCommerce</li>
+<li>Click &quot;Deactivate&quot;</li>
+<li>BC Bridge will handle all commerce functionality</li>
+</ol>
+<p><strong>Note:</strong> Your WooCommerce data stays in the database. Only the plugin is deactivated.</p>
+<h3>Verify Installation</h3>
+<p>Test that BC Bridge is working:</p>
+<ol>
+<li><p><strong>Visit Shop Page</strong></p>
+<ul>
+<li>Go to <code>/shop</code> on your site</li>
+<li>Should see BigCommerce products</li>
+</ul>
+</li>
+<li><p><strong>View Product</strong></p>
+<ul>
+<li>Click on a product</li>
+<li>Should see product details from BigCommerce</li>
+</ul>
+</li>
+<li><p><strong>Test Cart</strong></p>
+<ul>
+<li>Add product to cart</li>
+<li>Cart should work with BigCommerce</li>
+</ul>
+</li>
+</ol>
+<h2>Troubleshooting</h2>
+<h3>Plugin Won&#39;t Activate</h3>
+<p><strong>Check:</strong></p>
+<ul>
+<li>WordPress version (6.2+ required)</li>
+<li>PHP version (8.1+ required)</li>
+<li>Plugin file permissions</li>
+<li>Error logs for specific errors</li>
+</ul>
+<h3>Connection Test Fails</h3>
+<p><strong>Check:</strong></p>
+<ul>
+<li>API credentials are correct</li>
+<li>Store Hash has no dashes</li>
+<li>Access Token has required scopes</li>
+<li>BigCommerce store is active</li>
+</ul>
+<h3>Products Not Showing</h3>
+<p><strong>Check:</strong></p>
+<ul>
+<li>BigCommerce store has products</li>
+<li>Channel is selected correctly</li>
+<li>Route interception is working</li>
+<li>Check browser console for errors</li>
+</ul>
+<h2>Next Steps</h2>
+<ul>
+<li><a href="configuration.html">Configuration Guide</a> - Configure plugin settings</li>
+<li><a href="../../platform/bc-bridge/">BC Bridge Platform Docs</a> - Architecture details</li>
+<li><a href="../migration/">Migration Guide</a> - If you need to migrate data first</li>
+</ul>
+<h2>Related Documentation</h2>
+<ul>
+<li><a href="../../platform/bc-bridge/BC_BRIDGE_INTENT.html">BC Bridge Intent</a> - Product design</li>
+<li><a href="../../platform/bc-bridge/BC_BRIDGE_PRD.html">BC Bridge PRD</a> - Requirements</li>
+</ul>
+
+</body>
+</html>

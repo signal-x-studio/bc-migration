@@ -1,0 +1,2418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Mapping &amp; Migration Readiness</title>
+    <meta name="description" content="Comprehensive reference for WooCommerce to BigCommerce data migration">
+    <!-- frontmatter
+title: "Data Mapping &amp; Migration Readiness"
+description: "Comprehensive reference for WooCommerce to BigCommerce data migration"
+category: "platform"
+order: 2
+-->
+</head>
+<body>
+<h1>Data Mapping &amp; Migration Readiness Guide</h1>
+<p><strong>Purpose:</strong> Comprehensive reference for WooCommerce → BigCommerce data migration, covering entity mapping, edge cases, constraints, and BigCommerce store setup requirements.</p>
+<p><strong>Version:</strong> 1.0
+<strong>Date:</strong> December 2025</p>
+<hr>
+<h2>Table of Contents</h2>
+<ol>
+<li><a href="#1-entity-inventory">Entity Inventory</a></li>
+<li><a href="#2-data-mapping-by-entity">Data Mapping by Entity</a></li>
+<li><a href="#3-structural-mismatches">Structural Mismatches</a></li>
+<li><a href="#4-sensitive--encrypted-data">Sensitive &amp; Encrypted Data</a></li>
+<li><a href="#5-custom-data--extensions">Custom Data &amp; Extensions</a></li>
+<li><a href="#6-bigcommerce-platform-limits">BigCommerce Platform Limits</a></li>
+<li><a href="#7-bigcommerce-store-setup-requirements">BigCommerce Store Setup Requirements</a></li>
+<li><a href="#8-migration-execution-sequence">Migration Execution Sequence</a></li>
+<li><a href="#9-validation-framework">Validation Framework</a></li>
+<li><a href="#10-edge-cases--gotchas">Edge Cases &amp; Gotchas</a></li>
+</ol>
+<hr>
+<h2>1. Entity Inventory</h2>
+<h3>What Migrates</h3>
+<table>
+<thead>
+<tr>
+<th>Entity</th>
+<th>WooCommerce Location</th>
+<th>BigCommerce Destination</th>
+<th>Migration Type</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Products</strong></td>
+<td><code>wp_posts</code> (type=product) + <code>wp_postmeta</code></td>
+<td>Products API</td>
+<td>Automated</td>
+</tr>
+<tr>
+<td><strong>Product Variants</strong></td>
+<td><code>wp_posts</code> (type=product_variation)</td>
+<td>Product Variants API</td>
+<td>Automated</td>
+</tr>
+<tr>
+<td><strong>Categories</strong></td>
+<td><code>wp_terms</code> (taxonomy=product_cat)</td>
+<td>Categories API</td>
+<td>Automated</td>
+</tr>
+<tr>
+<td><strong>Product Tags</strong></td>
+<td><code>wp_terms</code> (taxonomy=product_tag)</td>
+<td><em>No direct equivalent</em></td>
+<td>Transform to custom field or skip</td>
+</tr>
+<tr>
+<td><strong>Product Attributes</strong></td>
+<td><code>wp_terms</code> (taxonomy=pa_*) + <code>wp_woocommerce_attribute_taxonomies</code></td>
+<td>Product Options</td>
+<td>Transform required</td>
+</tr>
+<tr>
+<td><strong>Brands</strong></td>
+<td>Plugin-dependent or absent</td>
+<td>Brands API</td>
+<td>If exists</td>
+</tr>
+<tr>
+<td><strong>Customers</strong></td>
+<td><code>wp_users</code> + <code>wp_usermeta</code></td>
+<td>Customers API</td>
+<td>Automated (no passwords)</td>
+</tr>
+<tr>
+<td><strong>Customer Addresses</strong></td>
+<td><code>wp_usermeta</code> (billing_*, shipping_*)</td>
+<td>Customer Addresses API</td>
+<td>Transform</td>
+</tr>
+<tr>
+<td><strong>Product Images</strong></td>
+<td><code>wp_posts</code> (type=attachment)</td>
+<td>Product Images API</td>
+<td>URL reference</td>
+</tr>
+<tr>
+<td><strong>Product Reviews</strong></td>
+<td><code>wp_comments</code> (type=review)</td>
+<td>Product Reviews API</td>
+<td>Automated</td>
+</tr>
+<tr>
+<td><strong>Coupons</strong></td>
+<td><code>wp_posts</code> (type=shop_coupon)</td>
+<td>Promotions API</td>
+<td>Manual recreation</td>
+</tr>
+</tbody></table>
+<h3>What Stays in WordPress</h3>
+<table>
+<thead>
+<tr>
+<th>Entity</th>
+<th>Reason</th>
+<th>Post-Migration Access</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Orders (Historical)</strong></td>
+<td>BC order import limited; split admin acceptable</td>
+<td>Direct DB query or admin widget</td>
+</tr>
+<tr>
+<td><strong>Order Line Items</strong></td>
+<td>Tied to orders</td>
+<td>Same as orders</td>
+</tr>
+<tr>
+<td><strong>Refunds</strong></td>
+<td>Tied to orders</td>
+<td>Same as orders</td>
+</tr>
+<tr>
+<td><strong>Blog Posts</strong></td>
+<td>Not commerce</td>
+<td>Unchanged</td>
+</tr>
+<tr>
+<td><strong>Pages</strong></td>
+<td>Not commerce</td>
+<td>Unchanged</td>
+</tr>
+<tr>
+<td><strong>Media Library</strong></td>
+<td>BC fetches by URL</td>
+<td>Unchanged (serves images)</td>
+</tr>
+<tr>
+<td><strong>Menus/Navigation</strong></td>
+<td>WordPress feature</td>
+<td>Update links if needed</td>
+</tr>
+<tr>
+<td><strong>SEO Meta</strong></td>
+<td>Yoast/RankMath</td>
+<td>Reconfigure for content-only</td>
+</tr>
+</tbody></table>
+<h3>What Cannot Migrate</h3>
+<table>
+<thead>
+<tr>
+<th>Entity</th>
+<th>Reason</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Customer Passwords</strong></td>
+<td>Hashed, non-exportable</td>
+<td>Force password reset</td>
+</tr>
+<tr>
+<td><strong>Payment Tokens</strong></td>
+<td>PCI compliance, gateway-specific</td>
+<td>Customers re-enter payment</td>
+</tr>
+<tr>
+<td><strong>Active Subscriptions</strong></td>
+<td>Different subscription models</td>
+<td>Manual migration + customer communication</td>
+</tr>
+<tr>
+<td><strong>Cart Sessions</strong></td>
+<td>Ephemeral</td>
+<td>Lost (acceptable)</td>
+</tr>
+<tr>
+<td><strong>Wishlists</strong></td>
+<td>Plugin-specific</td>
+<td>Plugin-dependent</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>2. Data Mapping by Entity</h2>
+<h3>2.1 Products</h3>
+<h4>Simple Products</h4>
+<table>
+<thead>
+<tr>
+<th>WooCommerce Field</th>
+<th>BigCommerce Field</th>
+<th>Transform</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>id</code></td>
+<td>—</td>
+<td>Skip</td>
+<td>BC assigns new IDs</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td><code>name</code></td>
+<td>Direct</td>
+<td>Max 250 chars</td>
+</tr>
+<tr>
+<td><code>slug</code></td>
+<td><code>custom_url.url</code></td>
+<td>Prepend <code>/</code></td>
+<td>For SEO preservation</td>
+</tr>
+<tr>
+<td><code>status</code> (publish/draft/pending)</td>
+<td><code>is_visible</code></td>
+<td>Map</td>
+<td>publish → true</td>
+</tr>
+<tr>
+<td><code>catalog_visibility</code></td>
+<td><code>is_visible</code> + <code>is_featured</code></td>
+<td>Map</td>
+<td></td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td><code>description</code></td>
+<td>Direct</td>
+<td>HTML preserved</td>
+</tr>
+<tr>
+<td><code>short_description</code></td>
+<td><code>description</code></td>
+<td>Append</td>
+<td>BC has no short_description</td>
+</tr>
+<tr>
+<td><code>sku</code></td>
+<td><code>sku</code></td>
+<td>Direct</td>
+<td>Must be unique in BC</td>
+</tr>
+<tr>
+<td><code>price</code></td>
+<td><code>price</code></td>
+<td>Direct</td>
+<td></td>
+</tr>
+<tr>
+<td><code>regular_price</code></td>
+<td><code>price</code></td>
+<td>Direct</td>
+<td></td>
+</tr>
+<tr>
+<td><code>sale_price</code></td>
+<td><code>sale_price</code></td>
+<td>Direct</td>
+<td></td>
+</tr>
+<tr>
+<td><code>date_on_sale_from</code></td>
+<td><code>preorder_release_date</code></td>
+<td>Approximate</td>
+<td>Not exact match</td>
+</tr>
+<tr>
+<td><code>date_on_sale_to</code></td>
+<td>—</td>
+<td>Skip</td>
+<td>Use BC promotions</td>
+</tr>
+<tr>
+<td><code>manage_stock</code></td>
+<td><code>inventory_tracking</code></td>
+<td>Map</td>
+<td>true → &#39;product&#39;</td>
+</tr>
+<tr>
+<td><code>stock_quantity</code></td>
+<td><code>inventory_level</code></td>
+<td>Direct</td>
+<td></td>
+</tr>
+<tr>
+<td><code>stock_status</code></td>
+<td>Derived</td>
+<td>—</td>
+<td>Based on inventory_level</td>
+</tr>
+<tr>
+<td><code>backorders</code></td>
+<td><code>is_preorder_only</code></td>
+<td>Approximate</td>
+<td>Different models</td>
+</tr>
+<tr>
+<td><code>low_stock_amount</code></td>
+<td><code>inventory_warning_level</code></td>
+<td>Direct</td>
+<td></td>
+</tr>
+<tr>
+<td><code>sold_individually</code></td>
+<td><code>order_quantity_maximum</code></td>
+<td>Map</td>
+<td>true → 1</td>
+</tr>
+<tr>
+<td><code>weight</code></td>
+<td><code>weight</code></td>
+<td>Convert units</td>
+<td>Check store settings</td>
+</tr>
+<tr>
+<td><code>dimensions.length</code></td>
+<td><code>depth</code></td>
+<td>Convert units</td>
+<td>WC length → BC depth</td>
+</tr>
+<tr>
+<td><code>dimensions.width</code></td>
+<td><code>width</code></td>
+<td>Convert units</td>
+<td></td>
+</tr>
+<tr>
+<td><code>dimensions.height</code></td>
+<td><code>height</code></td>
+<td>Convert units</td>
+<td></td>
+</tr>
+<tr>
+<td><code>tax_status</code></td>
+<td><code>tax_class_id</code></td>
+<td>Map</td>
+<td>Requires tax class setup</td>
+</tr>
+<tr>
+<td><code>tax_class</code></td>
+<td><code>tax_class_id</code></td>
+<td>Map</td>
+<td></td>
+</tr>
+<tr>
+<td><code>categories[]</code></td>
+<td><code>categories[]</code></td>
+<td>Map IDs</td>
+<td>Categories must exist first</td>
+</tr>
+<tr>
+<td><code>images[]</code></td>
+<td><code>images[]</code></td>
+<td>Transform</td>
+<td>BC fetches from URL</td>
+</tr>
+<tr>
+<td><code>images[0]</code></td>
+<td><code>images[0]</code> (is_thumbnail: true)</td>
+<td>Mark primary</td>
+<td></td>
+</tr>
+<tr>
+<td><code>attributes[]</code></td>
+<td>—</td>
+<td>Skip for simple</td>
+<td>Only for variable products</td>
+</tr>
+<tr>
+<td><code>meta_data[]</code></td>
+<td><code>custom_fields[]</code></td>
+<td>Selective</td>
+<td>Filter relevant meta</td>
+</tr>
+<tr>
+<td><code>menu_order</code></td>
+<td><code>sort_order</code></td>
+<td>Direct</td>
+<td></td>
+</tr>
+<tr>
+<td><code>purchase_note</code></td>
+<td>—</td>
+<td>Skip</td>
+<td>No equivalent</td>
+</tr>
+<tr>
+<td><code>external_url</code></td>
+<td>—</td>
+<td>Skip</td>
+<td>External products not supported same way</td>
+</tr>
+<tr>
+<td><code>button_text</code></td>
+<td>—</td>
+<td>Skip</td>
+<td></td>
+</tr>
+</tbody></table>
+<h4>Variable Products</h4>
+<table>
+<thead>
+<tr>
+<th>WooCommerce Concept</th>
+<th>BigCommerce Concept</th>
+<th>Key Differences</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Variable Product</td>
+<td>Product with Variants</td>
+<td>Same parent structure</td>
+</tr>
+<tr>
+<td>Product Attribute (global)</td>
+<td>—</td>
+<td>BC options are always product-level</td>
+</tr>
+<tr>
+<td>Product Attribute (local)</td>
+<td>Product Option</td>
+<td>Must create per-product</td>
+</tr>
+<tr>
+<td>Attribute Term</td>
+<td>Option Value</td>
+<td></td>
+</tr>
+<tr>
+<td>Variation</td>
+<td>Variant</td>
+<td></td>
+</tr>
+<tr>
+<td>Variation Attributes</td>
+<td>Variant Option Values</td>
+<td></td>
+</tr>
+</tbody></table>
+<p><strong>Transform Logic:</strong></p>
+<pre><code>WooCommerce Variable Product
+├── Attributes: [Color (Red, Blue), Size (S, M, L)]
+└── Variations:
+    ├── Red + S → SKU-001
+    ├── Red + M → SKU-002
+    └── Blue + L → SKU-003
+
+        ↓ TRANSFORM ↓
+
+BigCommerce Product
+├── Options:
+│   ├── Color (option_values: [Red, Blue])
+│   └── Size (option_values: [S, M, L])
+└── Variants:
+    ├── option_values: [Red, S] → SKU-001
+    ├── option_values: [Red, M] → SKU-002
+    └── option_values: [Blue, L] → SKU-003
+</code></pre>
+<h4>Variant Field Mapping</h4>
+<table>
+<thead>
+<tr>
+<th>WooCommerce Variation Field</th>
+<th>BigCommerce Variant Field</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>id</code></td>
+<td>—</td>
+<td>BC assigns</td>
+</tr>
+<tr>
+<td><code>sku</code></td>
+<td><code>sku</code></td>
+<td>Must be unique globally</td>
+</tr>
+<tr>
+<td><code>price</code></td>
+<td><code>price</code></td>
+<td>Overrides product price</td>
+</tr>
+<tr>
+<td><code>regular_price</code></td>
+<td><code>price</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sale_price</code></td>
+<td><code>sale_price</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>stock_quantity</code></td>
+<td><code>inventory_level</code></td>
+<td>Per-variant inventory</td>
+</tr>
+<tr>
+<td><code>manage_stock</code></td>
+<td>Inherited or per-variant</td>
+<td></td>
+</tr>
+<tr>
+<td><code>stock_status</code></td>
+<td>Derived</td>
+<td></td>
+</tr>
+<tr>
+<td><code>weight</code></td>
+<td><code>weight</code></td>
+<td>Can override product</td>
+</tr>
+<tr>
+<td><code>dimensions</code></td>
+<td><code>depth</code>, <code>width</code>, <code>height</code></td>
+<td>Can override</td>
+</tr>
+<tr>
+<td><code>image</code></td>
+<td>—</td>
+<td>BC variants don&#39;t have dedicated images*</td>
+</tr>
+<tr>
+<td><code>attributes[]</code></td>
+<td><code>option_values[]</code></td>
+<td>Map to option value IDs</td>
+</tr>
+</tbody></table>
+<p>*Note: BigCommerce variants inherit product images. To show different images per variant, use variant-specific image rules or the image option pattern.</p>
+<h3>2.2 Categories</h3>
+<table>
+<thead>
+<tr>
+<th>WooCommerce Field</th>
+<th>BigCommerce Field</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>id</code></td>
+<td>—</td>
+<td>BC assigns</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td><code>name</code></td>
+<td>Direct</td>
+</tr>
+<tr>
+<td><code>slug</code></td>
+<td><code>custom_url.url</code></td>
+<td>Prepend <code>/</code></td>
+</tr>
+<tr>
+<td><code>parent</code></td>
+<td><code>parent_id</code></td>
+<td>Must map to new BC IDs</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td><code>description</code></td>
+<td>Direct</td>
+</tr>
+<tr>
+<td><code>display</code></td>
+<td><code>default_product_sort</code></td>
+<td>Approximate</td>
+</tr>
+<tr>
+<td><code>image.src</code></td>
+<td><code>image_url</code></td>
+<td>Direct</td>
+</tr>
+<tr>
+<td><code>menu_order</code></td>
+<td><code>sort_order</code></td>
+<td>Direct</td>
+</tr>
+</tbody></table>
+<p><strong>Hierarchy Handling:</strong></p>
+<pre><code>MIGRATION ORDER (Critical)
+
+1. Root categories (parent = 0)
+2. Level 1 children
+3. Level 2 children
+... continue until all migrated
+
+MUST maintain ID mapping:
+{
+  wc_category_id: bc_category_id,
+  15: 42,
+  16: 43,
+  ...
+}
+</code></pre>
+<h3>2.3 Customers</h3>
+<table>
+<thead>
+<tr>
+<th>WooCommerce Field</th>
+<th>BigCommerce Field</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>id</code></td>
+<td>—</td>
+<td>BC assigns</td>
+</tr>
+<tr>
+<td><code>email</code></td>
+<td><code>email</code></td>
+<td>Primary identifier</td>
+</tr>
+<tr>
+<td><code>first_name</code></td>
+<td><code>first_name</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>last_name</code></td>
+<td><code>last_name</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>username</code></td>
+<td>—</td>
+<td>Not used in BC</td>
+</tr>
+<tr>
+<td><code>password</code></td>
+<td>—</td>
+<td><strong>CANNOT MIGRATE</strong></td>
+</tr>
+<tr>
+<td><code>role</code></td>
+<td><code>customer_group_id</code></td>
+<td>Map if using groups</td>
+</tr>
+<tr>
+<td><code>billing.first_name</code></td>
+<td><code>addresses[].first_name</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>billing.last_name</code></td>
+<td><code>addresses[].last_name</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>billing.company</code></td>
+<td><code>addresses[].company</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>billing.address_1</code></td>
+<td><code>addresses[].address1</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>billing.address_2</code></td>
+<td><code>addresses[].address2</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>billing.city</code></td>
+<td><code>addresses[].city</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>billing.state</code></td>
+<td><code>addresses[].state_or_province</code></td>
+<td>Must match BC state codes</td>
+</tr>
+<tr>
+<td><code>billing.postcode</code></td>
+<td><code>addresses[].postal_code</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>billing.country</code></td>
+<td><code>addresses[].country_code</code></td>
+<td>ISO 2-letter code</td>
+</tr>
+<tr>
+<td><code>billing.email</code></td>
+<td><code>addresses[].email</code></td>
+<td>Can differ from account email</td>
+</tr>
+<tr>
+<td><code>billing.phone</code></td>
+<td><code>addresses[].phone</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>shipping.*</code></td>
+<td><code>addresses[]</code></td>
+<td>Second address entry</td>
+</tr>
+<tr>
+<td><code>meta_data</code></td>
+<td><code>form_fields[]</code></td>
+<td>Selective</td>
+</tr>
+<tr>
+<td><code>date_created</code></td>
+<td><code>date_created</code></td>
+<td>Direct</td>
+</tr>
+<tr>
+<td><code>date_modified</code></td>
+<td><code>date_modified</code></td>
+<td>Direct</td>
+</tr>
+</tbody></table>
+<p><strong>Address Handling:</strong></p>
+<pre><code>WooCommerce: Single billing + single shipping address stored
+BigCommerce: Array of addresses, flagged as billing/shipping defaults
+
+Transform:
+{
+  &quot;addresses&quot;: [
+    {
+      &quot;address_type&quot;: &quot;billing&quot;,
+      ...billing fields...
+    },
+    {
+      &quot;address_type&quot;: &quot;shipping&quot;,
+      ...shipping fields...
+    }
+  ]
+}
+</code></pre>
+<h3>2.4 Orders (If Migrating Historical)</h3>
+<table>
+<thead>
+<tr>
+<th>WooCommerce Field</th>
+<th>BigCommerce Field</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>id</code></td>
+<td><code>id</code></td>
+<td>Can preserve with import</td>
+</tr>
+<tr>
+<td><code>order_number</code></td>
+<td><code>id</code> or <code>external_id</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td><code>status_id</code></td>
+<td>Map to BC statuses</td>
+</tr>
+<tr>
+<td><code>date_created</code></td>
+<td><code>date_created</code></td>
+<td>Direct</td>
+</tr>
+<tr>
+<td><code>total</code></td>
+<td><code>total_inc_tax</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>billing</code></td>
+<td><code>billing_address</code></td>
+<td>Same as customer</td>
+</tr>
+<tr>
+<td><code>shipping</code></td>
+<td><code>shipping_addresses[]</code></td>
+<td>Array in BC</td>
+</tr>
+<tr>
+<td><code>line_items[]</code></td>
+<td><code>products[]</code></td>
+<td>Transform</td>
+</tr>
+<tr>
+<td><code>shipping_lines[]</code></td>
+<td><code>shipping_cost_*</code></td>
+<td>Flatten</td>
+</tr>
+<tr>
+<td><code>fee_lines[]</code></td>
+<td>—</td>
+<td>May lose</td>
+</tr>
+<tr>
+<td><code>coupon_lines[]</code></td>
+<td><code>coupon_discount</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>tax_lines[]</code></td>
+<td><code>total_tax</code></td>
+<td>Aggregate</td>
+</tr>
+<tr>
+<td><code>payment_method</code></td>
+<td><code>payment_method</code></td>
+<td>String</td>
+</tr>
+<tr>
+<td><code>customer_note</code></td>
+<td><code>customer_message</code></td>
+<td></td>
+</tr>
+</tbody></table>
+<p><strong>Order Status Mapping:</strong></p>
+<table>
+<thead>
+<tr>
+<th>WooCommerce Status</th>
+<th>BigCommerce Status</th>
+<th>status_id</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>pending</code></td>
+<td>Pending</td>
+<td>1</td>
+</tr>
+<tr>
+<td><code>processing</code></td>
+<td>Awaiting Fulfillment</td>
+<td>11</td>
+</tr>
+<tr>
+<td><code>on-hold</code></td>
+<td>On Hold</td>
+<td>0</td>
+</tr>
+<tr>
+<td><code>completed</code></td>
+<td>Completed</td>
+<td>10</td>
+</tr>
+<tr>
+<td><code>cancelled</code></td>
+<td>Cancelled</td>
+<td>5</td>
+</tr>
+<tr>
+<td><code>refunded</code></td>
+<td>Refunded</td>
+<td>4</td>
+</tr>
+<tr>
+<td><code>failed</code></td>
+<td>Declined</td>
+<td>6</td>
+</tr>
+</tbody></table>
+<h3>2.5 Product Reviews</h3>
+<table>
+<thead>
+<tr>
+<th>WooCommerce Field</th>
+<th>BigCommerce Field</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>id</code></td>
+<td>—</td>
+<td>BC assigns</td>
+</tr>
+<tr>
+<td><code>product_id</code></td>
+<td><code>product_id</code></td>
+<td>Map to new BC product ID</td>
+</tr>
+<tr>
+<td><code>reviewer</code></td>
+<td><code>name</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>reviewer_email</code></td>
+<td><code>email</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>review</code></td>
+<td><code>text</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>rating</code></td>
+<td><code>rating</code></td>
+<td>1-5 scale (same)</td>
+</tr>
+<tr>
+<td><code>date_created</code></td>
+<td><code>date_reviewed</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>status</code> (approved/hold)</td>
+<td><code>status</code></td>
+<td>Map</td>
+</tr>
+</tbody></table>
+<h3>2.6 Coupons / Promotions</h3>
+<p>WooCommerce coupons map loosely to BigCommerce promotions, but the models differ significantly.</p>
+<table>
+<thead>
+<tr>
+<th>WooCommerce Coupon Type</th>
+<th>BigCommerce Equivalent</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Percentage discount</td>
+<td>Promotion (% off)</td>
+<td>Similar</td>
+</tr>
+<tr>
+<td>Fixed cart discount</td>
+<td>Promotion ($ off order)</td>
+<td>Similar</td>
+</tr>
+<tr>
+<td>Fixed product discount</td>
+<td>Promotion ($ off product)</td>
+<td>Similar</td>
+</tr>
+<tr>
+<td>Free shipping</td>
+<td>Promotion (free shipping)</td>
+<td>Similar</td>
+</tr>
+<tr>
+<td>Buy X Get Y</td>
+<td>Promotion with conditions</td>
+<td>More complex setup</td>
+</tr>
+</tbody></table>
+<p><strong>Recommendation:</strong> Manual recreation of coupons in BigCommerce. Automated migration is error-prone due to different rule engines.</p>
+<hr>
+<h2>3. Structural Mismatches</h2>
+<h3>3.1 Product Type Differences</h3>
+<table>
+<thead>
+<tr>
+<th>WooCommerce Type</th>
+<th>BigCommerce Equivalent</th>
+<th>Migration Approach</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>simple</code></td>
+<td><code>physical</code></td>
+<td>Direct</td>
+</tr>
+<tr>
+<td><code>variable</code></td>
+<td><code>physical</code> + variants</td>
+<td>Transform</td>
+</tr>
+<tr>
+<td><code>grouped</code></td>
+<td>—</td>
+<td>Flatten or use related products</td>
+</tr>
+<tr>
+<td><code>external/affiliate</code></td>
+<td>—</td>
+<td>Store URL in custom field</td>
+</tr>
+<tr>
+<td><code>virtual</code></td>
+<td><code>digital</code></td>
+<td>Map</td>
+</tr>
+<tr>
+<td><code>downloadable</code></td>
+<td><code>digital</code> with files</td>
+<td>Transform</td>
+</tr>
+<tr>
+<td><code>subscription</code> (plugin)</td>
+<td>Third-party app (PayWhirl, etc.)</td>
+<td>Manual migration</td>
+</tr>
+<tr>
+<td><code>bundle</code> (plugin)</td>
+<td>Third-party app or custom</td>
+<td>Manual migration</td>
+</tr>
+<tr>
+<td><code>composite</code> (plugin)</td>
+<td>—</td>
+<td>Significant rework</td>
+</tr>
+<tr>
+<td><code>booking</code> (plugin)</td>
+<td>Third-party app</td>
+<td>Manual migration</td>
+</tr>
+</tbody></table>
+<h3>3.2 Attribute System Differences</h3>
+<p><strong>WooCommerce:</strong></p>
+<ul>
+<li>Global attributes (shared across products)</li>
+<li>Local/custom attributes (per-product)</li>
+<li>Attributes can be used for variations OR for display-only</li>
+<li>Stored in <code>wp_terms</code> and <code>wp_woocommerce_attribute_taxonomies</code></li>
+</ul>
+<p><strong>BigCommerce:</strong></p>
+<ul>
+<li>Options (for variants - creates purchasable combinations)</li>
+<li>Modifiers (for customization - doesn&#39;t create variants)</li>
+<li>Custom fields (for display-only information)</li>
+<li>Always product-level (no global sharing)</li>
+</ul>
+<p><strong>Migration Decision Tree:</strong></p>
+<pre><code>WooCommerce Attribute
+│
+├── Used for variations?
+│   ├── YES → Create as BigCommerce Option
+│   │         (This will generate variants)
+│   │
+│   └── NO → Display only?
+│       ├── YES → Create as Custom Field
+│       │
+│       └── Affects price/SKU?
+│           ├── YES → Create as Modifier
+│           └── NO → Create as Custom Field
+</code></pre>
+<h3>3.3 Inventory Model Differences</h3>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>WooCommerce</th>
+<th>BigCommerce</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Stock management</td>
+<td>Per product OR per variation</td>
+<td>Per product OR per variant</td>
+</tr>
+<tr>
+<td>Low stock threshold</td>
+<td>Global + per-product override</td>
+<td>Per product</td>
+</tr>
+<tr>
+<td>Backorders</td>
+<td>Allow / Allow but notify / Don&#39;t allow</td>
+<td>Pre-order only (different concept)</td>
+</tr>
+<tr>
+<td>Stock status</td>
+<td>In stock / Out of stock / On backorder</td>
+<td>Derived from inventory_level</td>
+</tr>
+<tr>
+<td>Multi-location</td>
+<td>Plugin required</td>
+<td>Native support</td>
+</tr>
+</tbody></table>
+<h3>3.4 Tax System Differences</h3>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>WooCommerce</th>
+<th>BigCommerce</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Tax calculation</td>
+<td>Built-in or plugin (TaxJar)</td>
+<td>Built-in or integration</td>
+</tr>
+<tr>
+<td>Tax classes</td>
+<td>Custom definable</td>
+<td>Predefined + custom</td>
+</tr>
+<tr>
+<td>Tax-inclusive pricing</td>
+<td>Supported</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td>Tax exemption</td>
+<td>Customer-level</td>
+<td>Customer-level</td>
+</tr>
+</tbody></table>
+<p><strong>Recommendation:</strong> Re-configure taxes in BigCommerce rather than migrate. Tax rules are jurisdiction-dependent and often need updating anyway.</p>
+<h3>3.5 Shipping System Differences</h3>
+<p>Both platforms support similar shipping methods, but configuration doesn&#39;t transfer:</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>WooCommerce</th>
+<th>BigCommerce</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Flat rate</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Free shipping</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Table rate</td>
+<td>Plugin</td>
+<td>Built-in</td>
+</tr>
+<tr>
+<td>Real-time rates</td>
+<td>Plugin per carrier</td>
+<td>Built-in + plugins</td>
+</tr>
+<tr>
+<td>Shipping zones</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Shipping classes</td>
+<td>Yes</td>
+<td>Yes (different impl)</td>
+</tr>
+</tbody></table>
+<p><strong>Recommendation:</strong> Manual reconfiguration of shipping in BigCommerce.</p>
+<hr>
+<h2>4. Sensitive &amp; Encrypted Data</h2>
+<h3>4.1 Customer Passwords</h3>
+<p><strong>Problem:</strong> WooCommerce stores password hashes (bcrypt/phpass). Cannot be decrypted or migrated.</p>
+<p><strong>Solutions:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>User Experience</th>
+<th>Implementation</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Force reset</strong></td>
+<td>First login requires password reset</td>
+<td>Send reset emails before/during migration</td>
+</tr>
+<tr>
+<td><strong>Social login</strong></td>
+<td>Skip password entirely</td>
+<td>Implement OAuth (Google, Facebook)</td>
+</tr>
+<tr>
+<td><strong>Magic link</strong></td>
+<td>Email-based authentication</td>
+<td>Custom implementation or plugin</td>
+</tr>
+<tr>
+<td><strong>Hybrid</strong></td>
+<td>Offer all options</td>
+<td>Reset + social + magic link</td>
+</tr>
+</tbody></table>
+<p><strong>Recommended Approach:</strong></p>
+<ol>
+<li>Pre-migration: Send email announcing migration + password reset</li>
+<li>Migration: Import customers without passwords</li>
+<li>Post-migration: Force password reset on first BC login attempt</li>
+<li>Optional: Offer social login as frictionless alternative</li>
+</ol>
+<h3>4.2 Payment Data</h3>
+<p><strong>What WooCommerce stores:</strong></p>
+<ul>
+<li>Payment method metadata (not card numbers)</li>
+<li>Subscription tokens (for recurring payments)</li>
+<li>Gateway-specific tokens (Stripe customer IDs, etc.)</li>
+</ul>
+<p><strong>What can migrate:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Data</th>
+<th>Migratability</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Credit card numbers</td>
+<td><strong>NO</strong> (never stored)</td>
+<td>PCI compliance</td>
+</tr>
+<tr>
+<td>Payment gateway tokens</td>
+<td><strong>RARELY</strong></td>
+<td>Gateway-specific, often tied to merchant account</td>
+</tr>
+<tr>
+<td>Stripe customer IDs</td>
+<td><strong>MAYBE</strong></td>
+<td>If same Stripe account, can reference</td>
+</tr>
+<tr>
+<td>PayPal billing agreements</td>
+<td><strong>NO</strong></td>
+<td>Must re-establish</td>
+</tr>
+<tr>
+<td>Subscription payment tokens</td>
+<td><strong>NO</strong></td>
+<td>Customers must re-enter payment</td>
+</tr>
+</tbody></table>
+<p><strong>Implication:</strong> Customers with saved payment methods will need to re-enter them on BigCommerce.</p>
+<h3>4.3 Subscription Data</h3>
+<p>If using WooCommerce Subscriptions:</p>
+<table>
+<thead>
+<tr>
+<th>Data Point</th>
+<th>Migratability</th>
+<th>Approach</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Subscription status</td>
+<td>Manual</td>
+<td>Recreate in BC subscription app</td>
+</tr>
+<tr>
+<td>Next payment date</td>
+<td>Manual</td>
+<td>Set up in new system</td>
+</tr>
+<tr>
+<td>Recurring amount</td>
+<td>Manual</td>
+<td>Configure in new subscription</td>
+</tr>
+<tr>
+<td>Payment method</td>
+<td><strong>NO</strong></td>
+<td>Customer re-enters</td>
+</tr>
+<tr>
+<td>Subscription history</td>
+<td>Reference only</td>
+<td>Keep in WP for records</td>
+</tr>
+</tbody></table>
+<p><strong>Subscription Migration Strategy:</strong></p>
+<ol>
+<li>Export active subscriptions from WooCommerce</li>
+<li>Set up subscription app in BigCommerce (PayWhirl, Bold, Recharge)</li>
+<li>Create subscription products in BigCommerce</li>
+<li><strong>Contact customers</strong> to re-subscribe with new payment method</li>
+<li>Honor existing subscription terms (price, frequency)</li>
+<li>Cancel WooCommerce subscriptions after BC subscriptions confirmed</li>
+</ol>
+<h3>4.4 Order Payment Details</h3>
+<p>Historical orders contain:</p>
+<ul>
+<li>Transaction IDs (can migrate as reference)</li>
+<li>Payment method titles (can migrate)</li>
+<li>Payment gateway responses (typically not migrated)</li>
+</ul>
+<p><strong>Recommendation:</strong> If migrating orders, include <code>transaction_id</code> and <code>payment_method</code> as metadata for reference.</p>
+<hr>
+<h2>5. Custom Data &amp; Extensions</h2>
+<h3>5.1 WooCommerce Meta Data (postmeta)</h3>
+<p>WooCommerce and plugins store extensive data in <code>wp_postmeta</code>:</p>
+<p><strong>Standard WooCommerce product meta:</strong></p>
+<pre><code>_price, _regular_price, _sale_price
+_sku, _stock, _stock_status
+_weight, _length, _width, _height
+_tax_status, _tax_class
+_manage_stock, _backorders
+_sold_individually, _virtual, _downloadable
+_product_attributes (serialized)
+_product_image_gallery (comma-separated IDs)
+</code></pre>
+<p><strong>Common plugin meta (examples):</strong></p>
+<pre><code>// Yoast SEO
+_yoast_wpseo_title, _yoast_wpseo_metadesc, _yoast_wpseo_focuskw
+
+// RankMath
+rank_math_title, rank_math_description, rank_math_focus_keyword
+
+// WooCommerce Subscriptions
+_subscription_price, _subscription_period, _subscription_period_interval
+
+// WooCommerce Bookings
+_wc_booking_duration, _wc_booking_duration_unit
+
+// Custom fields (ACF, etc.)
+custom_field_name, another_custom_field
+</code></pre>
+<h3>5.2 Mapping Custom Meta to BigCommerce</h3>
+<p><strong>BigCommerce Custom Fields:</strong></p>
+<ul>
+<li>Max 250 custom fields per product</li>
+<li>Field name: 1-250 characters</li>
+<li>Field value: 1-250 characters (for storefront display)</li>
+</ul>
+<p><strong>BigCommerce Metafields:</strong></p>
+<ul>
+<li>Max 250 per product (per client ID)</li>
+<li>Key: 1-64 characters</li>
+<li>Value: 1-65,535 characters</li>
+<li>Can have storefront permissions (read/write)</li>
+</ul>
+<p><strong>Decision Matrix:</strong></p>
+<table>
+<thead>
+<tr>
+<th>WooCommerce Meta Type</th>
+<th>BigCommerce Target</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Display-only product info</td>
+<td>Custom Field</td>
+<td>Shows on storefront</td>
+</tr>
+<tr>
+<td>Internal/admin data</td>
+<td>Metafield</td>
+<td>Not shown by default</td>
+</tr>
+<tr>
+<td>SEO data</td>
+<td>Custom Field or skip</td>
+<td>BC has own SEO fields</td>
+</tr>
+<tr>
+<td>Plugin-specific</td>
+<td>Case-by-case</td>
+<td>May not have equivalent</td>
+</tr>
+<tr>
+<td>Serialized/complex</td>
+<td>Metafield (JSON string)</td>
+<td>Will need parsing</td>
+</tr>
+</tbody></table>
+<h3>5.3 Custom Post Types &amp; Taxonomies</h3>
+<p>WooCommerce plugins often register custom post types:</p>
+<table>
+<thead>
+<tr>
+<th>Plugin</th>
+<th>Custom Post Types</th>
+<th>Migration Approach</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>WooCommerce Subscriptions</td>
+<td><code>shop_subscription</code></td>
+<td>Manual to BC subscription app</td>
+</tr>
+<tr>
+<td>WooCommerce Bookings</td>
+<td><code>wc_booking</code></td>
+<td>Manual to BC booking app</td>
+</tr>
+<tr>
+<td>WooCommerce Memberships</td>
+<td><code>wc_user_membership</code>, <code>wc_membership_plan</code></td>
+<td>Manual or skip</td>
+</tr>
+<tr>
+<td>YITH Wishlist</td>
+<td><code>yith-wcwl-list</code></td>
+<td>Plugin-dependent in BC</td>
+</tr>
+<tr>
+<td>WooCommerce Points &amp; Rewards</td>
+<td>User meta</td>
+<td>Manual or third-party BC app</td>
+</tr>
+</tbody></table>
+<p><strong>Recommendation:</strong> Identify active plugins during assessment. Each requires individual migration analysis.</p>
+<h3>5.4 Custom Taxonomies</h3>
+<p>Beyond standard <code>product_cat</code> and <code>product_tag</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Custom Taxonomy</th>
+<th>Typical Use</th>
+<th>BigCommerce Equivalent</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>pa_*</code> (product attributes)</td>
+<td>Variations, filtering</td>
+<td>Options or Custom Fields</td>
+</tr>
+<tr>
+<td><code>product_brand</code> (plugin)</td>
+<td>Brand filtering</td>
+<td>Brands (native)</td>
+</tr>
+<tr>
+<td><code>product_collection</code> (custom)</td>
+<td>Grouping</td>
+<td>Categories or Custom Fields</td>
+</tr>
+</tbody></table>
+<h3>5.5 User Meta Extensions</h3>
+<p>Customer data beyond standard fields:</p>
+<table>
+<thead>
+<tr>
+<th>Common User Meta</th>
+<th>Migration Target</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>points_balance</code> (points plugin)</td>
+<td>BC app or custom field</td>
+</tr>
+<tr>
+<td><code>membership_level</code></td>
+<td>BC customer group</td>
+</tr>
+<tr>
+<td><code>wholesale_price_level</code></td>
+<td>BC customer group + price lists</td>
+</tr>
+<tr>
+<td><code>vat_number</code></td>
+<td>BC customer form field</td>
+</tr>
+<tr>
+<td><code>company_name</code></td>
+<td>BC customer company field</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>6. BigCommerce Platform Limits</h2>
+<h3>6.1 Product Limits</h3>
+<table>
+<thead>
+<tr>
+<th>Limit</th>
+<th>Value</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Products per store</td>
+<td>Plan-dependent (typically unlimited)</td>
+<td>Check plan</td>
+</tr>
+<tr>
+<td>Product name length</td>
+<td>250 characters</td>
+<td></td>
+</tr>
+<tr>
+<td>SKU length</td>
+<td>250 characters</td>
+<td></td>
+</tr>
+<tr>
+<td>Description length</td>
+<td>Unlimited (HTML)</td>
+<td></td>
+</tr>
+<tr>
+<td>Custom fields per product</td>
+<td>250</td>
+<td></td>
+</tr>
+<tr>
+<td>Metafields per product</td>
+<td>250 (per client ID)</td>
+<td></td>
+</tr>
+<tr>
+<td>Images per product</td>
+<td>250</td>
+<td></td>
+</tr>
+<tr>
+<td>Videos per product</td>
+<td>5</td>
+<td></td>
+</tr>
+<tr>
+<td>Options per product</td>
+<td>250</td>
+<td></td>
+</tr>
+<tr>
+<td>Option values per option</td>
+<td>250</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Variants per product</strong></td>
+<td><strong>600</strong></td>
+<td>Key constraint</td>
+</tr>
+<tr>
+<td>Related products</td>
+<td>50</td>
+<td></td>
+</tr>
+</tbody></table>
+<h3>6.2 Variant Constraints</h3>
+<p>The 600-variant limit is often the biggest structural constraint:</p>
+<pre><code>Example:
+Color (10 values) × Size (5 values) × Style (3 values) = 150 variants ✓
+Color (20 values) × Size (10 values) × Style (5 values) = 1000 variants ✗
+
+WooCommerce has no hard limit on variations, so some stores exceed 600.
+</code></pre>
+<p><strong>Migration Strategy for Over-Limit Products:</strong></p>
+<ol>
+<li>Split into multiple products (&quot;Blue Widget Collection&quot;, &quot;Red Widget Collection&quot;)</li>
+<li>Use modifiers instead of options (if not all combinations are valid)</li>
+<li>Reduce option value count (consolidate similar options)</li>
+<li>Contact BigCommerce about limit increases (enterprise)</li>
+</ol>
+<h3>6.3 Category Limits</h3>
+<table>
+<thead>
+<tr>
+<th>Limit</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Categories per store</td>
+<td>16,000</td>
+</tr>
+<tr>
+<td>Category nesting depth</td>
+<td>5 levels</td>
+</tr>
+<tr>
+<td>Products per category</td>
+<td>Unlimited</td>
+</tr>
+<tr>
+<td>Category name length</td>
+<td>50 characters</td>
+</tr>
+</tbody></table>
+<h3>6.4 Customer Limits</h3>
+<table>
+<thead>
+<tr>
+<th>Limit</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Customers per store</td>
+<td>Unlimited</td>
+</tr>
+<tr>
+<td>Customer groups</td>
+<td>1,000</td>
+</tr>
+<tr>
+<td>Addresses per customer</td>
+<td>100</td>
+</tr>
+<tr>
+<td>Customer attributes</td>
+<td>50 per store</td>
+</tr>
+</tbody></table>
+<h3>6.5 API Rate Limits</h3>
+<table>
+<thead>
+<tr>
+<th>Plan</th>
+<th>Limit</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Standard</td>
+<td>150 requests per 30 seconds</td>
+</tr>
+<tr>
+<td>Plus</td>
+<td>150 requests per 30 seconds</td>
+</tr>
+<tr>
+<td>Pro</td>
+<td>450 requests per 30 seconds</td>
+</tr>
+<tr>
+<td>Enterprise</td>
+<td>Negotiable</td>
+</tr>
+</tbody></table>
+<p><strong>Migration Implication:</strong></p>
+<pre><code>Standard plan migration of 10,000 products:
+- Batch size: 10 products per request
+- Requests needed: 1,000
+- At 150 req/30s: ~3.5 minutes minimum
+- With buffer: ~10-15 minutes
+
+Add variants, images, etc., and time increases significantly.
+</code></pre>
+<h3>6.6 Other Limits</h3>
+<table>
+<thead>
+<tr>
+<th>Entity</th>
+<th>Limit</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Brands</td>
+<td>30,000</td>
+</tr>
+<tr>
+<td>Redirects (URL)</td>
+<td>10,000</td>
+</tr>
+<tr>
+<td>Orders</td>
+<td>Unlimited</td>
+</tr>
+<tr>
+<td>Max order quantity per item</td>
+<td>1,000,000</td>
+</tr>
+<tr>
+<td>Webhooks</td>
+<td>100</td>
+</tr>
+<tr>
+<td>Scripts (Script Manager)</td>
+<td>25</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>7. BigCommerce Store Setup Requirements</h2>
+<h3>7.1 Pre-Migration Setup Checklist</h3>
+<p>Before any data migration, the BigCommerce store must be configured:</p>
+<h4>Account &amp; Plan</h4>
+<ul>
+<li><input disabled="" type="checkbox"> BigCommerce account created</li>
+<li><input disabled="" type="checkbox"> Appropriate plan selected (affects API limits)</li>
+<li><input disabled="" type="checkbox"> Sandbox/dev store for testing (if available)</li>
+</ul>
+<h4>Store Settings</h4>
+<ul>
+<li><input disabled="" type="checkbox"> Store name configured</li>
+<li><input disabled="" type="checkbox"> Store address/location set</li>
+<li><input disabled="" type="checkbox"> Default currency set (must match WooCommerce or transform)</li>
+<li><input disabled="" type="checkbox"> Weight unit set (must match or transform)</li>
+<li><input disabled="" type="checkbox"> Dimension unit set (must match or transform)</li>
+<li><input disabled="" type="checkbox"> Timezone set</li>
+</ul>
+<h4>Tax Configuration</h4>
+<ul>
+<li><input disabled="" type="checkbox"> Tax calculation method chosen (manual, automatic, or integration)</li>
+<li><input disabled="" type="checkbox"> Tax classes created (if needed)</li>
+<li><input disabled="" type="checkbox"> Tax zones/rules configured</li>
+<li><input disabled="" type="checkbox"> Tax-inclusive pricing setting (if applicable)</li>
+</ul>
+<h4>Shipping Configuration</h4>
+<ul>
+<li><input disabled="" type="checkbox"> Shipping origin address set</li>
+<li><input disabled="" type="checkbox"> Shipping zones created</li>
+<li><input disabled="" type="checkbox"> Shipping methods configured per zone</li>
+<li><input disabled="" type="checkbox"> Free shipping thresholds (if applicable)</li>
+<li><input disabled="" type="checkbox"> Real-time carrier rates configured (if using)</li>
+</ul>
+<h4>Payment Configuration</h4>
+<ul>
+<li><input disabled="" type="checkbox"> Payment gateway(s) connected</li>
+<li><input disabled="" type="checkbox"> Test transactions verified</li>
+<li><input disabled="" type="checkbox"> Multi-currency (if applicable)</li>
+<li><input disabled="" type="checkbox"> Payment method display order</li>
+</ul>
+<h4>Email Configuration</h4>
+<ul>
+<li><input disabled="" type="checkbox"> Email sender address verified</li>
+<li><input disabled="" type="checkbox"> Transactional emails configured (order confirmation, shipping, etc.)</li>
+<li><input disabled="" type="checkbox"> Email templates customized (optional)</li>
+</ul>
+<h3>7.2 Migration-Sequence Dependencies</h3>
+<pre><code>SETUP ORDER (Critical - Dependencies)
+
+1. Store Settings (currency, units, timezone)
+   └── Required for: Everything
+
+2. Tax Configuration
+   └── Required for: Products (tax class assignment)
+
+3. Customer Groups (if using)
+   └── Required for: Customers (group assignment)
+
+4. Brands (if using)
+   └── Required for: Products (brand assignment)
+
+5. Categories (full hierarchy)
+   └── Required for: Products (category assignment)
+   └── Must migrate parent categories before children
+
+6. Product Options (global option sets, if using)
+   └── Required for: Products with shared options
+
+7. Products (including variants)
+   └── Depends on: Categories, Brands, Options
+   └── Required for: Customer import (if linking purchases)
+
+8. Customers
+   └── Depends on: Customer Groups
+   └── Can run parallel to products
+
+9. Product Reviews
+   └── Depends on: Products, Customers
+
+10. Redirects (URL)
+    └── Depends on: Products, Categories (need new URLs)
+
+11. Promotions/Coupons
+    └── Depends on: Products, Categories, Customer Groups
+</code></pre>
+<h3>7.3 Integration Setup</h3>
+<p>For the headless WordPress integration:</p>
+<h4>BigCommerce Side</h4>
+<ul>
+<li><input disabled="" type="checkbox"> API account created (V3 API)</li>
+<li><input disabled="" type="checkbox"> API token generated with appropriate scopes:<ul>
+<li><input disabled="" type="checkbox"> Products (read)</li>
+<li><input disabled="" type="checkbox"> Customers (read/write)</li>
+<li><input disabled="" type="checkbox"> Orders (read/write)</li>
+<li><input disabled="" type="checkbox"> Carts (read/write)</li>
+<li><input disabled="" type="checkbox"> Checkouts (read/write)</li>
+<li><input disabled="" type="checkbox"> Content (read)</li>
+</ul>
+</li>
+<li><input disabled="" type="checkbox"> Storefront API token generated (for client-side operations)</li>
+<li><input disabled="" type="checkbox"> Webhook endpoints configured (for cache invalidation)</li>
+<li><input disabled="" type="checkbox"> Channel created (for headless storefront)</li>
+</ul>
+<h4>WordPress Side</h4>
+<ul>
+<li><input disabled="" type="checkbox"> BC Bridge plugin installed</li>
+<li><input disabled="" type="checkbox"> API credentials configured</li>
+<li><input disabled="" type="checkbox"> Cache layer configured</li>
+<li><input disabled="" type="checkbox"> Webhook receiver endpoint set up</li>
+</ul>
+<h3>7.4 Domain &amp; SSL</h3>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Domain configuration</td>
+<td>Point to BigCommerce or keep on WordPress</td>
+</tr>
+<tr>
+<td>SSL certificate</td>
+<td>BigCommerce provides for BC-hosted checkouts</td>
+</tr>
+<tr>
+<td>Checkout domain</td>
+<td>Can use custom or BC subdomain</td>
+</tr>
+</tbody></table>
+<p><strong>For Headless Setup:</strong></p>
+<ul>
+<li>WordPress domain remains primary</li>
+<li>BigCommerce checkout can use subdomain (checkout.example.com)</li>
+<li>SSL must cover both</li>
+</ul>
+<hr>
+<h2>8. Migration Execution Sequence</h2>
+<h3>8.1 Phase Overview</h3>
+<pre><code>PHASE 1: PREPARATION (Manual/Semi-Automated)
+├── BigCommerce store setup
+├── API access configured
+├── Test environment validated
+└── Customer communication drafted
+
+PHASE 2: DATA MIGRATION (Automated)
+├── Categories (hierarchy-aware)
+├── Brands (if applicable)
+├── Products (batched)
+├── Variants (with products)
+├── Product images (URL reference)
+├── Product reviews (optional)
+└── Customers (batched)
+
+PHASE 3: INTEGRATION SETUP (Manual)
+├── WordPress plugin installation
+├── API credential configuration
+├── Template/theme integration
+├── Cart/checkout flow testing
+└── Customer auth testing
+
+PHASE 4: VALIDATION (Automated + Manual)
+├── Data integrity checks
+├── Functional testing
+├── Performance testing
+└── UAT sign-off
+
+PHASE 5: CUTOVER (Coordinated)
+├── Final delta sync
+├── DNS/redirect updates
+├── Go-live
+└── Monitoring
+</code></pre>
+<h3>8.2 Detailed Migration Steps</h3>
+<h4>Categories Migration</h4>
+<pre><code>1. Extract categories from WooCommerce
+   GET /wp-json/wc/v3/products/categories?per_page=100
+
+2. Build hierarchy tree
+   Sort by parent_id, process roots first
+
+3. Create in BigCommerce
+   POST /stores/{store_hash}/v3/catalog/categories
+
+4. Maintain ID mapping
+   Store: { wc_id: bc_id }
+
+5. Verify hierarchy
+   Compare tree structures
+</code></pre>
+<h4>Products Migration</h4>
+<pre><code>1. Extract products from WooCommerce
+   GET /wp-json/wc/v3/products?per_page=100&amp;page=N
+   Include: variations for variable products
+
+2. Transform to BigCommerce format
+   - Map fields per mapping table
+   - Convert units if needed
+   - Map category IDs using stored mapping
+   - Build options from attributes (for variable)
+   - Build variants from variations
+
+3. Create in BigCommerce (batched)
+   POST /stores/{store_hash}/v3/catalog/products
+   Batch size: 10 products per request
+
+4. Handle images
+   BC fetches from URLs automatically
+   Ensure WP media URLs are accessible
+
+5. Log results
+   Store: { wc_id: bc_id } for each product
+   Track failures for retry
+</code></pre>
+<h4>Customers Migration</h4>
+<pre><code>1. Extract customers from WooCommerce
+   GET /wp-json/wc/v3/customers?per_page=100&amp;page=N
+
+2. Transform to BigCommerce format
+   - Map standard fields
+   - Build addresses array
+   - Map customer group if applicable
+   - EXCLUDE password
+
+3. Create in BigCommerce (batched)
+   POST /stores/{store_hash}/v3/customers
+
+4. Log results
+   Store: { wc_id: bc_id, email: email }
+
+5. Trigger password reset
+   Either via BC API or email campaign
+</code></pre>
+<h3>8.3 Rollback Strategy</h3>
+<p>If migration fails or issues are discovered:</p>
+<pre><code>ROLLBACK LEVELS
+
+Level 1: Data Correction
+├── Issue: Wrong data migrated
+├── Action: Update via BC API
+└── Impact: Minimal
+
+Level 2: Re-Migration
+├── Issue: Significant data problems
+├── Action: Delete BC data, re-run migration
+└── Impact: Time delay
+
+Level 3: Full Rollback
+├── Issue: Fundamental problems
+├── Action: Reactivate WooCommerce
+└── Impact: Back to original state
+
+ROLLBACK CHECKLIST
+├── [ ] WooCommerce plugin still installed (deactivated)
+├── [ ] WooCommerce data intact in database
+├── [ ] BC Bridge plugin can be deactivated
+├── [ ] Redirects can be reversed
+└── [ ] Customer communication plan ready
+</code></pre>
+<hr>
+<h2>9. Validation Framework</h2>
+<h3>9.1 Automated Validation Checks</h3>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Method</th>
+<th>Pass Criteria</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Product count</strong></td>
+<td>Compare API totals</td>
+<td>WC count = BC count</td>
+</tr>
+<tr>
+<td><strong>Variant count</strong></td>
+<td>Sum across products</td>
+<td>WC variants = BC variants</td>
+</tr>
+<tr>
+<td><strong>SKU uniqueness</strong></td>
+<td>BC API validation</td>
+<td>No duplicate errors</td>
+</tr>
+<tr>
+<td><strong>Category count</strong></td>
+<td>Compare API totals</td>
+<td>WC count = BC count</td>
+</tr>
+<tr>
+<td><strong>Category hierarchy</strong></td>
+<td>Tree structure diff</td>
+<td>Structure matches</td>
+</tr>
+<tr>
+<td><strong>Customer count</strong></td>
+<td>Compare API totals</td>
+<td>WC count = BC count</td>
+</tr>
+<tr>
+<td><strong>Image availability</strong></td>
+<td>HTTP HEAD on image URLs</td>
+<td>All return 200</td>
+</tr>
+<tr>
+<td><strong>Price accuracy</strong></td>
+<td>Sample comparison (10%)</td>
+<td>100% match</td>
+</tr>
+<tr>
+<td><strong>Inventory accuracy</strong></td>
+<td>Sample comparison (10%)</td>
+<td>100% match</td>
+</tr>
+</tbody></table>
+<h3>9.2 Manual Validation Checklist</h3>
+<h4>Pre-Launch</h4>
+<ul>
+<li><input disabled="" type="checkbox"> Homepage loads correctly</li>
+<li><input disabled="" type="checkbox"> Category pages display products</li>
+<li><input disabled="" type="checkbox"> Product detail pages render</li>
+<li><input disabled="" type="checkbox"> Product images display</li>
+<li><input disabled="" type="checkbox"> Product variants selectable</li>
+<li><input disabled="" type="checkbox"> Prices display correctly</li>
+<li><input disabled="" type="checkbox"> Add to cart works</li>
+<li><input disabled="" type="checkbox"> Cart shows correct items</li>
+<li><input disabled="" type="checkbox"> Checkout flow completes (sandbox)</li>
+<li><input disabled="" type="checkbox"> Order confirmation displays</li>
+<li><input disabled="" type="checkbox"> Order appears in BC admin</li>
+<li><input disabled="" type="checkbox"> Customer can create account</li>
+<li><input disabled="" type="checkbox"> Customer can log in</li>
+<li><input disabled="" type="checkbox"> Customer can view order history</li>
+<li><input disabled="" type="checkbox"> Email notifications send</li>
+</ul>
+<h4>Post-Launch (24-48 hours)</h4>
+<ul>
+<li><input disabled="" type="checkbox"> No 500 errors in logs</li>
+<li><input disabled="" type="checkbox"> No payment failures</li>
+<li><input disabled="" type="checkbox"> No missing orders</li>
+<li><input disabled="" type="checkbox"> Customer complaints minimal</li>
+<li><input disabled="" type="checkbox"> SEO rankings stable</li>
+<li><input disabled="" type="checkbox"> Site speed acceptable</li>
+</ul>
+<h3>9.3 Data Integrity Report</h3>
+<p>Generate post-migration report:</p>
+<pre><code>DATA INTEGRITY REPORT
+=====================
+Migration Date: 2024-12-17
+Source: example-woocommerce.com
+Target: example.mybigcommerce.com
+
+ENTITY COUNTS
+├── Categories: 45 WC → 45 BC ✓
+├── Products: 2,847 WC → 2,847 BC ✓
+├── Variants: 8,234 WC → 8,234 BC ✓
+├── Customers: 12,500 WC → 12,500 BC ✓
+└── Reviews: 1,234 WC → 1,234 BC ✓
+
+SAMPLE VALIDATION (10% random)
+├── Prices: 285/285 matched ✓
+├── Inventory: 285/285 matched ✓
+├── Categories: 285/285 matched ✓
+└── Images: 280/285 accessible (5 404s) - Note: Some images may need manual review
+
+ISSUES DETECTED
+├── 5 product images returning 404
+│   └── Products: [123, 456, 789, 012, 345]
+├── 3 products exceeded BC variant limit
+│   └── Products: [567] (split into 2)
+└── 12 customers with invalid email format skipped
+
+RECOMMENDATION: Proceed with launch
+└── Fix image 404s post-launch
+└── Contact skipped customers manually
+</code></pre>
+<hr>
+<h2>10. Edge Cases &amp; Gotchas</h2>
+<h3>10.1 Data Edge Cases</h3>
+<table>
+<thead>
+<tr>
+<th>Edge Case</th>
+<th>Problem</th>
+<th>Solution</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>SKU conflicts</strong></td>
+<td>WC allows duplicate SKUs, BC doesn&#39;t</td>
+<td>Append suffix or dedupe before migration</td>
+</tr>
+<tr>
+<td><strong>Empty SKUs</strong></td>
+<td>WC allows blank SKU, BC requires</td>
+<td>Generate SKU from product ID</td>
+</tr>
+<tr>
+<td><strong>Unicode in slugs</strong></td>
+<td>WC allows, BC may not</td>
+<td>Transliterate or encode</td>
+</tr>
+<tr>
+<td><strong>HTML in titles</strong></td>
+<td>WC allows, BC strips</td>
+<td>Clean before migration</td>
+</tr>
+<tr>
+<td><strong>Zero-price products</strong></td>
+<td>Valid in WC, may flag in BC</td>
+<td>Set <code>is_price_hidden</code></td>
+</tr>
+<tr>
+<td><strong>Negative prices</strong></td>
+<td>Invalid in both</td>
+<td>Clean data</td>
+</tr>
+<tr>
+<td><strong>Future publish dates</strong></td>
+<td>WC scheduled posts</td>
+<td>Map to <code>is_visible: false</code></td>
+</tr>
+<tr>
+<td><strong>Password-protected products</strong></td>
+<td>WC feature</td>
+<td>No equivalent; use customer groups</td>
+</tr>
+<tr>
+<td><strong>Products in multiple categories</strong></td>
+<td>Supported in both</td>
+<td>Works directly</td>
+</tr>
+<tr>
+<td><strong>Orphan products</strong> (no category)</td>
+<td>Valid in WC</td>
+<td>Assign default category in BC</td>
+</tr>
+<tr>
+<td><strong>Over 600 variants</strong></td>
+<td>Valid in WC</td>
+<td>Split product or reduce options</td>
+</tr>
+<tr>
+<td><strong>Variations without parent</strong></td>
+<td>Data integrity issue</td>
+<td>Skip or clean</td>
+</tr>
+<tr>
+<td><strong>Out-of-stock hidden</strong></td>
+<td>WC setting</td>
+<td>Implement via BC filter</td>
+</tr>
+</tbody></table>
+<h3>10.2 User/Customer Edge Cases</h3>
+<table>
+<thead>
+<tr>
+<th>Edge Case</th>
+<th>Problem</th>
+<th>Solution</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Duplicate emails</strong></td>
+<td>WC allows in some configs</td>
+<td>Merge or skip duplicates</td>
+</tr>
+<tr>
+<td><strong>Invalid emails</strong></td>
+<td>WC validation looser</td>
+<td>Skip with notification</td>
+</tr>
+<tr>
+<td><strong>Admin users as customers</strong></td>
+<td>WP conflates users</td>
+<td>Filter by role</td>
+</tr>
+<tr>
+<td><strong>Guest orders</strong></td>
+<td>No customer record</td>
+<td>Skip or create on-demand</td>
+</tr>
+<tr>
+<td><strong>Multiple addresses</strong></td>
+<td>WC stores one billing + one shipping</td>
+<td>BC can store more; use defaults</td>
+</tr>
+<tr>
+<td><strong>Customer notes</strong></td>
+<td>Stored in order meta</td>
+<td>May not have customer-level equivalent</td>
+</tr>
+</tbody></table>
+<h3>10.3 Order Edge Cases (If Migrating)</h3>
+<table>
+<thead>
+<tr>
+<th>Edge Case</th>
+<th>Problem</th>
+<th>Solution</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Partial refunds</strong></td>
+<td>Complex line item math</td>
+<td>Import total after refund</td>
+</tr>
+<tr>
+<td><strong>Multi-currency orders</strong></td>
+<td>WC plugin-dependent</td>
+<td>Convert to base currency</td>
+</tr>
+<tr>
+<td><strong>Subscription orders</strong></td>
+<td>Linked to subscription</td>
+<td>Skip or import as standalone</td>
+</tr>
+<tr>
+<td><strong>Orders with deleted products</strong></td>
+<td>Product ID doesn&#39;t exist</td>
+<td>Import as is (historical)</td>
+</tr>
+<tr>
+<td><strong>Pending orders</strong></td>
+<td>May still need fulfillment</td>
+<td>Consider leaving in WC</td>
+</tr>
+<tr>
+<td><strong>Incomplete checkout</strong></td>
+<td>Not really orders</td>
+<td>Skip</td>
+</tr>
+</tbody></table>
+<h3>10.4 Technical Gotchas</h3>
+<table>
+<thead>
+<tr>
+<th>Gotcha</th>
+<th>Description</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Serialized PHP in meta</strong></td>
+<td>WC stores some data serialized</td>
+<td>Must unserialize before use</td>
+</tr>
+<tr>
+<td><strong>HPOS vs Legacy</strong></td>
+<td>WooCommerce 8.0+ uses new order tables</td>
+<td>Check which system is active</td>
+</tr>
+<tr>
+<td><strong>Object cache</strong></td>
+<td>WC uses WordPress object cache</td>
+<td>May need to bypass for direct queries</td>
+</tr>
+<tr>
+<td><strong>Multisite</strong></td>
+<td>WP Multisite has different table names</td>
+<td>Prefix tables correctly</td>
+</tr>
+<tr>
+<td><strong>Large meta values</strong></td>
+<td>Some meta exceeds BC limits</td>
+<td>Truncate or use metafields</td>
+</tr>
+<tr>
+<td><strong>Rate limiting</strong></td>
+<td>BC API throttling</td>
+<td>Implement backoff and batching</td>
+</tr>
+<tr>
+<td><strong>Webhook delivery</strong></td>
+<td>BC → WP webhook failures</td>
+<td>Ensure endpoint is accessible</td>
+</tr>
+<tr>
+<td><strong>Image CDN</strong></td>
+<td>WC images may be on CDN</td>
+<td>Ensure URLs are direct and accessible</td>
+</tr>
+<tr>
+<td><strong>Lazy-loaded images</strong></td>
+<td>Frontend lazy loading</td>
+<td>Use source URLs, not data-src</td>
+</tr>
+</tbody></table>
+<h3>10.5 SEO Gotchas</h3>
+<table>
+<thead>
+<tr>
+<th>Gotcha</th>
+<th>Description</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>URL structure change</strong></td>
+<td>Different permalink patterns</td>
+<td>301 redirects (up to BC&#39;s 10K limit)</td>
+</tr>
+<tr>
+<td><strong>Lost canonical tags</strong></td>
+<td>WC handles canonicals</td>
+<td>Configure BC or implement custom</td>
+</tr>
+<tr>
+<td><strong>Schema markup</strong></td>
+<td>WC plugin-dependent</td>
+<td>Implement BC schema</td>
+</tr>
+<tr>
+<td><strong>Meta descriptions</strong></td>
+<td>Yoast/RankMath data</td>
+<td>Map to BC meta or custom fields</td>
+</tr>
+<tr>
+<td><strong>Sitemap generation</strong></td>
+<td>WC/Yoast generates</td>
+<td>Configure BC sitemap</td>
+</tr>
+<tr>
+<td><strong>robots.txt</strong></td>
+<td>WordPress-level</td>
+<td>Update if needed</td>
+</tr>
+</tbody></table>
+<h3>10.6 Integration Gotchas</h3>
+<table>
+<thead>
+<tr>
+<th>Gotcha</th>
+<th>Description</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Payment gateway tokens</strong></td>
+<td>Not portable between platforms</td>
+<td>Customers re-enter payment</td>
+</tr>
+<tr>
+<td><strong>Shipping carrier accounts</strong></td>
+<td>May need re-verification</td>
+<td>Re-configure in BC</td>
+</tr>
+<tr>
+<td><strong>Tax service accounts</strong></td>
+<td>May be tied to WC integration</td>
+<td>Re-configure (TaxJar, Avalara)</td>
+</tr>
+<tr>
+<td><strong>ERP/PIM sync</strong></td>
+<td>May target WC specifically</td>
+<td>Update integration target</td>
+</tr>
+<tr>
+<td><strong>Email marketing</strong></td>
+<td>Audience lists may need update</td>
+<td>Re-sync from BC</td>
+</tr>
+<tr>
+<td><strong>Analytics tracking</strong></td>
+<td>Different data layer</td>
+<td>Update GA/tracking setup</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>Appendix A: Quick Reference - Minimum Viable Migration</h2>
+<p>For a rapid migration with reduced scope:</p>
+<h3>Must Migrate</h3>
+<ul>
+<li><input disabled="" type="checkbox"> Products (with variants)</li>
+<li><input disabled="" type="checkbox"> Categories</li>
+<li><input disabled="" type="checkbox"> Product images</li>
+<li><input disabled="" type="checkbox"> Customers (emails for password reset)</li>
+</ul>
+<h3>Should Migrate</h3>
+<ul>
+<li><input disabled="" type="checkbox"> Product reviews</li>
+<li><input disabled="" type="checkbox"> Brands (if used)</li>
+<li><input disabled="" type="checkbox"> Customer addresses</li>
+</ul>
+<h3>Can Skip (Phase 1)</h3>
+<ul>
+<li><input disabled="" type="checkbox"> Historical orders (keep in WP)</li>
+<li><input disabled="" type="checkbox"> Coupons (recreate manually)</li>
+<li><input disabled="" type="checkbox"> Subscriptions (manual migration)</li>
+<li><input disabled="" type="checkbox"> Custom meta (unless critical)</li>
+</ul>
+<h3>Cannot Migrate</h3>
+<ul>
+<li><input disabled="" type="checkbox"> Customer passwords</li>
+<li><input disabled="" type="checkbox"> Payment tokens</li>
+<li><input disabled="" type="checkbox"> Active subscription billing</li>
+</ul>
+<hr>
+<h2>Appendix B: Assessment Checklist</h2>
+<p>Use this during the assessment phase:</p>
+<h3>Store Profile</h3>
+<ul>
+<li><input disabled="" type="checkbox"> Product count (simple, variable, other)</li>
+<li><input disabled="" type="checkbox"> Total SKU/variant count</li>
+<li><input disabled="" type="checkbox"> Category count and depth</li>
+<li><input disabled="" type="checkbox"> Customer count</li>
+<li><input disabled="" type="checkbox"> Average order volume (monthly)</li>
+<li><input disabled="" type="checkbox"> Historical order count</li>
+</ul>
+<h3>Complexity Indicators</h3>
+<ul>
+<li><input disabled="" type="checkbox"> Custom post types in use</li>
+<li><input disabled="" type="checkbox"> Number of active plugins</li>
+<li><input disabled="" type="checkbox"> WooCommerce extensions (list)</li>
+<li><input disabled="" type="checkbox"> Custom attributes count</li>
+<li><input disabled="" type="checkbox"> Meta fields per product (average)</li>
+<li><input disabled="" type="checkbox"> Products with &gt;100 variants</li>
+<li><input disabled="" type="checkbox"> Products with &gt;600 variants (blockers)</li>
+</ul>
+<h3>Integration Inventory</h3>
+<ul>
+<li><input disabled="" type="checkbox"> Payment gateways in use</li>
+<li><input disabled="" type="checkbox"> Shipping methods/carriers</li>
+<li><input disabled="" type="checkbox"> Tax service (native/plugin)</li>
+<li><input disabled="" type="checkbox"> ERP/PIM integration</li>
+<li><input disabled="" type="checkbox"> Email marketing integration</li>
+<li><input disabled="" type="checkbox"> Other third-party integrations</li>
+</ul>
+<h3>Technical Environment</h3>
+<ul>
+<li><input disabled="" type="checkbox"> WordPress version</li>
+<li><input disabled="" type="checkbox"> WooCommerce version</li>
+<li><input disabled="" type="checkbox"> PHP version</li>
+<li><input disabled="" type="checkbox"> HPOS enabled?</li>
+<li><input disabled="" type="checkbox"> Multisite?</li>
+<li><input disabled="" type="checkbox"> Custom theme with WC templates?</li>
+</ul>
+<hr>
+<p><em>Document Version: 1.0</em>
+<em>Last Updated: December 2025</em></p>
+
+</body>
+</html>

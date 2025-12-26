@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logging Architecture</title>
+    <meta name="description" content="Structured logging implementation for migration operations">
+    <!-- frontmatter
+title: "Logging Architecture"
+description: "Structured logging implementation for migration operations"
+category: "platform"
+order: 6
+-->
+</head>
+<body>
+
+<h1>Logging Architecture</h1>
+
+<p>The system uses structured logging with Pino for comprehensive debugging and monitoring.</p>
+
+<h2>Logger Configuration</h2>
+
+<p>Multi-destination logging with file and console output:</p>
+
+<pre><code class="language-typescript">// src/lib/logger.ts
+import pino from 'pino';
+
+// File transport (JSON)
+const fileTransport = pino.transport({
+  target: 'pino/file',
+  options: { destination: logFilePath },
+});
+
+// Pretty console transport
+const prettyTransport = pino.transport({
+  target: 'pino-pretty',
+  options: {
+    colorize: true,
+    translateTime: 'SYS:standard',
+  },
+});
+
+export const logger = pino({
+  level: process.env.LOG_LEVEL || 'debug',
+  base: { app: 'bc-migration' },
+}, pino.multistream([fileTransport, prettyTransport]));
+</code></pre>
+
+<h2>Usage</h2>
+
+<h3>Basic Logging</h3>
+
+<pre><code class="language-typescript">import { logger } from '@/lib/logger';
+
+logger.info('Migration started');
+logger.warn({ productId: 123 }, 'Product validation warning');
+logger.error({ error }, 'Migration failed');
+</code></pre>
+
+<h3>Child Loggers</h3>
+
+<pre><code class="language-typescript">import { createChildLogger } from '@/lib/logger';
+
+const productLogger = createChildLogger({ phase: 'products' });
+productLogger.info({ productId: 123 }, 'Processing product');
+</code></pre>
+
+<h3>Migration-Specific Loggers</h3>
+
+<pre><code class="language-typescript">import { migrationLogger } from '@/lib/logger';
+
+migrationLogger.products.info({ productId: 123 }, 'Product migrated');
+migrationLogger.orders.warn({ orderId: 456 }, 'Order validation issue');
+</code></pre>
+
+<h2>Log Files</h2>
+
+<p>Logs are written to <code>logs/migration-{timestamp}.log</code>:</p>
+
+<ul>
+<li>JSON format for parsing</li>
+<li>Timestamped filenames</li>
+<li>Automatic rotation</li>
+</ul>
+
+<h2>Best Practices</h2>
+
+<ul>
+<li>Use structured logging with context</li>
+<li>Log at appropriate levels (debug, info, warn, error)</li>
+<li>Include relevant context in log entries</li>
+<li>Use child loggers for phase-specific logging</li>
+<li>Monitor log file sizes</li>
+</ul>
+
+<h2>Related Documentation</h2>
+
+<ul>
+<li><a href="error-handling.html">Error Handling Architecture</a></li>
+</ul>
+
+</body>
+</html>
+

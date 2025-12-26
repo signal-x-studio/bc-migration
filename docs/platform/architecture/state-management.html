@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>State Management Architecture</title>
+    <meta name="description" content="State tracking and persistence for migration operations">
+    <!-- frontmatter
+title: "State Management Architecture"
+description: "State tracking and persistence for migration operations"
+category: "platform"
+order: 3
+-->
+</head>
+<body>
+
+<h1>State Management Architecture</h1>
+
+<p>The migration system tracks state to enable delta migrations and resume capabilities.</p>
+
+<h2>StateTracker Class</h2>
+
+<p>The <code>StateTracker</code> class manages migration state persistence:</p>
+
+<pre><code class="language-typescript">// src/migration/state-tracker.ts
+export class StateTracker {
+  private stateFile: string;
+  private state: MigrationState;
+
+  getLastRun(type: string): string | null;
+  setLastRun(type: string, timestamp?: string): void;
+}
+</code></pre>
+
+<h2>State File</h2>
+
+<p>State is persisted to <code>.migration-state.json</code>:</p>
+
+<pre><code class="language-json">{
+  "lastRun": {
+    "products": "2024-01-15T10:30:00.000Z",
+    "customers": "2024-01-15T10:35:00.000Z",
+    "orders": "2024-01-15T10:40:00.000Z"
+  }
+}
+</code></pre>
+
+<h2>Delta Migrations</h2>
+
+<p>State tracking enables delta (incremental) migrations:</p>
+
+<pre><code class="language-typescript">const stateTracker = new StateTracker();
+const modifiedAfter = stateTracker.getLastRun('products');
+
+if (modifiedAfter) {
+  // Only fetch products modified since last run
+  const products = await wcClient.getProducts({
+    modified_after: modifiedAfter
+  });
+}
+
+// After successful migration
+stateTracker.setLastRun('products');
+</code></pre>
+
+<h2>Usage</h2>
+
+<h3>Tracking Migration Runs</h3>
+
+<pre><code class="language-typescript">// Get last run timestamp
+const lastRun = stateTracker.getLastRun('products');
+
+// Set new run timestamp
+stateTracker.setLastRun('products');
+</code></pre>
+
+<h2>Best Practices</h2>
+
+<ul>
+<li>Track state for each entity type separately</li>
+<li>Use ISO 8601 timestamps</li>
+<li>Update state only after successful migration</li>
+<li>Handle state file corruption gracefully</li>
+</ul>
+
+<h2>Related Documentation</h2>
+
+<ul>
+<li><a href="../../guides/migration/phases/core-data.html">Core Data Migration</a></li>
+<li><a href="../../guides/migration/phases/transactions.html">Transactions Migration</a></li>
+</ul>
+
+</body>
+</html>
+

@@ -252,9 +252,13 @@ If you see rate limit errors:
 
 ## Documentation
 
-- [Architecture](docs/MIGRATION_ARCHITECTURE.md) - Technical design and data models
-- [Roadmap (EARS)](docs/ROADMAP_EARS.md) - Requirements specification
-- [Handoff](docs/HANDOFF.md) - Project context and quick start
+- [Documentation Home](docs/README.md) - Complete documentation index
+- [Getting Started](docs/getting-started/) - Quick start guides by persona
+- [Migration Architecture](docs/platform/architecture/MIGRATION_ARCHITECTURE.md) - Technical design and data models
+- [Roadmap (EARS)](docs/resources/strategy/ROADMAP_EARS.md) - Requirements specification
+- [Handoff Guide](docs/resources/strategy/HANDOFF.md) - Project context and quick start
+
+**Documentation Site:** Access the full documentation site at `/docs` when running the dashboard.
 
 ## License
 

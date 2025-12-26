@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Migration Troubleshooting</title>
+    <meta name="description" content="Common issues and solutions during migration">
+    <!-- frontmatter
+title: "Migration Troubleshooting"
+description: "Common issues and solutions during migration"
+category: "guides"
+order: 3
+-->
+</head>
+<body>
+<h1>Migration Troubleshooting</h1>
+<p>Common issues and solutions during WooCommerce to BigCommerce migration.</p>
+<h2>Connection Issues</h2>
+<h3>WooCommerce 401 Unauthorized</h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Error: <code>401 Unauthorized</code> when connecting to WooCommerce API</li>
+<li>Assessment fails immediately</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><p>Verify API credentials:</p>
+<ul>
+<li>Check <code>WC_CONSUMER_KEY</code> and <code>WC_CONSUMER_SECRET</code> in <code>.env</code></li>
+<li>Ensure no extra spaces or quotes</li>
+</ul>
+</li>
+<li><p>Check API permissions:</p>
+<ul>
+<li>Go to WooCommerce → Settings → Advanced → REST API</li>
+<li>Verify key has <strong>Read</strong> permissions</li>
+<li>Regenerate key if needed</li>
+</ul>
+</li>
+<li><p>Verify REST API is enabled:</p>
+<ul>
+<li>Check WooCommerce settings</li>
+<li>Ensure REST API is not disabled</li>
+</ul>
+</li>
+<li><p>Check user permissions:</p>
+<ul>
+<li>API key user must have admin or shop manager role</li>
+<li>Verify user account is active</li>
+</ul>
+</li>
+</ol>
+<h3>BigCommerce 401/403 Errors</h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Error: <code>401 Unauthorized</code> or <code>403 Forbidden</code> when connecting to BigCommerce</li>
+<li><code>validate-target</code> command fails</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><p>Verify credentials:</p>
+<ul>
+<li>Check <code>BC_STORE_HASH</code> (should be alphanumeric, no dashes)</li>
+<li>Check <code>BC_ACCESS_TOKEN</code> (should be long string)</li>
+<li>Ensure no extra spaces</li>
+</ul>
+</li>
+<li><p>Check API token scopes:</p>
+<ul>
+<li>Go to BigCommerce → Settings → API Accounts</li>
+<li>Verify token has required scopes:<ul>
+<li><code>store_v2_products</code></li>
+<li><code>store_v2_customers</code></li>
+<li><code>store_v2_orders</code></li>
+<li><code>store_cart</code></li>
+<li><code>store_checkout</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Regenerate token if needed:</p>
+<ul>
+<li>Create new API account</li>
+<li>Copy new Store Hash and Access Token</li>
+<li>Update <code>.env</code> file</li>
+</ul>
+</li>
+</ol>
+<h3>Connection Timeout</h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Requests timeout after 30 seconds</li>
+<li>Intermittent connection failures</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li>Check network connectivity</li>
+<li>Verify store URLs are correct</li>
+<li>Check firewall settings</li>
+<li>Try from different network</li>
+</ol>
+<h2>Migration Issues</h2>
+<h3>Products Not Migrating</h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Migration completes but products missing in BigCommerce</li>
+<li>Product count mismatch</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><p>Check migration logs:</p>
+<pre><code class="language-bash">cat logs/migration-*.log | grep -i error
+</code></pre>
+</li>
+<li><p>Verify category migration:</p>
+<ul>
+<li>Products require categories</li>
+<li>Run category migration first</li>
+</ul>
+</li>
+<li><p>Check for SKU conflicts:</p>
+<ul>
+<li>BigCommerce requires unique SKUs</li>
+<li>Products without SKUs get <code>wc-{id}</code> pattern</li>
+<li>Check for duplicate SKUs</li>
+</ul>
+</li>
+<li><p>Verify product data:</p>
+<ul>
+<li>Check for required fields (name, price)</li>
+<li>Verify product types are supported</li>
+</ul>
+</li>
+</ol>
+<h3>Variants Not Migrating</h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Variable products migrate but variants missing</li>
+<li>Variant count mismatch</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><p>Check variant limit:</p>
+<ul>
+<li>BigCommerce has 600 variant limit per product</li>
+<li>Products exceeding limit will show warning</li>
+<li>Consider splitting into multiple products</li>
+</ul>
+</li>
+<li><p>Verify variant attributes:</p>
+<ul>
+<li>Variants require parent product attributes</li>
+<li>Check attribute configuration in WooCommerce</li>
+</ul>
+</li>
+<li><p>Check variant data:</p>
+<ul>
+<li>Verify variant prices</li>
+<li>Check for required variant fields</li>
+</ul>
+</li>
+</ol>
+<h3>Categories Not Migrating</h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Categories missing in BigCommerce</li>
+<li>Category hierarchy broken</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><p>Check for duplicate names:</p>
+<ul>
+<li>BigCommerce requires unique category names</li>
+<li>Duplicates are skipped (idempotent)</li>
+</ul>
+</li>
+<li><p>Verify category data:</p>
+<ul>
+<li>Check for required fields (name)</li>
+<li>Verify parent category exists</li>
+</ul>
+</li>
+<li><p>Check migration order:</p>
+<ul>
+<li>Parent categories must exist before children</li>
+<li>Migration handles this automatically</li>
+</ul>
+</li>
+</ol>
+<h3>Customers Not Migrating</h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Customer count mismatch</li>
+<li>Customers missing in BigCommerce</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><p>Check for duplicate emails:</p>
+<ul>
+<li>BigCommerce requires unique emails</li>
+<li>Duplicates are skipped (idempotent)</li>
+</ul>
+</li>
+<li><p>Verify customer data:</p>
+<ul>
+<li>Check for required fields (email)</li>
+<li>Verify email format is valid</li>
+</ul>
+</li>
+<li><p>Check customer count:</p>
+<ul>
+<li>Verify WooCommerce customer count</li>
+<li>Check for guest customers (may not migrate)</li>
+</ul>
+</li>
+</ol>
+<h3>Rate Limit Errors</h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Error: <code>429 Too Many Requests</code></li>
+<li>Migration slows down or fails</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><p>Rate limiting is automatic:</p>
+<ul>
+<li>Tool handles rate limits automatically</li>
+<li>Uses exponential backoff</li>
+<li>Queues requests</li>
+</ul>
+</li>
+<li><p>For very large migrations:</p>
+<ul>
+<li>Migration will take longer</li>
+<li>Check logs for progress</li>
+<li>Consider migrating in batches</li>
+</ul>
+</li>
+<li><p>Reduce batch size (if needed):</p>
+<ul>
+<li>Edit migration code to reduce batch size</li>
+<li>Default is 10 items per batch</li>
+</ul>
+</li>
+</ol>
+<h2>Data Issues</h2>
+<h3>Price Mismatches</h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Prices don&#39;t match between WC and BC</li>
+<li>Validation shows price differences</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><p>Check currency settings:</p>
+<ul>
+<li>BigCommerce currency must match WooCommerce</li>
+<li>Verify currency in BC store settings</li>
+</ul>
+</li>
+<li><p>Check for sale prices:</p>
+<ul>
+<li>Sale prices migrate as separate field</li>
+<li>Verify sale price display settings</li>
+</ul>
+</li>
+<li><p>Check for currency conversion:</p>
+<ul>
+<li>Ensure no currency conversion applied</li>
+<li>Verify exchange rates</li>
+</ul>
+</li>
+</ol>
+<h3>Image Issues</h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Images not loading in BigCommerce</li>
+<li>Image URLs broken</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><p>Images use BigCommerce CDN:</p>
+<ul>
+<li>Images are uploaded to BigCommerce</li>
+<li>URLs point to BC CDN</li>
+<li>Verify CDN access</li>
+</ul>
+</li>
+<li><p>Check image formats:</p>
+<ul>
+<li>Supported: JPG, PNG, GIF, WebP</li>
+<li>Verify image files are accessible</li>
+</ul>
+</li>
+<li><p>Check image sizes:</p>
+<ul>
+<li>Very large images may fail</li>
+<li>Check file size limits</li>
+</ul>
+</li>
+</ol>
+<h3>Missing Data</h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Some product data missing</li>
+<li>Custom fields not migrated</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><p>Check custom fields:</p>
+<ul>
+<li>Custom fields may not migrate automatically</li>
+<li>Use custom field mapping if needed</li>
+</ul>
+</li>
+<li><p>Check meta data:</p>
+<ul>
+<li>Some WooCommerce meta may not map to BC</li>
+<li>Review data mapping documentation</li>
+</ul>
+</li>
+<li><p>Check for required fields:</p>
+<ul>
+<li>BigCommerce has required fields</li>
+<li>Missing required fields cause migration to skip</li>
+</ul>
+</li>
+</ol>
+<h2>Validation Issues</h2>
+<h3>Count Mismatches</h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Validation shows count differences</li>
+<li>Products/categories/customers don&#39;t match</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><p>Check for skipped items:</p>
+<ul>
+<li>Review migration logs for skipped items</li>
+<li>Check for error messages</li>
+</ul>
+</li>
+<li><p>Verify source data:</p>
+<ul>
+<li>Check WooCommerce counts</li>
+<li>Verify API is returning all data</li>
+</ul>
+</li>
+<li><p>Check for duplicates:</p>
+<ul>
+<li>Duplicates are skipped (idempotent)</li>
+<li>Verify duplicate detection logic</li>
+</ul>
+</li>
+</ol>
+<h3>Sample Validation Failures</h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Sample price validation fails</li>
+<li>Sample data doesn&#39;t match</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><p>Check sample size:</p>
+<ul>
+<li>Default is 10 samples</li>
+<li>Increase sample size for verification</li>
+</ul>
+</li>
+<li><p>Check for data transformation:</p>
+<ul>
+<li>Prices may be transformed</li>
+<li>Verify transformation logic</li>
+</ul>
+</li>
+<li><p>Check for rounding:</p>
+<ul>
+<li>Price rounding may cause small differences</li>
+<li>Verify rounding precision</li>
+</ul>
+</li>
+</ol>
+<h2>Performance Issues</h2>
+<h3>Slow Migration</h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Migration takes very long</li>
+<li>Progress seems stuck</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><p>Check rate limiting:</p>
+<ul>
+<li>Rate limits slow down migration</li>
+<li>This is expected for large stores</li>
+</ul>
+</li>
+<li><p>Check network:</p>
+<ul>
+<li>Slow network affects migration speed</li>
+<li>Verify network connectivity</li>
+</ul>
+</li>
+<li><p>Check API response times:</p>
+<ul>
+<li>Slow API responses slow migration</li>
+<li>Check BigCommerce status page</li>
+</ul>
+</li>
+</ol>
+<h3>Memory Issues</h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Out of memory errors</li>
+<li>Process crashes</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li><p>Increase Node.js memory:</p>
+<pre><code class="language-bash">node --max-old-space-size=4096 dist/cli.js migrate
+</code></pre>
+</li>
+<li><p>Migrate in smaller batches:</p>
+<ul>
+<li>Migrate by category</li>
+<li>Migrate products in chunks</li>
+</ul>
+</li>
+<li><p>Check for memory leaks:</p>
+<ul>
+<li>Review migration code</li>
+<li>Check for large data structures</li>
+</ul>
+</li>
+</ol>
+<h2>Getting Help</h2>
+<p>If you encounter issues not covered here:</p>
+<ol>
+<li>Check migration logs: <code>logs/migration-*.log</code></li>
+<li>Review <a href="../../platform/architecture/MIGRATION_ARCHITECTURE.html">Migration Architecture</a></li>
+<li>Check <a href="../../platform/architecture/DATA_MAPPING_AND_MIGRATION_READINESS.html">Data Mapping</a></li>
+<li>Contact BigCommerce support</li>
+</ol>
+<h2>Related Documentation</h2>
+<ul>
+<li><a href="getting-started.html">Migration Getting Started</a></li>
+<li><a href="step-by-step.html">Step-by-Step Guide</a></li>
+<li><a href="../../platform/architecture/MIGRATION_ARCHITECTURE.html">Migration Architecture</a></li>
+</ul>
+
+</body>
+</html>

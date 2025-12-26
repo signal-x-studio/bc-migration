@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CLI Commands Reference</title>
+    <meta name="description" content="Complete command reference for the BC Migration CLI">
+    <!-- frontmatter
+title: "CLI Commands Reference"
+description: "Complete command reference for the BC Migration CLI"
+category: "reference"
+order: 3
+-->
+</head>
+<body>
+<h1>CLI Commands Reference</h1>
+<p>Complete reference for the BC Migration command-line interface.</p>
+<h2>Installation</h2>
+<pre><code class="language-bash">npm install
+</code></pre>
+<h2>Global Options</h2>
+<p>All commands support these options:</p>
+<ul>
+<li><code>--help</code> - Show command help</li>
+<li><code>--version</code> - Show version number</li>
+</ul>
+<h2>Commands</h2>
+
+<h3>assess</h3>
+<p>Analyze a WooCommerce store for migration suitability.</p>
+<pre><code class="language-bash">npm run assess
+# or
+npx tsx src/cli.ts assess [options]
+</code></pre>
+<p><strong>Options:</strong></p>
+<ul>
+<li><code>-u, --url &lt;url&gt;</code> - WooCommerce store URL</li>
+<li><code>-k, --key &lt;key&gt;</code> - WooCommerce Consumer Key</li>
+<li><code>-s, --secret &lt;secret&gt;</code> - WooCommerce Consumer Secret</li>
+</ul>
+<p><strong>Environment Variables:</strong></p>
+<ul>
+<li><code>WC_URL</code> - Store URL</li>
+<li><code>WC_CONSUMER_KEY</code> - Consumer Key</li>
+<li><code>WC_CONSUMER_SECRET</code> - Consumer Secret</li>
+</ul>
+<p><strong>Output:</strong></p>
+<ul>
+<li>Generates Markdown and JSON reports in <code>./reports/</code></li>
+<li>Report includes readiness score, metrics, and recommendations</li>
+</ul>
+
+<h3>validate-target</h3>
+<p>Verify BigCommerce API credentials and store accessibility.</p>
+<pre><code class="language-bash">npx tsx src/cli.ts validate-target [options]
+</code></pre>
+<p><strong>Options:</strong></p>
+<ul>
+<li><code>--hash &lt;hash&gt;</code> - BigCommerce Store Hash</li>
+<li><code>--token &lt;token&gt;</code> - BigCommerce Access Token</li>
+</ul>
+<p><strong>Environment Variables:</strong></p>
+<ul>
+<li><code>BC_STORE_HASH</code> - Store Hash</li>
+<li><code>BC_ACCESS_TOKEN</code> - Access Token</li>
+</ul>
+
+<h3>migrate</h3>
+<p>Perform the migration. Pre-requisites: Run 'assess' first.</p>
+<pre><code class="language-bash">npx tsx src/cli.ts migrate [options]
+</code></pre>
+<p><strong>Options:</strong></p>
+<ul>
+<li><code>--type &lt;type&gt;</code> - Migration type: categories, products, customers, orders, all (default: all)</li>
+<li><code>--delta</code> - Enable delta sync (incremental migration)</li>
+<li><code>--url &lt;url&gt;</code> - WooCommerce store URL</li>
+<li><code>--key &lt;key&gt;</code> - WooCommerce Consumer Key</li>
+<li><code>--secret &lt;secret&gt;</code> - WooCommerce Consumer Secret</li>
+<li><code>--hash &lt;hash&gt;</code> - BigCommerce Store Hash</li>
+<li><code>--token &lt;token&gt;</code> - BigCommerce Access Token</li>
+</ul>
+<p><strong>Examples:</strong></p>
+<pre><code class="language-bash"># Migrate all data
+npx tsx src/cli.ts migrate
+
+# Migrate only products
+npx tsx src/cli.ts migrate --type products
+
+# Delta migration (only modified items)
+npx tsx src/cli.ts migrate --delta
+</code></pre>
+
+<h3>validate</h3>
+<p>Verify migration results and data integrity. Pre-requisites: Run 'migrate' first.</p>
+<pre><code class="language-bash">npx tsx src/cli.ts validate [options]
+</code></pre>
+<p><strong>Options:</strong></p>
+<ul>
+<li><code>--url &lt;url&gt;</code> - WooCommerce store URL</li>
+<li><code>--key &lt;key&gt;</code> - WooCommerce Consumer Key</li>
+<li><code>--secret &lt;secret&gt;</code> - WooCommerce Consumer Secret</li>
+<li><code>--hash &lt;hash&gt;</code> - BigCommerce Store Hash</li>
+<li><code>--token &lt;token&gt;</code> - BigCommerce Access Token</li>
+<li><code>--sample &lt;n&gt;</code> - Sample size for spot checks (default: 10)</li>
+</ul>
+<p><strong>Output:</strong></p>
+<ul>
+<li>Generates validation reports in <code>./reports/</code> directory</li>
+<li>Includes JSON and Markdown formats</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre><code class="language-bash">npx tsx src/cli.ts assess \
+  --url https://mystore.com \
+  --key ck_1234567890 \
+  --secret cs_0987654321
+</code></pre>
+<h3>validate-target</h3>
+<p>Verify BigCommerce API credentials and store accessibility.</p>
+<pre><code class="language-bash">npm run validate-target
+# or
+npx tsx src/cli.ts validate-target [options]
+</code></pre>
+<p><strong>Options:</strong></p>
+<ul>
+<li><code>--hash &lt;hash&gt;</code> - BigCommerce Store Hash</li>
+<li><code>--token &lt;token&gt;</code> - BigCommerce Access Token</li>
+</ul>
+<p><strong>Environment Variables:</strong></p>
+<ul>
+<li><code>BC_STORE_HASH</code> - Store Hash</li>
+<li><code>BC_ACCESS_TOKEN</code> - Access Token</li>
+</ul>
+<p><strong>Output:</strong></p>
+<ul>
+<li>Displays store information if connection successful</li>
+<li>Shows error if credentials invalid</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre><code class="language-bash">npx tsx src/cli.ts validate-target \
+  --hash abc12345 \
+  --token vt_xyz789
+</code></pre>
+<h3>migrate</h3>
+<p>Migrate data from WooCommerce to BigCommerce.</p>
+<pre><code class="language-bash">npm run migrate
+# or
+npx tsx src/cli.ts migrate [options]
+</code></pre>
+<p><strong>Options:</strong></p>
+<ul>
+<li><code>--type &lt;type&gt;</code> - Migrate specific data type (categories, products, customers, orders)</li>
+<li><code>--delta</code> - Only migrate items modified since last run</li>
+</ul>
+<p><strong>Environment Variables:</strong></p>
+<ul>
+<li><code>WC_URL</code>, <code>WC_CONSUMER_KEY</code>, <code>WC_CONSUMER_SECRET</code> - WooCommerce credentials</li>
+<li><code>BC_STORE_HASH</code>, <code>BC_ACCESS_TOKEN</code> - BigCommerce credentials</li>
+</ul>
+<p><strong>Migration Order:</strong></p>
+<ol>
+<li>Categories (required first)</li>
+<li>Products (depends on categories)</li>
+<li>Customers (independent)</li>
+<li>Orders (depends on products and customers, optional)</li>
+</ol>
+<p><strong>Examples:</strong></p>
+<pre><code class="language-bash"># Migrate all data types
+npm run migrate
+
+# Migrate specific type
+npx tsx src/cli.ts migrate --type=products
+npx tsx src/cli.ts migrate --type=categories
+npx tsx src/cli.ts migrate --type=customers
+npx tsx src/cli.ts migrate --type=orders
+
+# Delta migration (only changed items)
+npx tsx src/cli.ts migrate --delta
+</code></pre>
+<p><strong>Output:</strong></p>
+<ul>
+<li>Progress bar showing migration progress</li>
+<li>Summary of items migrated</li>
+<li>Warnings for skipped items</li>
+<li>Logs saved to <code>logs/migration-*.log</code></li>
+</ul>
+<h3>validate</h3>
+<p>Verify migration results and data integrity.</p>
+<pre><code class="language-bash">npm run validate
+# or
+npx tsx src/cli.ts validate [options]
+</code></pre>
+<p><strong>Options:</strong></p>
+<ul>
+<li><code>--sample &lt;number&gt;</code> - Number of samples to validate (default: 10)</li>
+</ul>
+<p><strong>Output:</strong></p>
+<ul>
+<li>Count comparisons (WC vs BC)</li>
+<li>Sample data validation</li>
+<li>Image accessibility checks</li>
+<li>Validation report in console</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre><code class="language-bash"># Default validation (10 samples)
+npm run validate
+
+# Custom sample size
+npx tsx src/cli.ts validate --sample 20
+</code></pre>
+<p><strong>Validates:</strong></p>
+<ul>
+<li>Product counts match</li>
+<li>Category counts match</li>
+<li>Customer counts match</li>
+<li>Sample price accuracy</li>
+<li>Image URLs accessible</li>
+</ul>
+<h2>Environment Variables</h2>
+<p>All commands can use environment variables from <code>.env</code> file:</p>
+<pre><code class="language-env"># WooCommerce
+WC_URL=https://your-store.com
+WC_CONSUMER_KEY=ck_xxxxx
+WC_CONSUMER_SECRET=cs_xxxxx
+
+# BigCommerce
+BC_STORE_HASH=your-store-hash
+BC_ACCESS_TOKEN=your-api-token
+</code></pre>
+<h2>Exit Codes</h2>
+<ul>
+<li><code>0</code> - Success</li>
+<li><code>1</code> - Error (connection, validation, migration failure)</li>
+</ul>
+<h2>Logging</h2>
+<p>All commands log to:</p>
+<ul>
+<li>Console (stdout/stderr)</li>
+<li>Log files in <code>logs/</code> directory</li>
+<li>Format: <code>migration-YYYY-MM-DDTHH-mm-ss.log</code></li>
+</ul>
+<p>Log levels:</p>
+<ul>
+<li><code>info</code> - General information</li>
+<li><code>warn</code> - Warnings (non-fatal)</li>
+<li><code>error</code> - Errors (fatal)</li>
+</ul>
+<h2>Related Documentation</h2>
+<ul>
+<li><a href="../../getting-started/for-developers.html">Getting Started for Developers</a> - Setup guide</li>
+<li><a href="../../guides/migration/">Migration Guides</a> - Step-by-step guides</li>
+<li><a href="../api/">API Reference</a> - API documentation</li>
+</ul>
+
+</body>
+</html>

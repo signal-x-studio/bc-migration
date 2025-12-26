@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BC Bridge Plugin</title>
+    <meta name="description" content="">
+    <!-- frontmatter
+title: "BC Bridge Plugin"
+description: ""
+category: ""
+order: 999
+-->
+</head>
+<body>
+<h1>BC Bridge Plugin</h1>
+<p>WordPress plugin that enables existing WordPress/WooCommerce sites to use BigCommerce as their commerce backend.</p>
+<h2>Overview</h2>
+<p>BC Bridge is a headless commerce bridge that:</p>
+<ul>
+<li>Intercepts WooCommerce routes (<code>/shop</code>, <code>/product/*</code>, <code>/cart</code>, <code>/checkout</code>)</li>
+<li>Fetches data from BigCommerce APIs in real-time (no sync)</li>
+<li>Renders commerce UI within existing WordPress themes</li>
+<li>Handles cart state, checkout flow, and customer accounts via BC APIs</li>
+</ul>
+<h2>Documentation</h2>
+<ul>
+<li><a href="BC_BRIDGE_INTENT.html">BC Bridge Intent</a> - Product intent, constraints, and success criteria</li>
+<li><a href="BC_BRIDGE_PRD.html">BC Bridge PRD</a> - Product requirements document</li>
+<li><a href="BC_BRIDGE_BRD.html">BC Bridge BRD</a> - Business requirements document</li>
+<li><a href="BC_BRIDGE_ROADMAP.html">BC Bridge Roadmap</a> - Product roadmap and milestones</li>
+</ul>
+<h2>Key Principles</h2>
+<ul>
+<li><strong>Stateless First</strong> - Minimize WordPress database usage</li>
+<li><strong>Defensive Initialization</strong> - Never crash WordPress on activation</li>
+<li><strong>Clean Uninstall</strong> - Leave no trace when removed</li>
+<li><strong>API V3 Only</strong> - Use BigCommerce V3 APIs exclusively</li>
+<li><strong>CDN Direct</strong> - Use BigCommerce CDN for all assets</li>
+</ul>
+<h2>Related Documentation</h2>
+<ul>
+<li><a href="../../guides/bc-bridge/installation.html">BC Bridge Installation Guide</a> - How to install the plugin</li>
+<li><a href="../../guides/bc-bridge/configuration.html">BC Bridge Configuration</a> - Plugin setup and configuration</li>
+<li><a href="../platform/architecture/MIGRATION_ARCHITECTURE.html">Migration Architecture</a> - Overall system architecture</li>
+</ul>
+
+</body>
+</html>

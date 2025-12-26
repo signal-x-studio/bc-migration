@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phase 1: Foundation - Category Migration</title>
+    <meta name="description" content="Set up your category structure in BigCommerce. This creates the foundation for your product catalog.">
+    <!-- frontmatter
+title: "Phase 1: Foundation - Category Migration"
+description: "Set up your category structure in BigCommerce. This creates the foundation for your product catalog."
+category: "guides"
+order: 1
+-->
+</head>
+<body>
+
+<h1>Phase 1: Foundation - Category Migration</h1>
+
+<p>The Foundation phase establishes your category structure in BigCommerce. This is the first required phase and must be completed before migrating products, as products need categories to be properly organized.</p>
+
+<h2>Overview</h2>
+
+<p>This phase migrates all WooCommerce product categories to BigCommerce, preserving:</p>
+
+<ul>
+<li>Category hierarchy (parent-child relationships)</li>
+<li>Category names and descriptions</li>
+<li>Category images</li>
+<li>Sort order (menu order)</li>
+</p>
+
+<h2>What Gets Migrated</h2>
+
+<h3>Category Data</h3>
+
+<ul>
+<li><strong>Name:</strong> Category name (required)</li>
+<li><strong>Description:</strong> Category description/HTML content</li>
+<li><strong>Parent Category:</strong> Parent-child relationships are preserved</li>
+<li><strong>Image:</strong> Category thumbnail image (if present)</li>
+<li><strong>Sort Order:</strong> Menu order from WooCommerce</li>
+<li><strong>Visibility:</strong> All categories are set to visible in BigCommerce</li>
+</ul>
+
+<h3>Migration Process</h3>
+
+<p>The migration follows this process:</p>
+
+<ol>
+<li><strong>Fetch Categories:</strong> Retrieves all categories from WooCommerce via REST API (paginated, 100 per page)</li>
+<li><strong>Sort by Hierarchy:</strong> Processes parent categories first, then children recursively</li>
+<li><strong>Check for Existing:</strong> Skips categories that already exist in BigCommerce (by name and parent)</li>
+<li><strong>Create Categories:</strong> Creates new categories in BigCommerce with mapped data</li>
+<li><strong>Build ID Mapping:</strong> Maintains a mapping of WooCommerce category IDs to BigCommerce category IDs</li>
+</ol>
+
+<h2>Implementation Details</h2>
+
+<h3>Category Migrator Class</h3>
+
+<p>The migration is handled by the <code>CategoryMigrator</code> class in <code>src/migration/category-migrator.ts</code>:</p>
+
+<pre><code class="language-typescript">export class CategoryMigrator {
+  private wcClient: WCClient;
+  private bcClient: BCClient;
+  private idMapping: Map&lt;number, number&gt;; // WC ID -&gt; BC ID
+  private skipExisting: boolean;
+
+  async run(): Promise&lt;MigrationStats&gt; {
+    // 1. Fetch all WC Categories
+    // 2. Sort by hierarchy (parents first)
+    // 3. Process recursively, maintaining parent-child relationships
+    // 4. Return migration statistics
+  }
+}
+</code></pre>
+
+<h3>Data Transformation</h3>
+
+<p>WooCommerce categories are transformed to BigCommerce format:</p>
+
+<pre><code class="language-typescript">const payload: Omit&lt;BCCategory, 'id'&gt; = {
+  name: wcCategory.name,
+  description: wcCategory.description || undefined,
+  parent_id: bcParentId, // Mapped from WC parent ID
+  is_visible: true,
+  sort_order: wcCategory.menu_order,
+  image_url: wcCategory.image?.src || undefined,
+};
+</code></pre>
+
+<h3>Hierarchy Processing</h3>
+
+<p>The migrator processes categories recursively:</p>
+
+<ol>
+<li>Start with root categories (parent = 0)</li>
+<li>For each category:
+   <ul>
+   <li>Check if it exists in BigCommerce</li>
+   <li>Create if it doesn't exist</li>
+   <li>Store the ID mapping (WC ID → BC ID)</li>
+   <li>Process all children of this category</li>
+   </ul>
+</li>
+</ol>
+
+<h2>Using the Dashboard Wizard</h2>
+
+<p>The Foundation phase is accessible through the Migration Wizard in the dashboard:</p>
+
+<ol>
+<li>Navigate to <strong>Migrate</strong> in the dashboard</li>
+<li>Click <strong>Start Migration Wizard</strong></li>
+<li>Phase 1 (Foundation) will be the first phase shown</li>
+<li>Click <strong>Set Up Categories</strong> to begin</li>
+<li>Monitor progress in real-time</li>
+<li>Review the results summary when complete</li>
+</ol>
+
+<h3>Phase UI Features</h3>
+
+<ul>
+<li><strong>Real-time Progress:</strong> See categories being migrated in real-time</li>
+<li><strong>Results Summary:</strong> View total created, skipped, and errors</li>
+<li><strong>Category Mapping:</strong> See the ID mapping table (WC ID → BC ID)</li>
+<li><strong>Error Reporting:</strong> View any categories that failed to migrate</li>
+</ul>
+
+<h2>API Endpoint</h2>
+
+<p>The dashboard uses the following API endpoint:</p>
+
+<pre><code class="language-http">POST /api/migrate/setup-categories
+
+Request Body:
+{
+  "wcCredentials": {
+    "url": "https://your-store.com",
+    "consumerKey": "...",
+    "consumerSecret": "..."
+  },
+  "bcCredentials": {
+    "storeHash": "...",
+    "accessToken": "..."
+  },
+  "dryRun": false
+}
+
+Response:
+{
+  "success": true,
+  "data": {
+    "totalCreated": 45,
+    "totalSkipped": 2,
+    "totalErrors": 0,
+    "mappings": [
+      { "wcId": 1, "bcId": 10, "name": "Electronics" },
+      ...
+    ],
+    "errors": []
+  }
+}
+</code></pre>
+
+<h2>CLI Usage</h2>
+
+<p>You can also run the Foundation phase via CLI:</p>
+
+<pre><code class="language-bash">npm run migrate -- --phase foundation \
+  --wc-url https://your-store.com \
+  --wc-key YOUR_KEY \
+  --wc-secret YOUR_SECRET \
+  --bc-hash YOUR_HASH \
+  --bc-token YOUR_TOKEN
+</code></pre>
+
+<h2>Migration Statistics</h2>
+
+<p>After completion, you'll receive statistics:</p>
+
+<ul>
+<li><strong>Total:</strong> Total categories found in WooCommerce</li>
+<li><strong>Successful:</strong> Categories successfully created in BigCommerce</li>
+<li><strong>Skipped:</strong> Categories that already existed (by name and parent)</li>
+<li><strong>Failed:</strong> Categories that encountered errors during migration</li>
+<li><strong>Warnings:</strong> Any warnings or issues encountered</li>
+</ul>
+
+<h2>ID Mapping</h2>
+
+<p>The Foundation phase generates a critical ID mapping that is used in subsequent phases:</p>
+
+<pre><code class="language-typescript">categoryIdMapping: Record&lt;number, number&gt;
+// Example: { 1: 10, 2: 11, 3: 12 }
+// WC Category ID 1 → BC Category ID 10
+</code></pre>
+
+<p>This mapping is essential for:</p>
+
+<ul>
+<li>Product migration (Phase 2) - Products reference categories by ID</li>
+<li>Maintaining relationships between WooCommerce and BigCommerce entities</li>
+</ul>
+
+<h2>Dependencies</h2>
+
+<p><strong>No dependencies</strong> - This is the first phase and has no prerequisites.</p>
+
+<h2>Next Phase</h2>
+
+<p>After completing the Foundation phase, you can proceed to:</p>
+
+<ul>
+<li><strong>Phase 2: Core Data</strong> - Migrate products and customers (requires Foundation)</li>
+</ul>
+
+<h2>Troubleshooting</h2>
+
+<h3>Categories Not Appearing</h3>
+
+<ul>
+<li>Check that categories are visible in BigCommerce admin</li>
+<li>Verify API credentials have proper permissions</li>
+<li>Review error logs for specific category failures</li>
+</ul>
+
+<h3>Hierarchy Not Preserved</h3>
+
+<ul>
+<li>Ensure parent categories are created before children</li>
+<li>Check that parent ID mapping is correct</li>
+<li>Verify WooCommerce category structure is valid</li>
+</ul>
+
+<h3>Duplicate Categories</h3>
+
+<ul>
+<li>The migrator skips existing categories by default</li>
+<li>If duplicates appear, check category names and parent relationships</li>
+<li>BigCommerce may auto-generate URLs differently than expected</li>
+</ul>
+
+<h2>Best Practices</h2>
+
+<ul>
+<li><strong>Review Categories First:</strong> Clean up your WooCommerce categories before migration</li>
+<li><strong>Check Naming:</strong> Ensure category names are clear and consistent</li>
+<li><strong>Verify Hierarchy:</strong> Confirm parent-child relationships are correct</li>
+<li><strong>Test with Small Set:</strong> Consider testing with a subset first</li>
+<li><strong>Backup:</strong> Always backup your BigCommerce store before migration</li>
+</ul>
+
+<h2>Related Documentation</h2>
+
+<ul>
+<li><a href="../step-by-step.html">Step-by-Step Migration Guide</a></li>
+<li><a href="../phases/core-data.html">Phase 2: Core Data</a></li>
+<li><a href="../wizard.html">Migration Wizard Guide</a></li>
+</ul>
+
+</body>
+</html>
+

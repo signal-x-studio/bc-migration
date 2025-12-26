@@ -1,0 +1,1674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BC Bridge PRD</title>
+    <meta name="description" content="Product requirements document for BC Bridge plugin">
+    <!-- frontmatter
+title: "BC Bridge PRD"
+description: "Product requirements document for BC Bridge plugin"
+category: "platform"
+order: 2
+-->
+</head>
+<body>
+<h1>BC Bridge Plugin - Product Requirements Document (PRD)</h1>
+<blockquote>
+<p><strong>Document Type:</strong> Product Requirements Document
+<strong>Version:</strong> 1.0.0
+<strong>Status:</strong> Draft
+<strong>Last Updated:</strong> 2025-12-18
+<strong>Product Manager:</strong> Jordan Sim
+<strong>Technical Lead:</strong> [TBD]</p>
+</blockquote>
+<hr>
+<h2>1. OVERVIEW</h2>
+<h3>1.1 Product Vision</h3>
+<p>BC Bridge enables WordPress site owners to upgrade from WooCommerce to BigCommerce as their commerce backend without rebuilding their website. Merchants keep their WordPress investment (content, theme, SEO, plugins) while gaining BigCommerce&#39;s scalability, reliability, and feature set.</p>
+<h3>1.2 Product Goals</h3>
+<table>
+<thead>
+<tr>
+<th>Goal</th>
+<th>Metric</th>
+<th>Target</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Enable frictionless migration</td>
+<td>Time to first transaction</td>
+<td>&lt; 4 hours</td>
+</tr>
+<tr>
+<td>Maintain site performance</td>
+<td>Added page load latency</td>
+<td>&lt; 200ms</td>
+</tr>
+<tr>
+<td>Ensure reliability</td>
+<td>Checkout success rate</td>
+<td>&gt; 95%</td>
+</tr>
+<tr>
+<td>Support self-service</td>
+<td>Setup completion without support</td>
+<td>&gt; 80%</td>
+</tr>
+<tr>
+<td>Build trust</td>
+<td>WordPress.org rating</td>
+<td>&gt; 4.5 stars</td>
+</tr>
+</tbody></table>
+<h3>1.3 Scope</h3>
+<p><strong>In Scope (MVP):</strong></p>
+<ul>
+<li>Product catalog display</li>
+<li>Shopping cart functionality</li>
+<li>Checkout flow (embedded)</li>
+<li>Basic admin configuration</li>
+<li>WooCommerce route interception</li>
+</ul>
+<p><strong>Out of Scope (MVP):</strong></p>
+<ul>
+<li>Customer accounts</li>
+<li>Product search</li>
+<li>Analytics integration</li>
+<li>Multi-store support</li>
+<li>B2B features</li>
+</ul>
+<hr>
+<h2>2. USER PERSONAS</h2>
+<h3>2.1 Primary: Ecommerce Manager (Emma)</h3>
+<pre><code class="language-yaml">name: Emma
+role: Ecommerce Manager at mid-market retailer
+company_size: $2-5M annual GMV
+technical_skill: Intermediate (can install plugins, basic CSS)
+goals:
+  - Improve site performance and reliability
+  - Reduce time spent on WooCommerce plugin conflicts
+  - Maintain SEO rankings during transition
+frustrations:
+  - WooCommerce site crashes during sales
+  - Plugin updates break functionality
+  - Cart abandonment due to slow checkout
+quote: &quot;I just want my store to work without babysitting it every day.&quot;
+</code></pre>
+<h3>2.2 Secondary: Agency Developer (Alex)</h3>
+<pre><code class="language-yaml">name: Alex
+role: WordPress developer at digital agency
+company_size: 10-person agency, 20+ ecommerce clients
+technical_skill: Advanced (PHP, JavaScript, API integrations)
+goals:
+  - Recommend scalable solutions to clients
+  - Reduce maintenance burden across client sites
+  - Bill for implementation, not firefighting
+frustrations:
+  - WooCommerce performance tuning is endless
+  - Client sites break after WordPress updates
+  - Limited time to evaluate new platforms
+quote: &quot;I need a solution I can deploy to 10 clients, not custom code for each.&quot;
+</code></pre>
+<h3>2.3 Tertiary: Small Business Owner (Sam)</h3>
+<pre><code class="language-yaml">name: Sam
+role: Founder of growing DTC brand
+company_size: $500K-1M annual GMV, solo or 2-3 person team
+technical_skill: Basic (can follow tutorials, uses page builders)
+goals:
+  - Spend time on product, not technology
+  - Simple setup without hiring developers
+  - Clear pricing, no surprises
+frustrations:
+  - WooCommerce requires too many plugins
+  - Previous developer left, now stuck
+  - Afraid to update anything
+quote: &quot;I started on WordPress because it was easy. Now it&#39;s not.&quot;
+</code></pre>
+<hr>
+<h2>3. USER STORIES</h2>
+<h3>3.1 Epic: Plugin Setup &amp; Configuration</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>User Story</th>
+<th>Priority</th>
+<th>Acceptance Criteria</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>US-001</td>
+<td>As Emma, I want to install the plugin from WordPress.org so that I can evaluate it easily</td>
+<td>P0</td>
+<td>Plugin appears in WP search, installs in &lt; 30s</td>
+</tr>
+<tr>
+<td>US-002</td>
+<td>As Emma, I want a setup wizard to guide me through configuration so that I don&#39;t miss important steps</td>
+<td>P1</td>
+<td>Wizard completes in &lt; 5 minutes, validates each step</td>
+</tr>
+<tr>
+<td>US-003</td>
+<td>As Alex, I want to enter API credentials manually so that I can use existing BC accounts</td>
+<td>P0</td>
+<td>API key/secret fields, test connection button</td>
+</tr>
+<tr>
+<td>US-004</td>
+<td>As Emma, I want to see a health check dashboard so that I know if everything is working</td>
+<td>P1</td>
+<td>Green/yellow/red status for API, products, cart</td>
+</tr>
+<tr>
+<td>US-005</td>
+<td>As Alex, I want to export/import settings so that I can replicate config across sites</td>
+<td>P2</td>
+<td>JSON export/import in settings</td>
+</tr>
+</tbody></table>
+<h3>3.2 Epic: Product Display</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>User Story</th>
+<th>Priority</th>
+<th>Acceptance Criteria</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>US-010</td>
+<td>As a customer, I want to browse products on /shop so that I can see what&#39;s available</td>
+<td>P0</td>
+<td>Products display in grid, pagination works</td>
+</tr>
+<tr>
+<td>US-011</td>
+<td>As a customer, I want to view product details so that I can make a purchase decision</td>
+<td>P0</td>
+<td>Images, description, price, variants display</td>
+</tr>
+<tr>
+<td>US-012</td>
+<td>As a customer, I want to see product images from BigCommerce so that I see accurate photos</td>
+<td>P0</td>
+<td>Images load from BC CDN, correct sizes</td>
+</tr>
+<tr>
+<td>US-013</td>
+<td>As a customer, I want to select product variants so that I can buy the right option</td>
+<td>P0</td>
+<td>Variant selector updates price and availability</td>
+</tr>
+<tr>
+<td>US-014</td>
+<td>As Emma, I want products to display in my existing theme so that the site looks consistent</td>
+<td>P0</td>
+<td>Uses theme&#39;s product template or fallback</td>
+</tr>
+<tr>
+<td>US-015</td>
+<td>As a customer, I want to browse by category so that I can find products easily</td>
+<td>P0</td>
+<td>Category pages show filtered products</td>
+</tr>
+<tr>
+<td>US-016</td>
+<td>As a customer, I want to see sale prices so that I know I&#39;m getting a deal</td>
+<td>P1</td>
+<td>Original price crossed out, sale price shown</td>
+</tr>
+<tr>
+<td>US-017</td>
+<td>As a customer, I want to see if a product is in stock so that I don&#39;t order unavailable items</td>
+<td>P1</td>
+<td>Stock status badge, out-of-stock message</td>
+</tr>
+</tbody></table>
+<h3>3.3 Epic: Shopping Cart</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>User Story</th>
+<th>Priority</th>
+<th>Acceptance Criteria</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>US-020</td>
+<td>As a customer, I want to add a product to my cart so that I can purchase it</td>
+<td>P0</td>
+<td>Add to cart button creates/updates cart</td>
+</tr>
+<tr>
+<td>US-021</td>
+<td>As a customer, I want to see my cart contents so that I can review before checkout</td>
+<td>P0</td>
+<td>Cart page shows items, quantities, totals</td>
+</tr>
+<tr>
+<td>US-022</td>
+<td>As a customer, I want to update quantities so that I can buy more or less</td>
+<td>P0</td>
+<td>Quantity +/- updates cart, recalculates total</td>
+</tr>
+<tr>
+<td>US-023</td>
+<td>As a customer, I want to remove items so that I can change my mind</td>
+<td>P0</td>
+<td>Remove button, confirmation optional</td>
+</tr>
+<tr>
+<td>US-024</td>
+<td>As a customer, I want my cart to persist across pages so that I don&#39;t lose items</td>
+<td>P0</td>
+<td>Cart ID in cookie, survives navigation</td>
+</tr>
+<tr>
+<td>US-025</td>
+<td>As a customer, I want a mini-cart in the header so that I can see cart status quickly</td>
+<td>P1</td>
+<td>Item count badge, dropdown preview</td>
+</tr>
+<tr>
+<td>US-026</td>
+<td>As Emma, I want cart to work on mobile so that mobile customers can buy</td>
+<td>P0</td>
+<td>Touch-friendly, responsive design</td>
+</tr>
+</tbody></table>
+<h3>3.4 Epic: Checkout</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>User Story</th>
+<th>Priority</th>
+<th>Acceptance Criteria</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>US-030</td>
+<td>As a customer, I want to checkout so that I can complete my purchase</td>
+<td>P0</td>
+<td>Checkout button opens BC checkout</td>
+</tr>
+<tr>
+<td>US-031</td>
+<td>As a customer, I want embedded checkout so that I don&#39;t leave the site</td>
+<td>P0</td>
+<td>Checkout in iframe, same domain feel</td>
+</tr>
+<tr>
+<td>US-032</td>
+<td>As a customer, I want to pay with common methods so that I can use my preferred payment</td>
+<td>P0</td>
+<td>Credit card, PayPal (whatever BC merchant has enabled)</td>
+</tr>
+<tr>
+<td>US-033</td>
+<td>As a customer, I want checkout to work on mobile so that I can buy on my phone</td>
+<td>P0</td>
+<td>Mobile-optimized, PayPal/Apple Pay work</td>
+</tr>
+<tr>
+<td>US-034</td>
+<td>As a customer, I want to see order confirmation so that I know my order succeeded</td>
+<td>P0</td>
+<td>Thank you page with order number</td>
+</tr>
+<tr>
+<td>US-035</td>
+<td>As Emma, I want failed checkouts handled gracefully so that customers don&#39;t see errors</td>
+<td>P1</td>
+<td>Friendly error message, retry option</td>
+</tr>
+<tr>
+<td>US-036</td>
+<td>As Emma, I want a redirect checkout fallback so that I have a backup option</td>
+<td>P1</td>
+<td>Setting to use redirect vs embedded</td>
+</tr>
+</tbody></table>
+<h3>3.5 Epic: Admin Experience</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>User Story</th>
+<th>Priority</th>
+<th>Acceptance Criteria</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>US-040</td>
+<td>As Emma, I want to see plugin settings in WP admin so that I can configure the plugin</td>
+<td>P0</td>
+<td>Settings page under Settings menu</td>
+</tr>
+<tr>
+<td>US-041</td>
+<td>As Emma, I want to clear cache so that product updates appear immediately</td>
+<td>P1</td>
+<td>Clear cache button, confirmation</td>
+</tr>
+<tr>
+<td>US-042</td>
+<td>As Alex, I want to see debug logs so that I can troubleshoot issues</td>
+<td>P1</td>
+<td>Log viewer, download option</td>
+</tr>
+<tr>
+<td>US-043</td>
+<td>As Emma, I want to disable plugin without losing settings so that I can troubleshoot</td>
+<td>P0</td>
+<td>Deactivate preserves settings</td>
+</tr>
+<tr>
+<td>US-044</td>
+<td>As Emma, I want plugin uninstall to clean up completely so that no junk remains</td>
+<td>P0</td>
+<td>Uninstall removes all DB entries</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>4. FUNCTIONAL REQUIREMENTS</h2>
+<h3>4.1 Product Display Requirements</h3>
+<h4>FR-PD-001: Product Listing Page (PLP)</h4>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Description</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Display products</td>
+<td>Fetch and display products from BC Catalog API</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>Pagination</td>
+<td>Support paginated product lists (12/24/48 per page)</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>Sort options</td>
+<td>Sort by name, price, date added</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Grid/list toggle</td>
+<td>Switch between grid and list view</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>Responsive layout</td>
+<td>Work on desktop, tablet, mobile</td>
+<td>P0</td>
+</tr>
+</tbody></table>
+<p><strong>API Mapping:</strong></p>
+<pre><code>GET /v3/catalog/products
+  - Query params: page, limit, sort, categories
+  - Response: products[], pagination{}
+</code></pre>
+<h4>FR-PD-002: Product Detail Page (PDP)</h4>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Description</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Product info</td>
+<td>Name, description, price, SKU</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>Images</td>
+<td>Main image + gallery, zoom capability</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>Variants</td>
+<td>Option selectors (size, color, etc)</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>Price updates</td>
+<td>Price changes when variant selected</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>Inventory display</td>
+<td>Show stock status</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Related products</td>
+<td>Show related/recommended products</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<p><strong>API Mapping:</strong></p>
+<pre><code>GET /v3/catalog/products/{id}
+  - Include: variants, images, custom_fields
+GET /v3/catalog/products/{id}/variants
+</code></pre>
+<h4>FR-PD-003: Category Pages</h4>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Description</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Category listing</td>
+<td>Show products in category</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>Subcategories</td>
+<td>Navigate to child categories</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Breadcrumbs</td>
+<td>Show category path</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Category image</td>
+<td>Display category banner/image</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<p><strong>API Mapping:</strong></p>
+<pre><code>GET /v3/catalog/categories
+GET /v3/catalog/products?categories:in={id}
+</code></pre>
+<h3>4.2 Cart Requirements</h3>
+<h4>FR-CT-001: Cart Management</h4>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Description</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Create cart</td>
+<td>Create BC cart on first add</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>Add item</td>
+<td>Add product/variant to cart</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>Update quantity</td>
+<td>Change item quantity</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>Remove item</td>
+<td>Remove item from cart</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>Get cart</td>
+<td>Retrieve current cart state</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>Cart persistence</td>
+<td>Store cart ID in cookie (30 day expiry)</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>Cart recovery</td>
+<td>Handle expired/invalid cart gracefully</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<p><strong>API Mapping:</strong></p>
+<pre><code>POST /v3/carts (create)
+POST /v3/carts/{id}/items (add)
+PUT /v3/carts/{id}/items/{item_id} (update)
+DELETE /v3/carts/{id}/items/{item_id} (remove)
+GET /v3/carts/{id} (retrieve)
+</code></pre>
+<h4>FR-CT-002: Cart Display</h4>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Description</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Cart page</td>
+<td>Full cart view at /cart</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>Line items</td>
+<td>Show each item with image, name, price, qty</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>Subtotal</td>
+<td>Calculate and display subtotal</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>Mini-cart</td>
+<td>Header widget with item count</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Empty state</td>
+<td>Friendly message when cart empty</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>Update feedback</td>
+<td>Show loading/success state on updates</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<h3>4.3 Checkout Requirements</h3>
+<h4>FR-CO-001: Embedded Checkout</h4>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Description</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Checkout URL</td>
+<td>Generate checkout URL from cart</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>Iframe embed</td>
+<td>Embed BC checkout in iframe</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>Responsive frame</td>
+<td>Iframe adjusts to content height</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>Cross-origin handling</td>
+<td>Handle BC checkout messages</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>Completion detection</td>
+<td>Detect successful purchase</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>Error handling</td>
+<td>Handle checkout failures</td>
+<td>P0</td>
+</tr>
+</tbody></table>
+<p><strong>API Mapping:</strong></p>
+<pre><code>POST /v3/carts/{id}/redirect_urls (get checkout URL)
+</code></pre>
+<h4>FR-CO-002: Checkout Fallback</h4>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Description</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Redirect option</td>
+<td>Full redirect to BC checkout</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Return URL</td>
+<td>Customer returns to WP after purchase</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Setting toggle</td>
+<td>Admin can choose embedded vs redirect</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<h4>FR-CO-003: Order Confirmation</h4>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Description</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Thank you page</td>
+<td>Display after successful purchase</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>Order number</td>
+<td>Show BC order ID</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>Order summary</td>
+<td>Items purchased, total</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Continue shopping</td>
+<td>Link back to shop</td>
+<td>P0</td>
+</tr>
+</tbody></table>
+<h3>4.4 Admin Requirements</h3>
+<h4>FR-AD-001: Settings Page</h4>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Description</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>API credentials</td>
+<td>Store hash, client ID, access token fields</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>Test connection</td>
+<td>Validate credentials button</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>Channel selection</td>
+<td>Choose which BC channel to use</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>Checkout type</td>
+<td>Embedded vs redirect toggle</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Cache settings</td>
+<td>TTL configuration, clear cache button</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Debug mode</td>
+<td>Enable verbose logging</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<h4>FR-AD-002: Setup Wizard</h4>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Description</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Welcome screen</td>
+<td>Explain what plugin does</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Credential entry</td>
+<td>API credential collection</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Channel setup</td>
+<td>Create or select channel</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Verification</td>
+<td>Test product display, cart, checkout</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Completion</td>
+<td>Success message, next steps</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<h4>FR-AD-003: Health Dashboard</h4>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Description</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>API status</td>
+<td>Connection health indicator</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Product sync</td>
+<td>Last fetch time, product count</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Cart status</td>
+<td>Active carts, recent orders</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>Error log</td>
+<td>Recent errors with details</td>
+<td>P1</td>
+</tr>
+</tbody></table>
+<h3>4.5 Route Interception Requirements</h3>
+<h4>FR-RT-001: WooCommerce Route Takeover</h4>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Description</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>/shop</td>
+<td>Intercept and render BC products</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>/product/*</td>
+<td>Intercept and render BC product detail</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>/product-category/*</td>
+<td>Intercept and render BC category</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>/cart</td>
+<td>Intercept and render BC cart</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>/checkout</td>
+<td>Intercept and render BC checkout</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>Shortcodes</td>
+<td>[bc_products], [bc_cart], [bc_checkout]</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Widgets</td>
+<td>Product grid widget, cart widget</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<h4>FR-RT-002: URL Structure</h4>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Description</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Permalink compatibility</td>
+<td>Work with common permalink structures</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>URL rewriting</td>
+<td>Map BC product URLs to WP URLs</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>Canonical URLs</td>
+<td>Proper canonical tags for SEO</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Redirect handling</td>
+<td>Handle old WC URLs gracefully</td>
+<td>P2</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>5. NON-FUNCTIONAL REQUIREMENTS</h2>
+<h3>5.1 Performance Requirements</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requirement</th>
+<th>Target</th>
+<th>Measurement</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>NFR-P-001</td>
+<td>Page load latency added</td>
+<td>&lt; 200ms</td>
+<td>Time to first byte delta</td>
+</tr>
+<tr>
+<td>NFR-P-002</td>
+<td>API response caching</td>
+<td>95% hit rate</td>
+<td>Transient stats</td>
+</tr>
+<tr>
+<td>NFR-P-003</td>
+<td>Cart operations</td>
+<td>&lt; 500ms</td>
+<td>API call + render</td>
+</tr>
+<tr>
+<td>NFR-P-004</td>
+<td>Memory usage</td>
+<td>&lt; 10MB additional</td>
+<td>WP memory delta</td>
+</tr>
+<tr>
+<td>NFR-P-005</td>
+<td>Database queries</td>
+<td>&lt; 5 additional</td>
+<td>Query Monitor</td>
+</tr>
+</tbody></table>
+<h3>5.2 Reliability Requirements</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requirement</th>
+<th>Target</th>
+<th>Measurement</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>NFR-R-001</td>
+<td>Plugin activation success</td>
+<td>&gt; 99%</td>
+<td>Telemetry</td>
+</tr>
+<tr>
+<td>NFR-R-002</td>
+<td>Checkout completion rate</td>
+<td>&gt; 95%</td>
+<td>BC analytics</td>
+</tr>
+<tr>
+<td>NFR-R-003</td>
+<td>API error handling</td>
+<td>100% graceful</td>
+<td>Error logs</td>
+</tr>
+<tr>
+<td>NFR-R-004</td>
+<td>Uptime dependency</td>
+<td>Match BC SLA</td>
+<td>BC status page</td>
+</tr>
+</tbody></table>
+<h3>5.3 Security Requirements</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requirement</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>NFR-S-001</td>
+<td>Credential storage</td>
+<td>API keys encrypted at rest</td>
+</tr>
+<tr>
+<td>NFR-S-002</td>
+<td>API communication</td>
+<td>HTTPS only</td>
+</tr>
+<tr>
+<td>NFR-S-003</td>
+<td>Input sanitization</td>
+<td>All user input escaped</td>
+</tr>
+<tr>
+<td>NFR-S-004</td>
+<td>Output escaping</td>
+<td>All output properly escaped</td>
+</tr>
+<tr>
+<td>NFR-S-005</td>
+<td>CSRF protection</td>
+<td>Nonces on all forms</td>
+</tr>
+<tr>
+<td>NFR-S-006</td>
+<td>SQL injection</td>
+<td>Prepared statements only</td>
+</tr>
+<tr>
+<td>NFR-S-007</td>
+<td>XSS prevention</td>
+<td>Content Security Policy headers</td>
+</tr>
+<tr>
+<td>NFR-S-008</td>
+<td>No PII in logs</td>
+<td>Customer data never logged</td>
+</tr>
+</tbody></table>
+<h3>5.4 Compatibility Requirements</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requirement</th>
+<th>Versions</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>NFR-C-001</td>
+<td>WordPress</td>
+<td>6.2 - 6.7+</td>
+</tr>
+<tr>
+<td>NFR-C-002</td>
+<td>PHP</td>
+<td>8.1 - 8.3+</td>
+</tr>
+<tr>
+<td>NFR-C-003</td>
+<td>MySQL</td>
+<td>5.7+ / MariaDB 10.3+</td>
+</tr>
+<tr>
+<td>NFR-C-004</td>
+<td>Browsers</td>
+<td>Chrome 90+, Firefox 88+, Safari 14+, Edge 90+</td>
+</tr>
+<tr>
+<td>NFR-C-005</td>
+<td>Mobile</td>
+<td>iOS Safari 14+, Android Chrome 90+</td>
+</tr>
+</tbody></table>
+<h3>5.5 Accessibility Requirements</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requirement</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>NFR-A-001</td>
+<td>WCAG compliance</td>
+<td>Level AA</td>
+</tr>
+<tr>
+<td>NFR-A-002</td>
+<td>Keyboard navigation</td>
+<td>Full support</td>
+</tr>
+<tr>
+<td>NFR-A-003</td>
+<td>Screen reader</td>
+<td>ARIA labels</td>
+</tr>
+<tr>
+<td>NFR-A-004</td>
+<td>Color contrast</td>
+<td>4.5:1 minimum</td>
+</tr>
+<tr>
+<td>NFR-A-005</td>
+<td>Focus indicators</td>
+<td>Visible focus states</td>
+</tr>
+</tbody></table>
+<h3>5.6 Internationalization Requirements</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requirement</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>NFR-I-001</td>
+<td>Text domain</td>
+<td>All strings translatable</td>
+</tr>
+<tr>
+<td>NFR-I-002</td>
+<td>RTL support</td>
+<td>Right-to-left layout support</td>
+</tr>
+<tr>
+<td>NFR-I-003</td>
+<td>Currency</td>
+<td>Use BC store currency</td>
+</tr>
+<tr>
+<td>NFR-I-004</td>
+<td>Date/time</td>
+<td>Respect WP locale settings</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>6. DATA REQUIREMENTS</h2>
+<h3>6.1 Data Storage</h3>
+<table>
+<thead>
+<tr>
+<th>Data Type</th>
+<th>Storage</th>
+<th>Encryption</th>
+<th>Retention</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>API credentials</td>
+<td>wp_options</td>
+<td>AES-256</td>
+<td>Until deleted</td>
+</tr>
+<tr>
+<td>Plugin settings</td>
+<td>wp_options</td>
+<td>None</td>
+<td>Until deleted</td>
+</tr>
+<tr>
+<td>Product cache</td>
+<td>Transients</td>
+<td>None</td>
+<td>5 minutes</td>
+</tr>
+<tr>
+<td>Category cache</td>
+<td>Transients</td>
+<td>None</td>
+<td>15 minutes</td>
+</tr>
+<tr>
+<td>Cart ID</td>
+<td>Cookie</td>
+<td>None</td>
+<td>30 days</td>
+</tr>
+<tr>
+<td>Customer token</td>
+<td>Cookie</td>
+<td>HttpOnly</td>
+<td>Session</td>
+</tr>
+</tbody></table>
+<h3>6.2 Data NOT Stored</h3>
+<table>
+<thead>
+<tr>
+<th>Data Type</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Products</td>
+<td>Fetched from BC API</td>
+</tr>
+<tr>
+<td>Orders</td>
+<td>Managed in BC</td>
+</tr>
+<tr>
+<td>Customers</td>
+<td>Managed in BC</td>
+</tr>
+<tr>
+<td>Inventory</td>
+<td>Fetched from BC API</td>
+</tr>
+<tr>
+<td>Payment info</td>
+<td>Handled by BC checkout</td>
+</tr>
+</tbody></table>
+<h3>6.3 Data Flow Diagram</h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────┐
+│                           DATA FLOW                                      │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  ┌──────────┐      ┌──────────────┐      ┌──────────────┐              │
+│  │ Customer │      │  WordPress   │      │ BigCommerce  │              │
+│  │ Browser  │      │   + Plugin   │      │    APIs      │              │
+│  └────┬─────┘      └──────┬───────┘      └──────┬───────┘              │
+│       │                   │                     │                       │
+│       │ 1. Request page   │                     │                       │
+│       │──────────────────▶│                     │                       │
+│       │                   │                     │                       │
+│       │                   │ 2. Check cache      │                       │
+│       │                   │───────────┐         │                       │
+│       │                   │           │         │                       │
+│       │                   │◀──────────┘         │                       │
+│       │                   │                     │                       │
+│       │                   │ 3. Cache miss:      │                       │
+│       │                   │    fetch from API   │                       │
+│       │                   │────────────────────▶│                       │
+│       │                   │                     │                       │
+│       │                   │ 4. Return products  │                       │
+│       │                   │◀────────────────────│                       │
+│       │                   │                     │                       │
+│       │                   │ 5. Cache response   │                       │
+│       │                   │───────────┐         │                       │
+│       │                   │           │         │                       │
+│       │                   │◀──────────┘         │                       │
+│       │                   │                     │                       │
+│       │ 6. Render page    │                     │                       │
+│       │◀──────────────────│                     │                       │
+│       │                   │                     │                       │
+│       │ 7. Add to cart    │                     │                       │
+│       │──────────────────▶│                     │                       │
+│       │                   │                     │                       │
+│       │                   │ 8. Create/update    │                       │
+│       │                   │    cart in BC       │                       │
+│       │                   │────────────────────▶│                       │
+│       │                   │                     │                       │
+│       │                   │ 9. Return cart ID   │                       │
+│       │                   │◀────────────────────│                       │
+│       │                   │                     │                       │
+│       │ 10. Set cookie    │                     │                       │
+│       │◀──────────────────│                     │                       │
+│       │   (cart_id)       │                     │                       │
+│       │                   │                     │                       │
+└─────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr>
+<h2>7. API SPECIFICATIONS</h2>
+<h3>7.1 BigCommerce APIs Used</h3>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>Purpose</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Catalog API (V3)</td>
+<td>Products, categories, variants</td>
+<td>API Token</td>
+</tr>
+<tr>
+<td>Cart API (V3)</td>
+<td>Cart management</td>
+<td>API Token</td>
+</tr>
+<tr>
+<td>Checkout API (V3)</td>
+<td>Checkout URLs</td>
+<td>API Token</td>
+</tr>
+<tr>
+<td>Storefront API</td>
+<td>Customer auth (future)</td>
+<td>JWT</td>
+</tr>
+<tr>
+<td>GraphQL Storefront</td>
+<td>Search, performance (future)</td>
+<td>JWT</td>
+</tr>
+</tbody></table>
+<h3>7.2 Required API Scopes</h3>
+<pre><code class="language-yaml">required_scopes:
+  - store_v2_products              # Read products
+  - store_v2_products_read_only    # Alternative read-only
+  - store_cart                     # Cart management
+  - store_cart_read_only          # Read cart (fallback)
+  - store_checkout                 # Checkout URLs
+  - store_channel_settings        # Channel info
+</code></pre>
+<h3>7.3 Rate Limit Handling</h3>
+<pre><code class="language-yaml">rate_limits:
+  standard_plan:
+    requests_per_second: 4
+    requests_per_30_seconds: 150
+
+  handling:
+    approach: &quot;Leaky bucket with exponential backoff&quot;
+    cache_strategy: &quot;Aggressive caching to reduce API calls&quot;
+    queue_burst: &quot;Queue requests that exceed limit&quot;
+</code></pre>
+<hr>
+<h2>8. UI/UX SPECIFICATIONS</h2>
+<h3>8.1 Design Principles</h3>
+<ol>
+<li><strong>Invisible integration</strong> - Plugin should feel native to the theme</li>
+<li><strong>Progressive enhancement</strong> - Works without JavaScript, enhanced with JS</li>
+<li><strong>Mobile-first</strong> - Design for mobile, scale up to desktop</li>
+<li><strong>Accessible</strong> - WCAG AA compliance</li>
+<li><strong>Fast feedback</strong> - Show loading states, confirm actions</li>
+</ol>
+<h3>8.2 Component Library</h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Description</th>
+<th>States</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Product Card</td>
+<td>Grid item for product</td>
+<td>Default, hover, loading</td>
+</tr>
+<tr>
+<td>Product Gallery</td>
+<td>Image viewer</td>
+<td>Thumbnails, zoom, fullscreen</td>
+</tr>
+<tr>
+<td>Variant Selector</td>
+<td>Option picker</td>
+<td>Default, selected, unavailable</td>
+</tr>
+<tr>
+<td>Add to Cart Button</td>
+<td>Primary CTA</td>
+<td>Default, loading, success, error</td>
+</tr>
+<tr>
+<td>Quantity Stepper</td>
+<td>+/- control</td>
+<td>Default, min, max</td>
+</tr>
+<tr>
+<td>Mini Cart</td>
+<td>Header widget</td>
+<td>Empty, items, loading</td>
+</tr>
+<tr>
+<td>Cart Item</td>
+<td>Line item row</td>
+<td>Default, updating, removing</td>
+</tr>
+<tr>
+<td>Checkout Button</td>
+<td>Secondary CTA</td>
+<td>Default, loading, disabled</td>
+</tr>
+<tr>
+<td>Price Display</td>
+<td>Currency formatted</td>
+<td>Regular, sale, range</td>
+</tr>
+<tr>
+<td>Stock Badge</td>
+<td>Availability indicator</td>
+<td>In stock, low, out</td>
+</tr>
+</tbody></table>
+<h3>8.3 Admin UI Mockups</h3>
+<h4>Settings Page Layout</h4>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────┐
+│ BC Bridge Settings                                          [Save]      │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  ┌─ API Connection ─────────────────────────────────────────────────┐  │
+│  │                                                                   │  │
+│  │  Store Hash:     [________________________]                       │  │
+│  │  Client ID:      [________________________]                       │  │
+│  │  Access Token:   [________________________]                       │  │
+│  │                                                                   │  │
+│  │  [Test Connection]    ✓ Connected to &quot;My Store&quot;                  │  │
+│  │                                                                   │  │
+│  └───────────────────────────────────────────────────────────────────┘  │
+│                                                                         │
+│  ┌─ Display Settings ───────────────────────────────────────────────┐  │
+│  │                                                                   │  │
+│  │  Products per page:  [12 ▼]                                      │  │
+│  │  Default sort:       [Name A-Z ▼]                                │  │
+│  │  Show stock status:  [✓]                                         │  │
+│  │                                                                   │  │
+│  └───────────────────────────────────────────────────────────────────┘  │
+│                                                                         │
+│  ┌─ Checkout Settings ──────────────────────────────────────────────┐  │
+│  │                                                                   │  │
+│  │  Checkout type:      (•) Embedded  ( ) Redirect                  │  │
+│  │  Thank you page:     [Select page ▼]                             │  │
+│  │                                                                   │  │
+│  └───────────────────────────────────────────────────────────────────┘  │
+│                                                                         │
+│  ┌─ Cache Settings ─────────────────────────────────────────────────┐  │
+│  │                                                                   │  │
+│  │  Product cache TTL:  [5] minutes                                 │  │
+│  │  Category cache TTL: [15] minutes                                │  │
+│  │                                                                   │  │
+│  │  [Clear All Caches]                                              │  │
+│  │                                                                   │  │
+│  └───────────────────────────────────────────────────────────────────┘  │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr>
+<h2>9. TESTING REQUIREMENTS</h2>
+<h3>9.1 Test Coverage Targets</h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Coverage Target</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Unit tests</td>
+<td>80%</td>
+</tr>
+<tr>
+<td>Integration tests</td>
+<td>60%</td>
+</tr>
+<tr>
+<td>E2E tests</td>
+<td>Critical paths 100%</td>
+</tr>
+<tr>
+<td>Visual regression</td>
+<td>Key components</td>
+</tr>
+</tbody></table>
+<h3>9.2 Test Scenarios</h3>
+<h4>Critical Path Tests (P0)</h4>
+<pre><code class="language-yaml">CP-001_browse_products:
+  steps:
+    - Navigate to /shop
+    - Verify products display
+    - Click product
+    - Verify PDP loads
+  pass_criteria: &quot;Products from BC visible&quot;
+
+CP-002_add_to_cart:
+  steps:
+    - Navigate to PDP
+    - Select variant (if applicable)
+    - Click add to cart
+    - Verify cart updates
+  pass_criteria: &quot;Cart contains item&quot;
+
+CP-003_complete_checkout:
+  steps:
+    - Add item to cart
+    - Navigate to checkout
+    - Complete payment (test card)
+    - Verify confirmation
+  pass_criteria: &quot;Order created in BC&quot;
+
+CP-004_mobile_checkout:
+  steps:
+    - Same as CP-003
+    - Device: iPhone Safari
+  pass_criteria: &quot;Order created, no UI issues&quot;
+</code></pre>
+<h4>Theme Compatibility Tests</h4>
+<pre><code class="language-yaml">TC-001_theme_compatibility:
+  themes:
+    - Twenty Twenty-Four
+    - Flavor flavor flavor flavor flavor flavor flavorflavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavorflavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavorflavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavorflavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavorflavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavor flavorAstra
+    - GeneratePress
+  test:
+    - PLP renders correctly
+    - PDP renders correctly
+    - Cart page renders correctly
+    - No CSS conflicts
+</code></pre>
+<h3>9.3 Performance Tests</h3>
+<pre><code class="language-yaml">PT-001_page_load:
+  baseline: &quot;Static page load time&quot;
+  test: &quot;Same page with BC Bridge active&quot;
+  threshold: &quot;&lt; 200ms additional&quot;
+
+PT-002_api_caching:
+  test: &quot;Repeated product page loads&quot;
+  threshold: &quot;95%+ cache hit rate&quot;
+
+PT-003_concurrent_users:
+  test: &quot;50 concurrent sessions&quot;
+  threshold: &quot;No degradation&quot;
+</code></pre>
+<hr>
+<h2>10. RELEASE CRITERIA</h2>
+<h3>10.1 MVP Release Gate</h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Criteria</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Functional</td>
+<td>All P0 user stories complete</td>
+<td>☐</td>
+</tr>
+<tr>
+<td>Performance</td>
+<td>&lt; 200ms added latency</td>
+<td>☐</td>
+</tr>
+<tr>
+<td>Security</td>
+<td>Security review passed</td>
+<td>☐</td>
+</tr>
+<tr>
+<td>Compatibility</td>
+<td>3 themes tested</td>
+<td>☐</td>
+</tr>
+<tr>
+<td>Mobile</td>
+<td>iOS + Android checkout works</td>
+<td>☐</td>
+</tr>
+<tr>
+<td>Documentation</td>
+<td>Setup guide complete</td>
+<td>☐</td>
+</tr>
+<tr>
+<td>Quality</td>
+<td>Zero P0/P1 bugs</td>
+<td>☐</td>
+</tr>
+</tbody></table>
+<h3>10.2 Launch Checklist</h3>
+<pre><code class="language-yaml">pre_launch:
+  - [ ] Security scan complete (no high/critical)
+  - [ ] Performance benchmarks met
+  - [ ] All P0 tests passing
+  - [ ] Documentation published
+  - [ ] Support runbook ready
+  - [ ] Pilot customer sign-off (2/3)
+  - [ ] Pilot agency sign-off (1/3)
+  - [ ] WP Engine approval
+
+launch:
+  - [ ] Plugin submitted to WordPress.org
+  - [ ] Landing page live
+  - [ ] Support channels ready
+  - [ ] Monitoring dashboards active
+  - [ ] Rollback plan documented
+
+post_launch:
+  - [ ] Monitor error rates (24h)
+  - [ ] Check support ticket volume
+  - [ ] Gather pilot feedback
+  - [ ] Plan next iteration
+</code></pre>
+<hr>
+<h2>11. APPENDICES</h2>
+<h3>11.1 Glossary</h3>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Definition</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PLP</td>
+<td>Product Listing Page (/shop, category pages)</td>
+</tr>
+<tr>
+<td>PDP</td>
+<td>Product Detail Page (single product)</td>
+</tr>
+<tr>
+<td>Cart</td>
+<td>Shopping cart with items before checkout</td>
+</tr>
+<tr>
+<td>Checkout</td>
+<td>Payment collection flow</td>
+</tr>
+<tr>
+<td>Embedded checkout</td>
+<td>BC checkout in iframe on WP site</td>
+</tr>
+<tr>
+<td>Redirect checkout</td>
+<td>Full redirect to BC hosted checkout</td>
+</tr>
+<tr>
+<td>Transient</td>
+<td>WordPress auto-expiring cache mechanism</td>
+</tr>
+<tr>
+<td>Channel</td>
+<td>BigCommerce sales channel (storefront)</td>
+</tr>
+</tbody></table>
+<h3>11.2 Related Documents</h3>
+<table>
+<thead>
+<tr>
+<th>Document</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>platform/bc-bridge/BC_BRIDGE_INTENT.md</code></td>
+<td>Agent-native intent specification</td>
+</tr>
+<tr>
+<td><code>platform/bc-bridge/BC_BRIDGE_ROADMAP.md</code></td>
+<td>Phase and milestone planning</td>
+</tr>
+<tr>
+<td><code>platform/bc-bridge/BC_BRIDGE_BRD.md</code></td>
+<td>Business requirements</td>
+</tr>
+</tbody></table>
+<h3>11.3 Revision History</h3>
+<table>
+<thead>
+<tr>
+<th>Version</th>
+<th>Date</th>
+<th>Author</th>
+<th>Changes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1.0.0</td>
+<td>2025-12-18</td>
+<td>AI-assisted</td>
+<td>Initial PRD</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>Sign-Off</h2>
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Name</th>
+<th>Date</th>
+<th>Signature</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Product Manager</td>
+<td>Jordan Sim</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Technical Lead</td>
+<td>[TBD]</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>QA Lead</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Design Lead</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<hr>
+<p><em>This PRD is a living document. Updates require review and approval from Product Manager.</em></p>
+
+</body>
+</html>

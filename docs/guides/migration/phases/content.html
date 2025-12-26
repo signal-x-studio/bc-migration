@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phase 4: Content - Reviews, Pages, and Blog</title>
+    <meta name="description" content="Migrate product reviews, CMS pages, and blog posts to BigCommerce">
+    <!-- frontmatter
+title: "Phase 4: Content - Reviews, Pages, and Blog"
+description: "Migrate product reviews, CMS pages, and blog posts to BigCommerce"
+category: "guides"
+order: 4
+-->
+</head>
+<body>
+
+<h1>Phase 4: Content - Reviews, Pages, and Blog</h1>
+
+<p>The Content phase migrates your content assets: product reviews, CMS pages, and blog posts. This is an optional phase that depends on Phase 2 (Core Data) being completed first for reviews.</p>
+
+<h2>Overview</h2>
+
+<p>This phase migrates:</p>
+
+<ul>
+<li><strong>Product Reviews:</strong> Customer reviews with ratings, comments, and product associations</li>
+<li><strong>CMS Pages:</strong> Static pages (About, Contact, Terms, etc.)</li>
+<li><strong>Blog Posts:</strong> Blog articles with content, images, and metadata</li>
+</ul>
+
+<h2>Dependencies</h2>
+
+<p><strong>Requires Phase 2 (Core Data) for Reviews:</strong></p>
+
+<ul>
+<li>Product reviews need products to be migrated (for product associations)</li>
+<li>Product ID mapping from Phase 2 is used to link reviews to products</li>
+<li>Pages and blog posts can be migrated independently</li>
+</ul>
+
+<h2>Reviews Migration</h2>
+
+<h3>What Gets Migrated</h3>
+
+<ul>
+<li><strong>Review Content:</strong> Review title, comment text, rating</li>
+<li><strong>Product Association:</strong> Links review to migrated product (using product ID mapping)</li>
+<li><strong>Reviewer Information:</strong> Reviewer name, email (if available)</li>
+<li><strong>Review Status:</strong> Approved, pending, or spam status</li>
+<li><strong>Review Date:</strong> Original review date</li>
+</ul>
+
+<h3>Review Migration Process</h3>
+
+<ol>
+<li><strong>Fetch Reviews:</strong> Retrieves all product reviews from WooCommerce</li>
+<li><strong>Resolve Product:</strong> Maps review to product using product ID mapping</li>
+<li><strong>Transform Review:</strong> Converts WooCommerce review format to BigCommerce format</li>
+<li><strong>Create Review:</strong> Creates review in BigCommerce via API</li>
+</ol>
+
+<h3>Product Resolution</h3>
+
+<p>Reviews are linked to products using the product ID mapping from Phase 2:</p>
+
+<pre><code class="language-typescript">// For each review
+const productId = productIdMapping[wcReview.product_id];
+if (productId) {
+  // Link review to migrated product
+  reviewPayload.product_id = productId;
+} else {
+  // Skip review if product not found
+  stats.skipped++;
+  continue;
+}
+</code></pre>
+
+<h3>Review Transformation</h3>
+
+<p>Reviews are transformed to match BigCommerce review structure:</p>
+
+<pre><code class="language-typescript">const reviewPayload = {
+  product_id: productId, // From product ID mapping
+  title: wcReview.title || wcReview.review.substring(0, 50),
+  text: wcReview.review,
+  status: mapReviewStatus(wcReview.status), // 'approved', 'pending', 'disapproved'
+  rating: wcReview.rating,
+  reviewer: {
+    name: wcReview.reviewer_name,
+    email: wcReview.reviewer_email
+  },
+  date_reviewed: wcReview.date_created
+};
+</code></pre>
+
+<h3>Review Migration Statistics</h3>
+
+<p>After completion, you'll receive:</p>
+
+<ul>
+<li><strong>Total:</strong> Total reviews found in WooCommerce</li>
+<li><strong>Migrated:</strong> Reviews successfully created in BigCommerce</li>
+<li><strong>Skipped:</strong> Reviews for products not found or invalid</li>
+<li><strong>Failed:</strong> Reviews that encountered errors</li>
+</ul>
+
+<h2>Pages Migration</h2>
+
+<h3>What Gets Migrated</h3>
+
+<ul>
+<li><strong>Page Content:</strong> Page title, content (HTML), excerpt</li>
+<li><strong>Page Metadata:</strong> Slug, author, publish date, modified date</li>
+<li><strong>Page Status:</strong> Published, draft, or private status</li>
+<li><strong>Page Template:</strong> Template assignment (if applicable)</li>
+<li><strong>Featured Image:</strong> Page featured image</li>
+</ul>
+
+<h3>Page Migration Process</h3>
+
+<ol>
+<li><strong>Fetch Pages:</strong> Retrieves all pages from WooCommerce</li>
+<li><strong>Transform Page:</strong> Converts WooCommerce page format to BigCommerce format</li>
+<li><strong>Handle Content:</strong> Processes HTML content and images</li>
+<li><strong>Create Page:</strong> Creates page in BigCommerce via API</li>
+</ol>
+
+<h3>Page Transformation</h3>
+
+<p>Pages are transformed to match BigCommerce page structure:</p>
+
+<pre><code class="language-typescript">const pagePayload = {
+  name: wcPage.title.rendered,
+  content: wcPage.content.rendered,
+  meta_description: wcPage.excerpt.rendered,
+  is_visible: wcPage.status === 'publish',
+  sort_order: wcPage.menu_order,
+  url: wcPage.slug
+};
+</code></pre>
+
+<h3>Page Migration Statistics</h3>
+
+<p>After completion, you'll receive:</p>
+
+<ul>
+<li><strong>Total:</strong> Total pages found in WooCommerce</li>
+<li><strong>Migrated:</strong> Pages successfully created in BigCommerce</li>
+<li><strong>Skipped:</strong> Pages that already existed (by slug)</li>
+<li><strong>Failed:</strong> Pages that encountered errors</li>
+</ul>
+
+<h2>Blog Posts Migration</h2>
+
+<h3>What Gets Migrated</h3>
+
+<ul>
+<li><strong>Post Content:</strong> Post title, content (HTML), excerpt</li>
+<li><strong>Post Metadata:</strong> Slug, author, publish date, modified date</li>
+<li><strong>Post Status:</strong> Published, draft, or private status</li>
+<li><strong>Categories:</strong> Post categories (if applicable)</li>
+<li><strong>Tags:</strong> Post tags</li>
+<li><strong>Featured Image:</strong> Post featured image</li>
+<li><strong>Post Images:</strong> Images embedded in post content</li>
+</ul>
+
+<h3>Blog Migration Process</h3>
+
+<ol>
+<li><strong>Fetch Posts:</strong> Retrieves all blog posts from WooCommerce</li>
+<li><strong>Process Content:</strong> Extracts and processes HTML content</li>
+<li><strong>Handle Images:</strong> Downloads and uploads images to BigCommerce</li>
+<li><strong>Transform Post:</strong> Converts WooCommerce post format to BigCommerce format</li>
+<li><strong>Create Post:</strong> Creates blog post in BigCommerce via API</li>
+</ol>
+
+<h3>Content Processing</h3>
+
+<p>Blog post content is processed to handle:</p>
+
+<ul>
+<li><strong>Image URLs:</strong> Replaces WooCommerce image URLs with BigCommerce URLs</li>
+<li><strong>Internal Links:</strong> Updates internal links to match new URL structure</li>
+<li><strong>HTML Formatting:</strong> Preserves HTML structure and formatting</li>
+<li><strong>Embedded Media:</strong> Handles embedded videos, galleries, etc.</li>
+</ul>
+
+<h3>Blog Migration Statistics</h3>
+
+<p>After completion, you'll receive:</p>
+
+<ul>
+<li><strong>Total:</strong> Total blog posts found in WooCommerce</li>
+<li><strong>Migrated:</strong> Posts successfully created in BigCommerce</li>
+<li><strong>Skipped:</strong> Posts that already existed (by slug)</li>
+<li><strong>Failed:</strong> Posts that encountered errors</li>
+</ul>
+
+<h2>Using the Dashboard Wizard</h2>
+
+<h3>Reviews Migration</h3>
+
+<ol>
+<li>Navigate to Phase 4 in the Migration Wizard</li>
+<li>Verify that Phase 2 (Core Data) is complete</li>
+<li>Click <strong>Migrate Reviews</strong> in the Reviews section</li>
+<li>Monitor progress in real-time</li>
+<li>Review migration statistics</li>
+</ol>
+
+<h3>Pages Migration</h3>
+
+<ol>
+<li>In Phase 4, scroll to the Pages section</li>
+<li>Click <strong>Migrate Pages</strong></li>
+<li>Monitor progress in real-time</li>
+<li>Review migration statistics</li>
+</ol>
+
+<h3>Blog Migration</h3>
+
+<ol>
+<li>In Phase 4, scroll to the Blog section</li>
+<li>Click <strong>Migrate Blog Posts</strong></li>
+<li>Monitor progress in real-time</li>
+<li>Review migration statistics</li>
+</ol>
+
+<h3>Phase UI Features</h3>
+
+<ul>
+<li><strong>Dependency Check:</strong> Warns if products haven't been migrated (for reviews)</li>
+<li><strong>Real-time Progress:</strong> See reviews, pages, and posts being migrated</li>
+<li><strong>Statistics Display:</strong> View migration results for each content type</li>
+<li><strong>Skip Option:</strong> Option to skip this phase if not needed</li>
+</ul>
+
+<h2>API Endpoints</h2>
+
+<h3>Migrate Reviews</h3>
+
+<pre><code class="language-http">POST /api/migrate/reviews
+
+Request Body:
+{
+  "wcCredentials": { ... },
+  "bcCredentials": { ... },
+  "productIdMapping": { "1": 10, "2": 11, ... }
+}
+
+Response:
+{
+  "success": true,
+  "data": {
+    "total": 150,
+    "successful": 145,
+    "skipped": 5,
+    "failed": 0
+  }
+}
+</code></pre>
+
+<h3>Migrate Pages</h3>
+
+<pre><code class="language-http">POST /api/migrate/pages
+
+Request Body:
+{
+  "wcCredentials": { ... },
+  "bcCredentials": { ... }
+}
+
+Response:
+{
+  "success": true,
+  "data": {
+    "total": 12,
+    "successful": 12,
+    "skipped": 0,
+    "failed": 0
+  }
+}
+</code></pre>
+
+<h3>Migrate Blog Posts</h3>
+
+<pre><code class="language-http">POST /api/migrate/blog
+
+Request Body:
+{
+  "wcCredentials": { ... },
+  "bcCredentials": { ... }
+}
+
+Response:
+{
+  "success": true,
+  "data": {
+    "total": 45,
+    "successful": 43,
+    "skipped": 2,
+    "failed": 0
+  }
+}
+</code></pre>
+
+<h2>CLI Usage</h2>
+
+<pre><code class="language-bash"># Migrate all content
+npm run migrate -- --phase content \
+  --wc-url https://your-store.com \
+  --wc-key YOUR_KEY \
+  --wc-secret YOUR_SECRET \
+  --bc-hash YOUR_HASH \
+  --bc-token YOUR_TOKEN
+
+# Migrate specific content types
+npm run migrate -- --phase content --reviews-only
+npm run migrate -- --phase content --pages-only
+npm run migrate -- --phase content --blog-only
+</code></pre>
+
+<h2>Important Considerations</h2>
+
+<h3>Content Formatting</h3>
+
+<ul>
+<li><strong>HTML Content:</strong> HTML is preserved but may need manual review</li>
+<li><strong>Image URLs:</strong> Images are downloaded and re-uploaded to BigCommerce</li>
+<li><strong>Internal Links:</strong> Links may need to be updated to match new URL structure</li>
+</ul>
+
+<h3>Review Associations</h3>
+
+<ul>
+<li>Reviews are only migrated if the associated product exists</li>
+<li>Reviews for products not found are skipped</li>
+<li>Consider migrating products before reviews for complete coverage</li>
+</ul>
+
+<h3>URL Structure</h3>
+
+<ul>
+<li>Page and blog post URLs (slugs) are preserved when possible</li>
+<li>URL conflicts are resolved by appending numbers</li>
+<li>Review and update URLs after migration</li>
+</ul>
+
+<h2>Next Steps</h2>
+
+<p>After completing all phases, you can:</p>
+
+<ul>
+<li>Review migrated content in BigCommerce</li>
+<li>Update URLs and internal links as needed</li>
+<li>Test content display and functionality</li>
+<li>Proceed with go-live preparation</li>
+</ul>
+
+<h2>Troubleshooting</h2>
+
+<h3>Reviews Not Appearing</h3>
+
+<ul>
+<li>Verify products were migrated in Phase 2</li>
+<li>Check that product ID mapping is correct</li>
+<li>Review review status (only approved reviews may be visible)</li>
+</ul>
+
+<h3>Content Formatting Issues</h3>
+
+<ul>
+<li>Review HTML content in BigCommerce editor</li>
+<li>Check that images uploaded correctly</li>
+<li>Update internal links manually if needed</li>
+</ul>
+
+<h3>Image Issues</h3>
+
+<ul>
+<li>Verify image URLs are accessible</li>
+<li>Check image file sizes and formats</li>
+<li>Review image upload errors in logs</li>
+</ul>
+
+<h3>URL Conflicts</h3>
+
+<ul>
+<li>Review slug conflicts in migration logs</li>
+<li>Update URLs manually if needed</li>
+<li>Set up redirects for old URLs</li>
+</ul>
+
+<h2>Best Practices</h2>
+
+<ul>
+<li><strong>Complete Core Data First:</strong> Ensure products are migrated before reviews</li>
+<li><strong>Review Content:</strong> Check migrated content for formatting issues</li>
+<li><strong>Update Links:</strong> Review and update internal links after migration</li>
+<li><strong>Test Display:</strong> Verify content displays correctly in BigCommerce</li>
+<li><strong>Handle Images:</strong> Review image uploads and update URLs if needed</li>
+<li><strong>Backup:</strong> Always backup your BigCommerce store before migration</li>
+</ul>
+
+<h2>Related Documentation</h2>
+
+<ul>
+<li><a href="foundation.html">Phase 1: Foundation</a></li>
+<li><a href="core-data.html">Phase 2: Core Data</a></li>
+<li><a href="transactions.html">Phase 3: Transactions</a></li>
+<li><a href="../step-by-step.html">Step-by-Step Migration Guide</a></li>
+</ul>
+
+</body>
+</html>
+
