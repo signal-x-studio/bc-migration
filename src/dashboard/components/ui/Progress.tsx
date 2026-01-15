@@ -33,7 +33,14 @@ export const Progress = forwardRef<HTMLDivElement, ProgressProps>(
             <span className="text-sm font-medium text-slate-300">{Math.round(percentage)}%</span>
           </div>
         )}
-        <div className={`w-full bg-slate-700 rounded-full overflow-hidden ${sizeStyles[size]}`}>
+        <div
+          role="progressbar"
+          aria-valuenow={Math.round(percentage)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label="Progress"
+          className={`w-full bg-slate-700 rounded-full overflow-hidden ${sizeStyles[size]}`}
+        >
           <div
             className={`h-full rounded-full transition-all duration-300 ease-out ${variantStyles[variant]}`}
             style={{ width: `${percentage}%` }}
@@ -77,8 +84,15 @@ export const CircularProgress = ({
   const offset = circumference - (percentage / 100) * circumference;
 
   return (
-    <div className="relative inline-flex items-center justify-center">
-      <svg width={size} height={size} className="-rotate-90">
+    <div
+      role="progressbar"
+      aria-valuenow={Math.round(percentage)}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-label="Progress"
+      className="relative inline-flex items-center justify-center"
+    >
+      <svg width={size} height={size} className="-rotate-90" aria-hidden="true">
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -102,7 +116,7 @@ export const CircularProgress = ({
         />
       </svg>
       {showLabel && (
-        <span className="absolute text-sm font-medium text-slate-300">
+        <span className="absolute text-sm font-medium text-slate-300" aria-hidden="true">
           {Math.round(percentage)}%
         </span>
       )}

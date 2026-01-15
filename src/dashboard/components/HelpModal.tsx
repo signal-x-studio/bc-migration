@@ -1,5 +1,6 @@
+'use client';
 
-import React from 'react';
+import { useEffect, useRef } from 'react';
 import { X, BookOpen, Terminal, Activity, FileText } from 'lucide-react';
 
 interface HelpModalProps {
@@ -8,20 +9,71 @@ interface HelpModalProps {
 }
 
 export function HelpModal({ isOpen, onClose }: HelpModalProps) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Focus trap and escape key handling
+  useEffect(() => {
+    if (!isOpen) return;
+
+    // Focus the close button when modal opens
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+
+      // Focus trap
+      if (e.key === 'Tab' && dialogRef.current) {
+        const focusableElements = dialogRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (e.shiftKey && document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement?.focus();
+        } else if (!e.shiftKey && document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement?.focus();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-slate-900 border border-slate-700 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+      onClick={(e) => {
+        // Close on backdrop click
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="help-modal-title"
+        className="bg-slate-900 border border-slate-700 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl"
+      >
         <div className="sticky top-0 bg-slate-900 border-b border-slate-800 p-4 flex justify-between items-center z-10">
-          <h2 className="text-xl font-bold flex items-center gap-2">
-            <BookOpen className="text-blue-400" /> Assessment Guide
+          <h2 id="help-modal-title" className="text-xl font-bold flex items-center gap-2">
+            <BookOpen className="text-blue-400" aria-hidden="true" /> Assessment Guide
           </h2>
-          <button 
+          <button
+            ref={closeButtonRef}
             onClick={onClose}
             className="p-1 hover:bg-slate-800 rounded-lg transition-colors text-slate-400 hover:text-white"
+            aria-label="Close dialog"
           >
-            <X size={24} />
+            <X size={24} aria-hidden="true" />
           </button>
         </div>
 
@@ -29,7 +81,7 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
           
           <section>
             <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-              <Activity className="text-green-400" size={20} /> How to Interpret Readiness
+              <Activity className="text-green-400" size={20} aria-hidden="true" /> How to Interpret Readiness
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                <div className="bg-slate-950 p-3 rounded-lg border border-green-500/20">
@@ -49,7 +101,7 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
 
           <section>
             <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-              <Terminal className="text-purple-400" size={20} /> Essential Commands
+              <Terminal className="text-purple-400" size={20} aria-hidden="true" /> Essential Commands
             </h3>
             <div className="bg-slate-950 rounded-lg p-4 font-mono text-sm border border-slate-800 space-y-4">
               <div>
@@ -69,7 +121,7 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
 
           <section>
             <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-               <FileText className="text-amber-400" size={20} /> Next Steps
+               <FileText className="text-amber-400" size={20} aria-hidden="true" /> Next Steps
             </h3>
             <ul className="list-disc list-inside space-y-2 text-slate-300">
                 <li>Review the <span className="text-white font-medium">Complexity Score</span> above.</li>

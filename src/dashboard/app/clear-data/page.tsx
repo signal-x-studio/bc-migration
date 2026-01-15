@@ -169,11 +169,11 @@ export default function ClearDataPage() {
 
   if (!isConnected) {
     return (
-      <main className="min-h-screen bg-gray-950 p-8">
+      <main className="min-h-screen bg-slate-950 p-8">
         <div className="max-w-3xl mx-auto">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-8"
+            className="inline-flex items-center gap-2 text-slate-400 hover:text-white mb-8"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Dashboard
@@ -181,7 +181,7 @@ export default function ClearDataPage() {
 
           <Alert variant="warning">
             <p className="font-medium">BigCommerce Connection Required</p>
-            <p className="text-sm text-gray-400 mt-1">
+            <p className="text-sm text-slate-400 mt-1">
               Please connect to a BigCommerce store before clearing data.
             </p>
           </Alert>
@@ -191,12 +191,12 @@ export default function ClearDataPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-950 p-8">
+    <main className="min-h-screen bg-slate-950 p-8">
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-8"
+          className="inline-flex items-center gap-2 text-slate-400 hover:text-white mb-8"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Dashboard
@@ -208,7 +208,7 @@ export default function ClearDataPage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-white">Clear BigCommerce Data</h1>
-            <p className="text-gray-400">
+            <p className="text-slate-400">
               Remove sample or migrated data from your BC store
             </p>
           </div>
@@ -220,7 +220,7 @@ export default function ClearDataPage() {
             <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
             <div>
               <p className="font-medium text-white">Destructive Action</p>
-              <p className="text-sm text-gray-400 mt-1">
+              <p className="text-sm text-slate-400 mt-1">
                 This action will permanently delete data from your BigCommerce store.
                 This cannot be undone. Use Preview first to see what will be deleted.
               </p>
@@ -240,10 +240,10 @@ export default function ClearDataPage() {
                 >
                   Select All
                 </button>
-                <span className="text-gray-600">|</span>
+                <span className="text-slate-600">|</span>
                 <button
                   onClick={selectNone}
-                  className="text-sm text-gray-400 hover:text-gray-300"
+                  className="text-sm text-slate-400 hover:text-slate-300"
                 >
                   Select None
                 </button>
@@ -259,26 +259,26 @@ export default function ClearDataPage() {
                     flex items-center gap-4 p-4 rounded-lg border cursor-pointer transition-all
                     ${selectedEntities.has(entity.key)
                       ? 'bg-blue-500/10 border-blue-500/50'
-                      : 'bg-gray-800/50 border-gray-700 hover:border-gray-600'}
+                      : 'bg-slate-800/50 border-slate-700 hover:border-slate-600'}
                   `}
                 >
                   <input
                     type="checkbox"
                     checked={selectedEntities.has(entity.key)}
                     onChange={() => toggleEntity(entity.key)}
-                    className="w-5 h-5 rounded border-gray-600 text-blue-500 focus:ring-blue-500 focus:ring-offset-gray-900"
+                    className="w-5 h-5 rounded border-slate-600 text-blue-500 focus:ring-blue-500 focus:ring-offset-slate-900"
                   />
                   <div className={`
                     p-2 rounded-lg
-                    ${selectedEntities.has(entity.key) ? 'bg-blue-500/20 text-blue-400' : 'bg-gray-700 text-gray-400'}
+                    ${selectedEntities.has(entity.key) ? 'bg-blue-500/20 text-blue-400' : 'bg-slate-700 text-slate-400'}
                   `}>
                     {entity.icon}
                   </div>
                   <div className="flex-1">
-                    <div className={`font-medium ${selectedEntities.has(entity.key) ? 'text-white' : 'text-gray-300'}`}>
+                    <div className={`font-medium ${selectedEntities.has(entity.key) ? 'text-white' : 'text-slate-300'}`}>
                       {entity.label}
                     </div>
-                    <div className="text-sm text-gray-500">{entity.description}</div>
+                    <div className="text-sm text-slate-500">{entity.description}</div>
                   </div>
                 </label>
               ))}
@@ -317,7 +317,7 @@ export default function ClearDataPage() {
                 <div className={`p-4 rounded-lg ${result.dryRun ? 'bg-blue-500/10 border border-blue-500/30' : 'bg-green-500/10 border border-green-500/30'}`}>
                   <div className="grid grid-cols-2 gap-4 text-center">
                     <div>
-                      <div className="text-gray-400 text-sm">
+                      <div className="text-slate-400 text-sm">
                         {result.dryRun ? 'Would be deleted' : 'Deleted'}
                       </div>
                       <div className="text-3xl font-bold text-white">
@@ -325,7 +325,7 @@ export default function ClearDataPage() {
                       </div>
                     </div>
                     <div>
-                      <div className="text-gray-400 text-sm">Errors</div>
+                      <div className="text-slate-400 text-sm">Errors</div>
                       <div className={`text-3xl font-bold ${result.summary.totalErrors > 0 ? 'text-red-400' : 'text-green-400'}`}>
                         {result.summary.totalErrors}
                       </div>
@@ -338,11 +338,11 @@ export default function ClearDataPage() {
                   {result.results.map(stat => (
                     <div
                       key={stat.entity}
-                      className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg"
+                      className="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg"
                     >
                       <div className="flex items-center gap-3">
                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                          stat.deleted > 0 || stat.found > 0 ? 'bg-green-500/20 text-green-400' : 'bg-gray-700 text-gray-500'
+                          stat.deleted > 0 || stat.found > 0 ? 'bg-green-500/20 text-green-400' : 'bg-slate-700 text-slate-500'
                         }`}>
                           {stat.errors.length > 0 ? (
                             <XCircle className="w-4 h-4 text-red-400" />
@@ -355,11 +355,11 @@ export default function ClearDataPage() {
                         <span className="capitalize text-white">{stat.entity.replace('_', ' ')}</span>
                       </div>
                       <div className="flex items-center gap-4 text-sm">
-                        <span className="text-gray-400">
+                        <span className="text-slate-400">
                           Found: <span className="text-white">{stat.found}</span>
                         </span>
                         {!result.dryRun && (
-                          <span className="text-gray-400">
+                          <span className="text-slate-400">
                             Deleted: <span className="text-green-400">{stat.deleted}</span>
                           </span>
                         )}
@@ -377,7 +377,7 @@ export default function ClearDataPage() {
                 {result.results.some(r => r.errors.length > 0) && (
                   <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
                     <h4 className="font-medium text-red-400 mb-2">Errors</h4>
-                    <ul className="text-sm text-gray-400 space-y-1 max-h-32 overflow-y-auto">
+                    <ul className="text-sm text-slate-400 space-y-1 max-h-32 overflow-y-auto">
                       {result.results.flatMap(r => r.errors).map((err, i) => (
                         <li key={i}>{err}</li>
                       ))}
@@ -416,8 +416,8 @@ export default function ClearDataPage() {
         </div>
 
         {/* Store Info */}
-        <div className="mt-6 text-center text-sm text-gray-500">
-          Connected to: <span className="text-gray-400">{credentials?.storeHash}</span>
+        <div className="mt-6 text-center text-sm text-slate-500">
+          Connected to: <span className="text-slate-400">{credentials?.storeHash}</span>
         </div>
 
         {/* Confirmation Dialog */}
@@ -430,14 +430,14 @@ export default function ClearDataPage() {
                     <AlertTriangle className="w-8 h-8 text-red-400" />
                   </div>
                   <h3 className="text-xl font-bold text-white mb-2">Confirm Deletion</h3>
-                  <p className="text-gray-400">
+                  <p className="text-slate-400">
                     You are about to permanently delete {selectedEntities.size} data type(s).
                     This action cannot be undone.
                   </p>
                 </div>
 
-                <div className="p-4 bg-gray-800/50 rounded-lg mb-6">
-                  <div className="text-sm text-gray-400 mb-2">Data types to delete:</div>
+                <div className="p-4 bg-slate-800/50 rounded-lg mb-6">
+                  <div className="text-sm text-slate-400 mb-2">Data types to delete:</div>
                   <div className="flex flex-wrap gap-2">
                     {Array.from(selectedEntities).map(key => (
                       <span

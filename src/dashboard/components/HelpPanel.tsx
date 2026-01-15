@@ -5,8 +5,9 @@ import { Card, CardHeader, CardTitle, CardContent } from './ui/Card';
 import { Button } from './ui/Button';
 import {
   HelpCircle, ChevronDown, ChevronUp, Key, ExternalLink, Shield,
-  Package, FolderTree, Users, ShoppingCart, Database, Settings, CheckCircle
+  Package, FolderTree, Users, ShoppingCart, Database, Settings, CheckCircle, BookOpen
 } from 'lucide-react';
+import Link from 'next/link';
 
 interface HelpSectionProps {
   title: string;
@@ -23,19 +24,24 @@ function HelpSection({ title, icon: Icon, children, defaultOpen = false }: HelpS
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center justify-between p-4 hover:bg-slate-800/50 transition-colors"
+        aria-expanded={isOpen}
+        aria-controls={`help-section-${title.toLowerCase().replace(/\s+/g, '-')}`}
       >
         <div className="flex items-center gap-3">
-          <Icon className="w-5 h-5 text-blue-400" />
+          <Icon className="w-5 h-5 text-blue-400" aria-hidden="true" />
           <span className="font-medium text-slate-200">{title}</span>
         </div>
         {isOpen ? (
-          <ChevronUp className="w-4 h-4 text-slate-400" />
+          <ChevronUp className="w-4 h-4 text-slate-400" aria-hidden="true" />
         ) : (
-          <ChevronDown className="w-4 h-4 text-slate-400" />
+          <ChevronDown className="w-4 h-4 text-slate-400" aria-hidden="true" />
         )}
       </button>
       {isOpen && (
-        <div className="px-4 pb-4 pt-0 border-t border-slate-700/50">
+        <div
+          id={`help-section-${title.toLowerCase().replace(/\s+/g, '-')}`}
+          className="px-4 pb-4 pt-0 border-t border-slate-700/50"
+        >
           {children}
         </div>
       )}
@@ -52,8 +58,9 @@ export function HelpPanel() {
         <Button
           onClick={() => setIsOpen(true)}
           className="rounded-full w-12 h-12 p-0 bg-blue-600 hover:bg-blue-700 shadow-lg"
+          aria-label="Open help panel"
         >
-          <HelpCircle className="w-6 h-6" />
+          <HelpCircle className="w-6 h-6" aria-hidden="true" />
         </Button>
       </div>
     );
@@ -64,10 +71,10 @@ export function HelpPanel() {
       <Card className="bg-slate-900 border-slate-700 shadow-2xl">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="flex items-center gap-2">
-            <HelpCircle className="w-5 h-5 text-blue-400" />
+            <HelpCircle className="w-5 h-5 text-blue-400" aria-hidden="true" />
             Help & Reference
           </CardTitle>
-          <Button variant="ghost" size="sm" onClick={() => setIsOpen(false)}>
+          <Button variant="ghost" size="sm" onClick={() => setIsOpen(false)} aria-label="Close help panel">
             ×
           </Button>
         </CardHeader>
@@ -225,6 +232,42 @@ export function HelpPanel() {
                 <p className="text-slate-400 text-xs mt-1">
                   Yes, historical orders can be imported for reference. However, active orders should be fulfilled before migration to avoid confusion.
                 </p>
+              </div>
+            </div>
+          </HelpSection>
+
+          {/* Documentation */}
+          <HelpSection title="Documentation" icon={BookOpen}>
+            <div className="space-y-3 mt-3 text-sm">
+              <p className="text-slate-400">
+                Browse comprehensive documentation for the migration tool:
+              </p>
+              <Link
+                href="/docs"
+                className="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-xs font-medium"
+              >
+                <BookOpen className="w-4 h-4" />
+                View Full Documentation
+              </Link>
+              <div className="space-y-2 mt-3">
+                <Link
+                  href="/docs/getting-started/for-merchants"
+                  className="block text-xs text-blue-400 hover:underline"
+                >
+                  Getting Started for Merchants
+                </Link>
+                <Link
+                  href="/docs/getting-started/for-developers"
+                  className="block text-xs text-blue-400 hover:underline"
+                >
+                  Developer Guide
+                </Link>
+                <Link
+                  href="/docs/guides/migration/getting-started"
+                  className="block text-xs text-blue-400 hover:underline"
+                >
+                  Migration Guide
+                </Link>
               </div>
             </div>
           </HelpSection>

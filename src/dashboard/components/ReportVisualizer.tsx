@@ -3,8 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   AlertTriangle,
-  CheckCircle,
-  BarChart3,
   ArrowRight,
   ShieldAlert,
   HelpCircle,
@@ -15,7 +13,7 @@ import {
 import { HelpModal } from './HelpModal';
 
 // Helper function to get color based on readiness level
-const getReadinessColor = (level: string) => {
+const getReadinessColor = (level: string): string => {
     switch (level) {
         case 'GREEN': return 'bg-green-500/20 text-green-400 border border-green-500/50';
         case 'YELLOW': return 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/50';
@@ -24,7 +22,7 @@ const getReadinessColor = (level: string) => {
     }
 };
 
-const getDensityColor = (level: string) => {
+const getDensityColor = (level: string): string => {
     switch(level) {
         case 'LOW': return 'text-green-400';
         case 'MEDIUM': return 'text-yellow-400';
@@ -32,6 +30,13 @@ const getDensityColor = (level: string) => {
         default: return 'text-slate-400';
     }
 };
+
+interface MetricCardProps {
+  icon: React.ReactNode;
+  label: string;
+  value: number;
+  subVal?: string;
+}
 
 interface ReportData {
   storeUrl: string;
@@ -74,7 +79,10 @@ export function ReportVisualizer() {
     fetch('/report.json')
       .then(res => res.json())
       .then(setData)
-      .catch(console.error)
+      .catch(() => {
+        // Error is displayed via the null data state
+        setData(null);
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -183,7 +191,7 @@ export function ReportVisualizer() {
   );
 }
 
-function MetricCard({ icon, label, value, subVal }: any) {
+function MetricCard({ icon, label, value, subVal }: MetricCardProps) {
     return (
         <div className="bg-slate-900/50 border border-slate-800 p-6 rounded-xl hover:bg-slate-900 transition-colors">
             <div className="flex justify-between items-start mb-2">
