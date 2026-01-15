@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integration Architecture | BC Migration</title>
+    <style>
+        :root {
+            --bc-primary: #34313f;
+            --bc-accent: #5c6ac4;
+            --bc-success: #28a745;
+            --bc-warning: #ffc107;
+            --bc-danger: #dc3545;
+            --bc-light: #f8f9fa;
+            --bc-border: #e0e0e0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bc-light);
+            color: var(--bc-primary);
+            line-height: 1.6;
+            padding-bottom: 70px;
+        }
+
+        /* Sticky Navigation */
+        .sticky-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bc-primary); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); z-index: 1000; }
+        .sticky-nav a { color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 0.85rem; transition: background 0.2s; }
+        .sticky-nav a:hover { background: rgba(255,255,255,0.15); }
+        .sticky-nav .nav-center { font-size: 0.75rem; color: rgba(255,255,255,0.7); }
+        .sticky-nav .nav-center select { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 6px 10px; border-radius: 4px; font-size: 0.8rem; margin-left: 8px; }
+        .sticky-nav .nav-center select option { background: var(--bc-primary); }
+        @media (max-width: 768px) { .sticky-nav .nav-center { display: none; } }
+
+        .header {
+            background: linear-gradient(135deg, var(--bc-primary) 0%, #4a4458 100%);
+            color: white;
+            padding: 40px;
+        }
+
+        .header-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 30px;
+            color: var(--bc-accent);
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .source-box {
+            background: #e8f5e9;
+            border-left: 4px solid var(--bc-success);
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .source-box h3 {
+            font-size: 0.9rem;
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+
+        .source-box ul {
+            list-style: none;
+            font-size: 0.9rem;
+        }
+
+        .source-box li {
+            padding: 3px 0;
+        }
+
+        .source-box code {
+            background: rgba(0,0,0,0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.85rem;
+        }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .section h2 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--bc-border);
+        }
+
+        .section h3 {
+            font-size: 1.1rem;
+            margin: 25px 0 15px 0;
+            color: var(--bc-primary);
+        }
+
+        .section p {
+            margin-bottom: 15px;
+            color: #444;
+        }
+
+        .section ul, .section ol {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+
+        .section li {
+            margin-bottom: 8px;
+        }
+
+        .arch-diagram {
+            background: var(--bc-primary);
+            color: #f8f8f2;
+            padding: 25px;
+            border-radius: 8px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        .code-block {
+            background: var(--bc-primary);
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--bc-border);
+        }
+
+        th {
+            background: var(--bc-light);
+            font-weight: 600;
+        }
+
+        .component-card {
+            background: var(--bc-light);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .component-card h4 {
+            color: var(--bc-primary);
+            margin-bottom: 10px;
+        }
+
+        .component-card code {
+            background: rgba(0,0,0,0.08);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.85rem;
+        }
+
+        .key-insight {
+            background: #fff3e0;
+            border-left: 4px solid var(--bc-warning);
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .key-insight h4 {
+            font-size: 0.9rem;
+            color: #ef6c00;
+            margin-bottom: 8px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .feature-item {
+            background: var(--bc-light);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .feature-item h5 {
+            margin-bottom: 8px;
+            color: var(--bc-primary);
+        }
+
+        .feature-item p {
+            font-size: 0.9rem;
+            color: #666;
+            margin: 0;
+        }
+
+        .flow-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--bc-border);
+        }
+
+        .flow-step:last-child {
+            border-bottom: none;
+        }
+
+        .step-number {
+            background: var(--bc-accent);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .step-content h5 {
+            margin-bottom: 5px;
+        }
+
+        .step-content p {
+            font-size: 0.9rem;
+            color: #666;
+            margin: 0;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 25px 20px;
+            }
+            .header h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>Integration Architecture</h1>
+            <p class="subtitle">BC Bridge WordPress Plugin - Technical Architecture</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <a href="index.html" class="back-link">&larr; Back to Documentation Hub</a>
+
+        <!-- Data Sources -->
+        <div class="source-box">
+            <h3>Implementation Source</h3>
+            <ul>
+                <li>This document describes the BC Bridge plugin implementation</li>
+                <li>Source: <code>src/bc-bridge-plugin/</code></li>
+                <li>Main plugin file: <code>bc-bridge.php</code></li>
+            </ul>
+        </div>
+
+        <!-- Overview -->
+        <section class="section">
+            <h2>Architecture Overview</h2>
+            <p>BC Bridge is a WordPress plugin that connects a WordPress frontend to BigCommerce's commerce backend via direct API calls. Unlike sync-based solutions, it uses real-time API calls with intelligent caching.</p>
+
+            <div class="arch-diagram">
+<pre>
+┌─────────────────────────────────────────────────────────────────────┐
+│                         WORDPRESS SITE                               │
+│                                                                       │
+│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐  │
+│  │   Theme Layer   │    │  BC Bridge      │    │   Cache Layer   │  │
+│  │                 │◄───│  Plugin         │───►│   (Transients)  │  │
+│  │  - Templates    │    │                 │    │                 │  │
+│  │  - Shortcodes   │    │  - API Client   │    │  - Products     │  │
+│  │  - Routes       │    │  - Cart Manager │    │  - Categories   │  │
+│  └─────────────────┘    │  - Templates    │    │  - Cart         │  │
+│                         └────────┬────────┘    └─────────────────┘  │
+└────────────────────────────────────┼─────────────────────────────────┘
+                                     │
+                                     │ HTTPS/REST API
+                                     │
+┌────────────────────────────────────▼─────────────────────────────────┐
+│                        BIGCOMMERCE                                    │
+│                                                                       │
+│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐  │
+│  │    Products     │    │     Cart        │    │    Checkout     │  │
+│  │    Catalog      │    │   Management    │    │   (Embedded)    │  │
+│  └─────────────────┘    └─────────────────┘    └─────────────────┘  │
+│                                                                       │
+│  Source of Truth: Prices, Inventory, Orders, Customers               │
+└───────────────────────────────────────────────────────────────────────┘
+</pre>
+            </div>
+
+            <div class="key-insight">
+                <h4>Key Architectural Decision</h4>
+                <p>BC Bridge does NOT sync products to WordPress. Products live in BigCommerce and are fetched on-demand via API. This eliminates database bloat and ensures prices/inventory are always current.</p>
+            </div>
+        </section>
+
+        <!-- Plugin Components -->
+        <section class="section">
+            <h2>Plugin Components</h2>
+
+            <div class="component-card">
+                <h4>BC_Bridge (Main Class)</h4>
+                <p>Singleton pattern plugin bootstrap. Handles initialization, dependency loading, and hook registration.</p>
+                <p><strong>File:</strong> <code>bc-bridge.php</code></p>
+            </div>
+
+            <div class="component-card">
+                <h4>BC_Bridge_API_Client</h4>
+                <p>Handles all communication with BigCommerce API. Includes authentication, request handling, and error management.</p>
+                <p><strong>File:</strong> <code>includes/class-bc-bridge-api-client.php</code></p>
+                <p><strong>Methods:</strong> <code>get_products()</code>, <code>get_product($id)</code>, <code>get_categories()</code></p>
+            </div>
+
+            <div class="component-card">
+                <h4>BC_Bridge_Cart</h4>
+                <p>Manages shopping cart via BigCommerce Cart API. Handles add/update/remove items and checkout URL generation.</p>
+                <p><strong>File:</strong> <code>includes/class-bc-bridge-cart.php</code></p>
+                <p><strong>Methods:</strong> <code>get_cart()</code>, <code>add_item()</code>, <code>update_item()</code>, <code>get_checkout_url()</code></p>
+            </div>
+
+            <div class="component-card">
+                <h4>BC_Bridge_Cache</h4>
+                <p>Intelligent caching using WordPress transients. Reduces API calls while maintaining data freshness.</p>
+                <p><strong>File:</strong> <code>includes/class-bc-bridge-cache.php</code></p>
+                <p><strong>Cache Groups:</strong> products, categories, cart</p>
+            </div>
+
+            <div class="component-card">
+                <h4>BC_Bridge_Routes</h4>
+                <p>Registers custom URL routes for shop pages. Handles rewrite rules for products, categories, cart, checkout.</p>
+                <p><strong>File:</strong> <code>includes/class-bc-bridge-routes.php</code></p>
+            </div>
+
+            <div class="component-card">
+                <h4>BC_Bridge_Templates</h4>
+                <p>Template loading system with theme override support. Allows themes to customize display.</p>
+                <p><strong>File:</strong> <code>includes/class-bc-bridge-templates.php</code></p>
+            </div>
+        </section>
+
+        <!-- URL Routing -->
+        <section class="section">
+            <h2>URL Routing</h2>
+            <p>BC Bridge registers custom routes that WordPress handles, fetching data from BigCommerce API:</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Route</th>
+                        <th>Template</th>
+                        <th>Data Source</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>/shop/</code></td>
+                        <td>shop.php</td>
+                        <td>BC API: <code>/catalog/products</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>/product/{slug}/</code></td>
+                        <td>product.php</td>
+                        <td>BC API: <code>/catalog/products/{id}</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>/product-category/{slug}/</code></td>
+                        <td>category.php</td>
+                        <td>BC API: <code>/catalog/categories/{id}</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>/cart/</code></td>
+                        <td>cart.php</td>
+                        <td>BC API: <code>/carts/{id}</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>/checkout/</code></td>
+                        <td>checkout.php</td>
+                        <td>BC Embedded Checkout</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Data Flow -->
+        <section class="section">
+            <h2>Request Flow: Product Page</h2>
+
+            <div class="flow-step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h5>User visits /product/blue-widget/</h5>
+                    <p>WordPress matches route via BC_Bridge_Routes rewrite rules</p>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h5>Check cache for product data</h5>
+                    <p>BC_Bridge_Cache checks transient for cached product</p>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h5>If cache miss: API call to BigCommerce</h5>
+                    <p>BC_Bridge_API_Client fetches product from /v3/catalog/products/{id}</p>
+                </div>
+            </div>
+
+            <div class="flow-step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h5>Store in cache and render</h5>
+                    <p>Product data cached, template loaded from theme or plugin</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cart Flow -->
+        <section class="section">
+            <h2>Cart & Checkout Flow</h2>
+
+            <div class="arch-diagram">
+<pre>
+User Action                    BC Bridge                      BigCommerce
+─────────────                  ─────────                      ───────────
+
+Click "Add to Cart"
+        │
+        ▼
+        ├──────────► Cart ID stored in cookie?
+        │                    │
+        │            No ◄────┴────► Yes
+        │             │              │
+        │             ▼              │
+        │     POST /v3/carts         │
+        │     (create new cart)      │
+        │             │              │
+        │             ▼              ▼
+        │     POST /v3/carts/{id}/items
+        │             │
+        │             ▼
+        │     Return updated cart
+        │             │
+        ▼             ▼
+    Update cart UI (AJAX)
+
+
+Click "Checkout"
+        │
+        ▼
+        ├──────────► POST /v3/carts/{id}/redirect_urls
+        │                    │
+        │                    ▼
+        │           Return checkout_url
+        │                    │
+        ▼                    ▼
+    Redirect or Embed checkout
+</pre>
+            </div>
+
+            <div class="key-insight">
+                <h4>Cart Persistence</h4>
+                <p>Cart ID is stored in a browser cookie. The cart itself lives in BigCommerce. This means carts work across devices if the user logs in, and abandoned carts are handled by BigCommerce's recovery tools.</p>
+            </div>
+        </section>
+
+        <!-- Caching Strategy -->
+        <section class="section">
+            <h2>Caching Strategy</h2>
+            <p>BC Bridge uses WordPress transients for caching to reduce API calls:</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Data Type</th>
+                        <th>Cache Duration</th>
+                        <th>Invalidation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Product listings</td>
+                        <td>15 minutes</td>
+                        <td>Admin clear, time expiry</td>
+                    </tr>
+                    <tr>
+                        <td>Single product</td>
+                        <td>15 minutes</td>
+                        <td>Admin clear, time expiry</td>
+                    </tr>
+                    <tr>
+                        <td>Categories</td>
+                        <td>1 hour</td>
+                        <td>Admin clear, time expiry</td>
+                    </tr>
+                    <tr>
+                        <td>Cart</td>
+                        <td>No cache</td>
+                        <td>Always fresh from API</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="code-block">
+<pre>// Clear all caches
+BC_Bridge_Cache::clear_all();
+
+// Clear specific group
+BC_Bridge_Cache::clear_group('products');
+BC_Bridge_Cache::clear_group('categories');</pre>
+            </div>
+        </section>
+
+        <!-- Template System -->
+        <section class="section">
+            <h2>Template Override System</h2>
+            <p>Themes can override BC Bridge templates by placing files in a <code>bc-bridge/</code> folder:</p>
+
+            <div class="code-block">
+<pre>your-theme/
+└── bc-bridge/
+    ├── shop.php           # Shop page
+    ├── product.php        # Single product
+    ├── category.php       # Category archive
+    ├── cart.php           # Cart page
+    ├── checkout.php       # Checkout page
+    └── partials/
+        └── product-card.php  # Product card component</pre>
+            </div>
+
+            <h3>Template Loading Priority</h3>
+            <ol>
+                <li>Theme: <code>{theme}/bc-bridge/{template}.php</code></li>
+                <li>Plugin: <code>bc-bridge/templates/{template}.php</code></li>
+            </ol>
+        </section>
+
+        <!-- Shortcodes -->
+        <section class="section">
+            <h2>Shortcode Reference</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Shortcode</th>
+                        <th>Attributes</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>[bc_products]</code></td>
+                        <td>limit, columns, category, orderby, order</td>
+                        <td>Display product grid</td>
+                    </tr>
+                    <tr>
+                        <td><code>[bc_product]</code></td>
+                        <td>id, slug</td>
+                        <td>Display single product</td>
+                    </tr>
+                    <tr>
+                        <td><code>[bc_cart]</code></td>
+                        <td>-</td>
+                        <td>Display shopping cart</td>
+                    </tr>
+                    <tr>
+                        <td><code>[bc_checkout]</code></td>
+                        <td>-</td>
+                        <td>Display checkout (embedded or redirect)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="code-block">
+<pre>// Product grid (12 products, 4 columns)
+[bc_products limit="12" columns="4"]
+
+// Products from specific category
+[bc_products category="clothing" limit="8"]
+
+// Single product by ID
+[bc_product id="123"]
+
+// Single product by slug
+[bc_product slug="awesome-product"]</pre>
+            </div>
+        </section>
+
+        <!-- Requirements -->
+        <section class="section">
+            <h2>Requirements</h2>
+
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <h5>WordPress</h5>
+                    <p>6.2 or higher</p>
+                </div>
+                <div class="feature-item">
+                    <h5>PHP</h5>
+                    <p>8.1 or higher</p>
+                </div>
+                <div class="feature-item">
+                    <h5>SSL</h5>
+                    <p>Required for checkout</p>
+                </div>
+                <div class="feature-item">
+                    <h5>BigCommerce API Scopes</h5>
+                    <p>Products (Read), Carts (Modify), Checkouts (Modify), Store Info (Read)</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Key Features -->
+        <section class="section">
+            <h2>Key Features</h2>
+
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <h5>Real-Time Data</h5>
+                    <p>Direct API calls ensure prices and inventory are always current</p>
+                </div>
+                <div class="feature-item">
+                    <h5>No Product Limits</h5>
+                    <p>Handles catalogs of any size (no sync bottleneck)</p>
+                </div>
+                <div class="feature-item">
+                    <h5>Theme-Agnostic</h5>
+                    <p>Works with any WordPress theme via shortcodes or routes</p>
+                </div>
+                <div class="feature-item">
+                    <h5>No Database Bloat</h5>
+                    <p>Minimal local storage - data lives in BigCommerce</p>
+                </div>
+                <div class="feature-item">
+                    <h5>Embedded Checkout</h5>
+                    <p>Keep customers on your site with BigCommerce's secure checkout</p>
+                </div>
+                <div class="feature-item">
+                    <h5>Intelligent Caching</h5>
+                    <p>Smart caching reduces API calls while maintaining freshness</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sources & Citations -->
+        <section class="section">
+            <h2>Sources & Citations</h2>
+            <div style="background: var(--bc-light); border-radius: 8px; padding: 20px; font-size: 0.9rem;">
+                <p><strong>This document synthesizes content from:</strong></p>
+                <ul style="margin-top: 10px;">
+                    <li><strong>BC Bridge Plugin Architecture:</strong> bc-migration implementation (src/bc-bridge-plugin/)</li>
+                    <li><strong>BigCommerce API Specifications:</strong> <a href="https://developer.bigcommerce.com" target="_blank">developer.bigcommerce.com</a> (official docs)</li>
+                    <li><strong>Integration Patterns:</strong> Granite Comparative Analysis, Slides 25-32, 183-190</li>
+                    <li><strong>WordPress Plugin Standards:</strong> WordPress Codex plugin development guidelines</li>
+                    <li><strong>Data Flow Architecture:</strong> bc-migration technical specification (our design)</li>
+                    <li><strong>Caching Strategy:</strong> bc-migration implementation; not Granite-sourced</li>
+                </ul>
+                <p style="margin-top: 15px; color: #666;"><em>This architecture implements the decisions documented in ADR-001 (Keep WordPress) and ADR-002 (Full Headless). See WordPress Catalyst Components for detailed plugin specifications.</em></p>
+            </div>
+        </section>
+
+    </div>
+
+    <footer class="footer">
+        <p><strong>BC Migration Documentation</strong></p>
+        <p>Integration Architecture</p>
+    </footer>
+
+    <!-- Sticky Navigation -->
+    <nav class="sticky-nav">
+        <a href="MIGRATION_RUNBOOK.html">← Migration Runbook</a>
+        <div class="nav-center">
+            <span>9 of 17</span>
+            <select onchange="if(this.value) window.location.href=this.value">
+                <option value="">Jump to...</option>
+                <option value="IMPLEMENTATION_BRIEF.html">★ Implementation Brief</option>
+                <option value="GRANITE_COMPARATIVE_ANALYSIS.html">1. Granite Analysis</option>
+                <option value="WPE_ARTEMIS_MIGRATION_ANALYSIS.html">2. WPE Artemis</option>
+                <option value="PLATFORM_DECISION_RATIONALE.html">3. Platform Decision</option>
+                <option value="MIGRATION_BUSINESS_CASE.html">4. Business Case</option>
+                <option value="COMPETITIVE_LANDSCAPE.html">5. Competitive Landscape</option>
+                <option value="PLUGIN_COMPATIBILITY_MATRIX.html">6. Plugin Matrix</option>
+                <option value="SEO_PRESERVATION_GUIDE.html">7. SEO Guide</option>
+                <option value="MIGRATION_RUNBOOK.html">8. Migration Runbook</option>
+                <option value="INTEGRATION_ARCHITECTURE.html" selected>9. Integration Architecture</option>
+                <option value="WORDPRESS_CATALYST_COMPONENTS.html">10. WP Catalyst Components</option>
+                <option value="ADR-001-keep-wordpress.html">11. ADR-001</option>
+                <option value="ADR-002-headless-vs-checkout-only.html">12. ADR-002</option>
+                <option value="ADR-003-order-history-strategy.html">13. ADR-003</option>
+                <option value="MIGRATION_QA_TRACKER.html">14. Q&A Tracker</option>
+                <option value="B2B_MIGRATION_GUIDE.html">15. B2B Guide</option>
+                <option value="STORE_SIZE_PLAYBOOK.html">16. Store Size Playbook</option>
+                <option value="MIGRATION_PERSONAS.html">17. Migration Personas</option>
+            </select>
+        </div>
+        <a href="WORDPRESS_CATALYST_COMPONENTS.html">WP Catalyst Components →</a>
+    </nav>
+</body>
+</html>

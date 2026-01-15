@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store Size Migration Playbook | BC Migration</title>
+    <style>
+        :root {
+            --bc-primary: #34313f;
+            --bc-accent: #5c6ac4;
+            --bc-success: #28a745;
+            --bc-warning: #ffc107;
+            --bc-danger: #dc3545;
+            --bc-info: #17a2b8;
+            --bc-light: #f8f9fa;
+            --bc-border: #e0e0e0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bc-light);
+            color: var(--bc-primary);
+            line-height: 1.7;
+            padding-bottom: 70px;
+        }
+
+        /* Sticky Navigation */
+        .sticky-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bc-primary); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); z-index: 1000; }
+        .sticky-nav a { color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 0.85rem; transition: background 0.2s; }
+        .sticky-nav a:hover { background: rgba(255,255,255,0.15); }
+        .sticky-nav .nav-center { font-size: 0.75rem; color: rgba(255,255,255,0.7); }
+        .sticky-nav .nav-center select { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 6px 10px; border-radius: 4px; font-size: 0.8rem; margin-left: 8px; }
+        .sticky-nav .nav-center select option { background: var(--bc-primary); }
+        @media (max-width: 768px) { .sticky-nav .nav-center { display: none; } }
+
+        .header {
+            background: linear-gradient(135deg, var(--bc-primary) 0%, #4a4458 100%);
+            color: white;
+            padding: 50px 40px;
+        }
+
+        .header-content {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .back-link {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .back-link:hover { color: white; }
+
+        .doc-type {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+        }
+
+        .header-subtitle {
+            font-size: 1.1rem;
+            color: white;
+            max-width: 700px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .content {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            color: var(--bc-primary);
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid var(--bc-accent);
+        }
+
+        h2:first-child { margin-top: 0; }
+
+        h3 {
+            font-size: 1.15rem;
+            color: var(--bc-primary);
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        h4 {
+            font-size: 1rem;
+            color: var(--bc-primary);
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: #444;
+        }
+
+        ul, ol {
+            margin-bottom: 15px;
+            padding-left: 25px;
+        }
+
+        li {
+            margin-bottom: 8px;
+            color: #444;
+        }
+
+        strong { color: var(--bc-primary); }
+
+        /* Tier Cards */
+        .tier-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        @media (max-width: 900px) {
+            .tier-grid { grid-template-columns: 1fr; }
+        }
+
+        .tier-card {
+            border-radius: 12px;
+            padding: 25px;
+            border: 2px solid var(--bc-border);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .tier-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .tier-card.small {
+            background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
+            border-color: var(--bc-success);
+        }
+        .tier-card.medium {
+            background: linear-gradient(135deg, #fff3e0 0%, #fffde7 100%);
+            border-color: var(--bc-warning);
+        }
+        .tier-card.large {
+            background: linear-gradient(135deg, #fce4ec 0%, #f3e5f5 100%);
+            border-color: var(--bc-danger);
+        }
+
+        .tier-card .tier-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        .tier-card.small .tier-badge { background: var(--bc-success); color: white; }
+        .tier-card.medium .tier-badge { background: var(--bc-warning); color: var(--bc-primary); }
+        .tier-card.large .tier-badge { background: var(--bc-danger); color: white; }
+
+        .tier-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.3rem;
+        }
+
+        .tier-card .tier-range {
+            font-size: 0.95rem;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .tier-card .tier-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .tier-stat {
+            text-align: center;
+        }
+
+        .tier-stat .stat-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--bc-primary);
+        }
+
+        .tier-stat .stat-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #666;
+        }
+
+        /* Comparison Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--bc-border);
+        }
+
+        th {
+            background: var(--bc-primary);
+            color: white;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tr:hover { background: #f8f9fa; }
+
+        .timeline-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .timeline-badge.fast { background: #e8f5e9; color: #2e7d32; }
+        .timeline-badge.medium { background: #fff3e0; color: #ef6c00; }
+        .timeline-badge.extended { background: #fce4ec; color: #c62828; }
+
+        /* Complexity Matrix */
+        .complexity-matrix {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 800px) {
+            .complexity-matrix { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .complexity-item {
+            background: var(--bc-light);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .complexity-item .factor {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .complexity-item .score {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .complexity-item .score.low { color: var(--bc-success); }
+        .complexity-item .score.medium { color: var(--bc-warning); }
+        .complexity-item .score.high { color: var(--bc-danger); }
+
+        /* Callout Boxes */
+        .callout {
+            padding: 20px 25px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .callout.info {
+            background: #e3f2fd;
+            border-left: 4px solid var(--bc-info);
+        }
+
+        .callout.warning {
+            background: #fff3e0;
+            border-left: 4px solid var(--bc-warning);
+        }
+
+        .callout.success {
+            background: #e8f5e9;
+            border-left: 4px solid var(--bc-success);
+        }
+
+        .callout.danger {
+            background: #fce4ec;
+            border-left: 4px solid var(--bc-danger);
+        }
+
+        .callout h4 {
+            margin: 0 0 10px 0;
+            font-size: 1rem;
+        }
+
+        .callout p {
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        /* Timeline */
+        .migration-timeline {
+            position: relative;
+            padding-left: 40px;
+            margin: 30px 0;
+        }
+
+        .migration-timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--bc-border);
+        }
+
+        .timeline-phase {
+            position: relative;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px dashed var(--bc-border);
+        }
+
+        .timeline-phase:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .timeline-phase::before {
+            content: '';
+            position: absolute;
+            left: -32px;
+            top: 5px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--bc-accent);
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px var(--bc-accent);
+        }
+
+        .timeline-phase h4 {
+            margin: 0 0 8px 0;
+            color: var(--bc-primary);
+        }
+
+        .timeline-phase .duration {
+            font-size: 0.85rem;
+            color: var(--bc-accent);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        /* Tooling Grid */
+        .tooling-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 700px) {
+            .tooling-grid { grid-template-columns: 1fr; }
+        }
+
+        .tool-card {
+            background: var(--bc-light);
+            border-radius: 8px;
+            padding: 20px;
+            border-left: 4px solid var(--bc-accent);
+        }
+
+        .tool-card h4 {
+            margin: 0 0 10px 0;
+            font-size: 1rem;
+        }
+
+        .tool-card ul {
+            margin: 0;
+            padding-left: 18px;
+            font-size: 0.9rem;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        .source-ref {
+            font-size: 0.8rem;
+            color: #888;
+            font-style: italic;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="index.html" class="back-link">&larr; Back to Documentation</a>
+            <div class="doc-type">Migration Playbook</div>
+            <h1>Store Size Migration Playbook</h1>
+            <p class="header-subtitle">Tailored migration approaches, timelines, and tooling based on store complexity and catalog size</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="content">
+            <h2>Store Size Tiers</h2>
+            <p>Migration complexity and approach varies significantly based on catalog size, order volume, and integration complexity. This playbook segments strategies by store tier to ensure appropriate tooling and timeline expectations.</p>
+
+            <div class="tier-grid">
+                <div class="tier-card small">
+                    <span class="tier-badge">Tier 1</span>
+                    <h3>Small Stores</h3>
+                    <div class="tier-range">≤800 Products</div>
+                    <p>Straightforward migrations suitable for self-service or light-touch assisted approach.</p>
+                    <div class="tier-stats">
+                        <div class="tier-stat">
+                            <div class="stat-value">2-4</div>
+                            <div class="stat-label">Weeks</div>
+                        </div>
+                        <div class="tier-stat">
+                            <div class="stat-value">Low</div>
+                            <div class="stat-label">Risk</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tier-card medium">
+                    <span class="tier-badge">Tier 2</span>
+                    <h3>Medium Stores</h3>
+                    <div class="tier-range">800 - 25,000 Products</div>
+                    <p>Moderate complexity requiring structured migration with professional services guidance.</p>
+                    <div class="tier-stats">
+                        <div class="tier-stat">
+                            <div class="stat-value">4-8</div>
+                            <div class="stat-label">Weeks</div>
+                        </div>
+                        <div class="tier-stat">
+                            <div class="stat-value">Medium</div>
+                            <div class="stat-label">Risk</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tier-card large">
+                    <span class="tier-badge">Tier 3</span>
+                    <h3>Large Stores</h3>
+                    <div class="tier-range">25,000+ Products</div>
+                    <p>High complexity migrations requiring dedicated project management and phased execution.</p>
+                    <div class="tier-stats">
+                        <div class="tier-stat">
+                            <div class="stat-value">8-16</div>
+                            <div class="stat-label">Weeks</div>
+                        </div>
+                        <div class="tier-stat">
+                            <div class="stat-value">High</div>
+                            <div class="stat-label">Risk</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <p class="source-ref">Source: Granite Analysis, Slides 10-11, 80-83</p>
+
+            <h2>Tier Comparison Matrix</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Dimension</th>
+                        <th>Small (≤800)</th>
+                        <th>Medium (800-25K)</th>
+                        <th>Large (25K+)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Typical Timeline</strong></td>
+                        <td><span class="timeline-badge fast">2-4 Weeks</span></td>
+                        <td><span class="timeline-badge medium">4-8 Weeks</span></td>
+                        <td><span class="timeline-badge extended">8-16 Weeks</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Migration Approach</strong></td>
+                        <td>Self-service / Light touch</td>
+                        <td>Guided / Assisted</td>
+                        <td>Full-service / Managed</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Primary Tool</strong></td>
+                        <td>BC Migration CLI</td>
+                        <td>BC Migration CLI + Scripts</td>
+                        <td>BC Migration CLI + Custom ETL</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Data Validation</strong></td>
+                        <td>Spot checks (10-20%)</td>
+                        <td>Systematic sampling (25%)</td>
+                        <td>Full automated validation</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Cutover Strategy</strong></td>
+                        <td>Big bang (single weekend)</td>
+                        <td>Phased (category-by-category)</td>
+                        <td>Parallel run + incremental</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Rollback Plan</strong></td>
+                        <td>WooCommerce restore backup</td>
+                        <td>Staged rollback by category</td>
+                        <td>Full parallel environment</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Testing Duration</strong></td>
+                        <td>2-3 days</td>
+                        <td>1-2 weeks</td>
+                        <td>2-4 weeks</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Support Level</strong></td>
+                        <td>Documentation + Community</td>
+                        <td>Dedicated TAM</td>
+                        <td>Dedicated PM + Solutions Architect</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>Small Store Playbook (≤800 Products)</h2>
+
+            <div class="callout success">
+                <h4>Ideal Candidates</h4>
+                <p>Boutique retailers, niche specialists, service businesses with limited product lines, startups scaling up from simple platforms.</p>
+            </div>
+
+            <h3>Migration Timeline</h3>
+            <div class="migration-timeline">
+                <div class="timeline-phase">
+                    <h4>Week 1: Setup & Export</h4>
+                    <div class="duration">Days 1-5</div>
+                    <ul>
+                        <li>Provision BigCommerce store and configure basic settings</li>
+                        <li>Export WooCommerce products, categories, customers via built-in tools</li>
+                        <li>Install and configure BC Bridge plugin on WordPress</li>
+                        <li>Set up payment gateway (Stripe/PayPal) in BigCommerce</li>
+                    </ul>
+                </div>
+                <div class="timeline-phase">
+                    <h4>Week 2: Import & Configure</h4>
+                    <div class="duration">Days 6-10</div>
+                    <ul>
+                        <li>Run <code>npm run migrate</code> to import products to BigCommerce</li>
+                        <li>Configure shipping zones and rates</li>
+                        <li>Set up tax rules</li>
+                        <li>Configure product sync between BC and WordPress</li>
+                    </ul>
+                </div>
+                <div class="timeline-phase">
+                    <h4>Week 3: Test & Validate</h4>
+                    <div class="duration">Days 11-15</div>
+                    <ul>
+                        <li>Spot check 10-20% of products for data accuracy</li>
+                        <li>Test complete purchase flow (add to cart → checkout → order)</li>
+                        <li>Verify payment processing in test mode</li>
+                        <li>Test customer account creation and login</li>
+                    </ul>
+                </div>
+                <div class="timeline-phase">
+                    <h4>Week 4: Launch</h4>
+                    <div class="duration">Days 16-20</div>
+                    <ul>
+                        <li>Final data sync from WooCommerce</li>
+                        <li>Switch payment gateways to live mode</li>
+                        <li>Update DNS/redirects if needed</li>
+                        <li>Monitor first orders and address issues</li>
+                        <li>Disable WooCommerce checkout functionality</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Tooling for Small Stores</h3>
+            <div class="tooling-grid">
+                <div class="tool-card" style="border-left-color: var(--bc-success);">
+                    <h4>BC Migration CLI <span style="background: var(--bc-success); color: white; font-size: 0.65rem; padding: 2px 6px; border-radius: 3px; margin-left: 8px;">Recommended</span></h4>
+                    <ul>
+                        <li>Our purpose-built WooCommerce → BigCommerce tool</li>
+                        <li>Assessment, migration, and validation in one workflow</li>
+                        <li>Handles products, categories, customers, orders</li>
+                        <li>Delta sync for incremental updates</li>
+                        <li>See <a href="MIGRATION_RUNBOOK.html">Migration Runbook</a></li>
+                    </ul>
+                </div>
+                <div class="tool-card">
+                    <h4>Cart2Cart / LitExtension</h4>
+                    <ul>
+                        <li>Third-party migration services</li>
+                        <li>Pay-per-entity pricing model</li>
+                        <li>Alternative if CLI setup isn't feasible</li>
+                        <li>Less control over transformation logic</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>Medium Store Playbook (800-25K Products)</h2>
+
+            <div class="callout warning">
+                <h4>Key Considerations</h4>
+                <p>Medium stores often have accumulated complexity: multiple product types, variants, custom attributes, customer segments, and integrations. Plan for data cleanup as part of migration.</p>
+            </div>
+
+            <h3>Complexity Factors</h3>
+            <div class="complexity-matrix">
+                <div class="complexity-item">
+                    <div class="factor">Product Variants</div>
+                    <div class="score medium">Med</div>
+                </div>
+                <div class="complexity-item">
+                    <div class="factor">Custom Fields</div>
+                    <div class="score medium">Med</div>
+                </div>
+                <div class="complexity-item">
+                    <div class="factor">Customer Segments</div>
+                    <div class="score medium">Med</div>
+                </div>
+                <div class="complexity-item">
+                    <div class="factor">Integrations</div>
+                    <div class="score medium">Med</div>
+                </div>
+            </div>
+
+            <h3>Migration Timeline</h3>
+            <div class="migration-timeline">
+                <div class="timeline-phase">
+                    <h4>Weeks 1-2: Discovery & Planning</h4>
+                    <div class="duration">Days 1-10</div>
+                    <ul>
+                        <li>Full catalog audit and data quality assessment</li>
+                        <li>Document all WooCommerce customizations and plugins</li>
+                        <li>Map data fields to BigCommerce schema</li>
+                        <li>Identify data cleanup requirements</li>
+                        <li>Create detailed migration plan with milestones</li>
+                    </ul>
+                </div>
+                <div class="timeline-phase">
+                    <h4>Week 3: Environment Setup</h4>
+                    <div class="duration">Days 11-15</div>
+                    <ul>
+                        <li>Provision BigCommerce staging environment</li>
+                        <li>Configure BC Bridge plugin in dev mode</li>
+                        <li>Set up all payment gateways in test mode</li>
+                        <li>Configure shipping and tax rules</li>
+                    </ul>
+                </div>
+                <div class="timeline-phase">
+                    <h4>Weeks 4-5: Data Migration</h4>
+                    <div class="duration">Days 16-25</div>
+                    <ul>
+                        <li>Migrate products in batches by category</li>
+                        <li>Transform and load customer data</li>
+                        <li>Migrate historical orders (if required)</li>
+                        <li>Set up category and product redirects</li>
+                    </ul>
+                </div>
+                <div class="timeline-phase">
+                    <h4>Weeks 6-7: Integration & Testing</h4>
+                    <div class="duration">Days 26-35</div>
+                    <ul>
+                        <li>Connect third-party integrations (ERP, CRM, marketing)</li>
+                        <li>Systematic data validation (25% sample)</li>
+                        <li>Full regression testing of checkout flow</li>
+                        <li>Performance testing under load</li>
+                        <li>UAT with key stakeholders</li>
+                    </ul>
+                </div>
+                <div class="timeline-phase">
+                    <h4>Week 8: Launch & Stabilization</h4>
+                    <div class="duration">Days 36-40</div>
+                    <ul>
+                        <li>Final delta sync from WooCommerce</li>
+                        <li>Phased cutover (can be by category if needed)</li>
+                        <li>Hypercare monitoring for first 72 hours</li>
+                        <li>Address any post-launch issues</li>
+                        <li>Document lessons learned</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Tooling for Medium Stores</h3>
+            <div class="tooling-grid">
+                <div class="tool-card" style="border-left-color: var(--bc-success);">
+                    <h4>BC Migration CLI <span style="background: var(--bc-success); color: white; font-size: 0.65rem; padding: 2px 6px; border-radius: 3px; margin-left: 8px;">Recommended</span></h4>
+                    <ul>
+                        <li>Built-in assessment for complexity scoring</li>
+                        <li>Batch processing with rate limiting</li>
+                        <li>Delta sync for phased migrations</li>
+                        <li>Validation framework included</li>
+                        <li>See <a href="MIGRATION_RUNBOOK.html">Migration Runbook</a></li>
+                    </ul>
+                </div>
+                <div class="tool-card">
+                    <h4>BigCommerce API (Direct)</h4>
+                    <ul>
+                        <li>For custom transformation requirements</li>
+                        <li>20,000 requests/hour rate limit</li>
+                        <li>Extend CLI for edge cases</li>
+                        <li>Full control over data structure</li>
+                    </ul>
+                </div>
+                <div class="tool-card">
+                    <h4>Data Validation</h4>
+                    <ul>
+                        <li>CLI includes validation commands</li>
+                        <li>SKU/price/inventory reconciliation</li>
+                        <li>Image URL verification</li>
+                        <li>Category hierarchy validation</li>
+                    </ul>
+                </div>
+                <div class="tool-card">
+                    <h4>Redirect Management</h4>
+                    <ul>
+                        <li>Yoast SEO redirect manager</li>
+                        <li>Redirection plugin for bulk rules</li>
+                        <li>Server-level redirects for performance</li>
+                        <li>301 redirect audit tools</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>Large Store Playbook (25K+ Products)</h2>
+
+            <div class="callout danger">
+                <h4>Critical Success Factors</h4>
+                <p>Large store migrations require executive sponsorship, dedicated project management, parallel environment strategy, and comprehensive rollback planning. Do not attempt without experienced migration team.</p>
+            </div>
+
+            <h3>Complexity Factors</h3>
+            <div class="complexity-matrix">
+                <div class="complexity-item">
+                    <div class="factor">Data Volume</div>
+                    <div class="score high">High</div>
+                </div>
+                <div class="complexity-item">
+                    <div class="factor">Integration Depth</div>
+                    <div class="score high">High</div>
+                </div>
+                <div class="complexity-item">
+                    <div class="factor">Custom Logic</div>
+                    <div class="score high">High</div>
+                </div>
+                <div class="complexity-item">
+                    <div class="factor">Business Risk</div>
+                    <div class="score high">High</div>
+                </div>
+            </div>
+
+            <h3>Migration Timeline</h3>
+            <div class="migration-timeline">
+                <div class="timeline-phase">
+                    <h4>Weeks 1-3: Discovery & Architecture</h4>
+                    <div class="duration">Days 1-15</div>
+                    <ul>
+                        <li>Comprehensive technical discovery</li>
+                        <li>Full integration inventory and dependency mapping</li>
+                        <li>Data architecture review and transformation design</li>
+                        <li>Custom field and attribute mapping</li>
+                        <li>Performance baseline establishment</li>
+                        <li>Risk assessment and mitigation planning</li>
+                    </ul>
+                </div>
+                <div class="timeline-phase">
+                    <h4>Weeks 4-5: Environment & Infrastructure</h4>
+                    <div class="duration">Days 16-25</div>
+                    <ul>
+                        <li>Provision BigCommerce Enterprise environment</li>
+                        <li>Set up staging and production environments</li>
+                        <li>Configure enterprise integrations (ERP, OMS, WMS)</li>
+                        <li>Build ETL pipeline for data transformation</li>
+                        <li>Establish parallel run infrastructure</li>
+                    </ul>
+                </div>
+                <div class="timeline-phase">
+                    <h4>Weeks 6-9: Phased Data Migration</h4>
+                    <div class="duration">Days 26-45</div>
+                    <ul>
+                        <li>Phase 1: Core catalog structure and categories</li>
+                        <li>Phase 2: Products with variants and attributes</li>
+                        <li>Phase 3: Customer accounts and segments</li>
+                        <li>Phase 4: Historical orders (if required)</li>
+                        <li>Continuous validation between phases</li>
+                    </ul>
+                </div>
+                <div class="timeline-phase">
+                    <h4>Weeks 10-12: Integration & Testing</h4>
+                    <div class="duration">Days 46-60</div>
+                    <ul>
+                        <li>Full integration testing with all connected systems</li>
+                        <li>Automated data validation (100% coverage)</li>
+                        <li>Load testing at 2x expected peak volume</li>
+                        <li>Disaster recovery testing</li>
+                        <li>Full UAT cycle with business stakeholders</li>
+                    </ul>
+                </div>
+                <div class="timeline-phase">
+                    <h4>Weeks 13-14: Parallel Run</h4>
+                    <div class="duration">Days 61-70</div>
+                    <ul>
+                        <li>Run both systems in parallel with order sync</li>
+                        <li>Compare order processing between platforms</li>
+                        <li>Validate inventory sync accuracy</li>
+                        <li>Train operations team on new workflows</li>
+                    </ul>
+                </div>
+                <div class="timeline-phase">
+                    <h4>Weeks 15-16: Cutover & Stabilization</h4>
+                    <div class="duration">Days 71-80</div>
+                    <ul>
+                        <li>Final data synchronization</li>
+                        <li>Coordinated cutover during low-traffic window</li>
+                        <li>24/7 war room for first 72 hours</li>
+                        <li>Staged feature enablement</li>
+                        <li>Post-migration optimization</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Tooling for Large Stores</h3>
+            <div class="tooling-grid">
+                <div class="tool-card" style="border-left-color: var(--bc-success);">
+                    <h4>BC Migration CLI + Custom ETL <span style="background: var(--bc-success); color: white; font-size: 0.65rem; padding: 2px 6px; border-radius: 3px; margin-left: 8px;">Recommended</span></h4>
+                    <ul>
+                        <li>CLI as foundation, extended for scale</li>
+                        <li>Orchestration layer (Airflow optional)</li>
+                        <li>Incremental sync for parallel runs</li>
+                        <li>Built-in state tracking and resume</li>
+                        <li>See <a href="MIGRATION_RUNBOOK.html">Migration Runbook</a></li>
+                    </ul>
+                </div>
+                <div class="tool-card">
+                    <h4>BigCommerce Enterprise APIs</h4>
+                    <ul>
+                        <li>Bulk operations support</li>
+                        <li>Webhook integrations</li>
+                        <li>Channel-specific configurations</li>
+                        <li>B2B API endpoints</li>
+                    </ul>
+                </div>
+                <div class="tool-card">
+                    <h4>Monitoring & Alerting</h4>
+                    <ul>
+                        <li>Real-time sync monitoring dashboard</li>
+                        <li>Data drift detection</li>
+                        <li>Performance anomaly alerts</li>
+                        <li>Integration health checks</li>
+                    </ul>
+                </div>
+                <div class="tool-card">
+                    <h4>Rollback Infrastructure</h4>
+                    <ul>
+                        <li>WooCommerce environment on standby</li>
+                        <li>DNS failover capability</li>
+                        <li>Order sync for rollback scenarios</li>
+                        <li>Communication templates ready</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>Data Migration Considerations by Tier</h2>
+
+            <h3>Products</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>Small</th>
+                        <th>Medium</th>
+                        <th>Large</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Migration Method</strong></td>
+                        <td>BC Migration CLI</td>
+                        <td>API + Scripts</td>
+                        <td>Custom ETL</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Variant Handling</strong></td>
+                        <td>Standard mapping</td>
+                        <td>Custom attribute mapping</td>
+                        <td>Complex option sets</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Image Migration</strong></td>
+                        <td>URL reference</td>
+                        <td>Batch download/upload</td>
+                        <td>CDN migration strategy</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SEO Data</strong></td>
+                        <td>Basic meta tags</td>
+                        <td>Full SEO migration</td>
+                        <td>Programmatic redirects</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Customers</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>Small</th>
+                        <th>Medium</th>
+                        <th>Large</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Account Migration</strong></td>
+                        <td>Basic import</td>
+                        <td>With addresses</td>
+                        <td>Full profile + segments</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Password Reset</strong></td>
+                        <td>Required (all)</td>
+                        <td>Required (all)</td>
+                        <td>SSO consideration</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Customer Groups</strong></td>
+                        <td>N/A</td>
+                        <td>Basic groups</td>
+                        <td>B2B price lists</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Communication</strong></td>
+                        <td>Email notification</td>
+                        <td>Segmented messaging</td>
+                        <td>Personalized outreach</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Orders</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>Small</th>
+                        <th>Medium</th>
+                        <th>Large</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Historical Orders</strong></td>
+                        <td>Optional (last 6mo)</td>
+                        <td>Last 12-24 months</td>
+                        <td>Full history + archive</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Active Orders</strong></td>
+                        <td>Complete in WooCommerce</td>
+                        <td>Sync to BigCommerce</td>
+                        <td>Parallel processing</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Subscriptions</strong></td>
+                        <td>Re-create manually</td>
+                        <td>Batch migration</td>
+                        <td>Continuity planning</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Returns/Refunds</strong></td>
+                        <td>Handle in original platform</td>
+                        <td>Clear cutoff policy</td>
+                        <td>Cross-platform process</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>Risk Mitigation by Tier</h2>
+
+            <div class="callout info">
+                <h4>Universal Risks</h4>
+                <p>All migrations share common risks: data loss, downtime, SEO impact, and customer confusion. The mitigation strategies scale with store size.</p>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Risk</th>
+                        <th>Small Store Mitigation</th>
+                        <th>Medium Store Mitigation</th>
+                        <th>Large Store Mitigation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Data Loss</strong></td>
+                        <td>Full WooCommerce backup</td>
+                        <td>Backup + validation scripts</td>
+                        <td>Full DR environment</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Downtime</strong></td>
+                        <td>Weekend cutover</td>
+                        <td>Low-traffic window</td>
+                        <td>Zero-downtime parallel run</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SEO Impact</strong></td>
+                        <td>301 redirects</td>
+                        <td>Comprehensive redirect map</td>
+                        <td>Phased URL transition</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Payment Issues</strong></td>
+                        <td>Manual order processing</td>
+                        <td>Fallback gateway</td>
+                        <td>Multi-gateway redundancy</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Integration Failures</strong></td>
+                        <td>N/A</td>
+                        <td>Manual workarounds</td>
+                        <td>Staged integration enablement</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>Success Metrics by Tier</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Small Target</th>
+                        <th>Medium Target</th>
+                        <th>Large Target</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Data Accuracy</strong></td>
+                        <td>≥95%</td>
+                        <td>≥98%</td>
+                        <td>≥99.5%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Downtime</strong></td>
+                        <td>&lt;4 hours</td>
+                        <td>&lt;2 hours</td>
+                        <td>&lt;30 minutes</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Order Success Rate</strong></td>
+                        <td>≥98% (first week)</td>
+                        <td>≥99% (first week)</td>
+                        <td>≥99.5% (first week)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Customer Complaints</strong></td>
+                        <td>&lt;5% of base</td>
+                        <td>&lt;2% of base</td>
+                        <td>&lt;1% of base</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SEO Traffic Impact</strong></td>
+                        <td>&lt;10% drop (week 1)</td>
+                        <td>&lt;5% drop (week 1)</td>
+                        <td>&lt;3% drop (week 1)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>Choosing Your Tier</h2>
+            <p>While product count is the primary driver, consider these factors that may push you to a higher tier:</p>
+
+            <ul>
+                <li><strong>High variant complexity:</strong> Products with many options (size, color, material) increase migration complexity</li>
+                <li><strong>Custom integrations:</strong> ERP, CRM, or custom plugins require additional planning</li>
+                <li><strong>B2B requirements:</strong> Price lists, customer groups, and quoting workflows add complexity</li>
+                <li><strong>Multi-channel selling:</strong> Amazon, eBay, social commerce integrations</li>
+                <li><strong>Subscription products:</strong> Recurring billing migration is complex regardless of catalog size</li>
+                <li><strong>Regulatory requirements:</strong> PCI, GDPR, or industry-specific compliance</li>
+                <li><strong>Revenue criticality:</strong> High-revenue stores should err toward higher-touch approach</li>
+            </ul>
+
+            <div class="callout success">
+                <h4>When in Doubt, Level Up</h4>
+                <p>If you're on the boundary between tiers, choose the higher tier approach. The additional planning and validation will pay dividends in reduced risk and smoother migration.</p>
+            </div>
+
+            <h2>Sources & Citations</h2>
+            <div style="background: var(--bc-light); border-radius: 8px; padding: 20px; font-size: 0.9rem;">
+                <p><strong>This document synthesizes content from:</strong></p>
+                <ul style="margin-top: 10px;">
+                    <li><strong>Store Size Tiers:</strong> Granite Comparative Analysis, Slides 10-11, 80-83</li>
+                    <li><strong>Migration Complexity Factors:</strong> Granite Comparative Analysis, Slides 195-199</li>
+                    <li><strong>Timeline Estimates:</strong> bc-migration implementation experience + industry benchmarks</li>
+                    <li><strong>Tooling Recommendations:</strong> bc-migration CLI (our implementation)</li>
+                    <li><strong>Risk Mitigation:</strong> Synthesized from Granite analysis + bc-migration architecture</li>
+                    <li><strong>Success Metrics:</strong> Industry benchmarks; not Granite-sourced</li>
+                </ul>
+                <p style="margin-top: 15px; color: #666;"><em>Third-party tools (Cart2Cart, LitExtension) referenced as alternatives are sourced from Granite/Artemis market analysis, not as primary recommendations.</em></p>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>BC Migration Documentation Package | Store Size Playbook</p>
+    </footer>
+
+    <!-- Sticky Navigation -->
+    <nav class="sticky-nav">
+        <a href="B2B_MIGRATION_GUIDE.html">← B2B Migration Guide</a>
+        <div class="nav-center">
+            <span>16 of 17</span>
+            <select onchange="if(this.value) window.location.href=this.value">
+                <option value="">Jump to...</option>
+                <option value="IMPLEMENTATION_BRIEF.html">★ Implementation Brief</option>
+                <option value="GRANITE_COMPARATIVE_ANALYSIS.html">1. Granite Analysis</option>
+                <option value="WPE_ARTEMIS_MIGRATION_ANALYSIS.html">2. WPE Artemis</option>
+                <option value="PLATFORM_DECISION_RATIONALE.html">3. Platform Decision</option>
+                <option value="MIGRATION_BUSINESS_CASE.html">4. Business Case</option>
+                <option value="COMPETITIVE_LANDSCAPE.html">5. Competitive Landscape</option>
+                <option value="PLUGIN_COMPATIBILITY_MATRIX.html">6. Plugin Matrix</option>
+                <option value="SEO_PRESERVATION_GUIDE.html">7. SEO Guide</option>
+                <option value="MIGRATION_RUNBOOK.html">8. Migration Runbook</option>
+                <option value="INTEGRATION_ARCHITECTURE.html">9. Integration Architecture</option>
+                <option value="WORDPRESS_CATALYST_COMPONENTS.html">10. WP Catalyst Components</option>
+                <option value="ADR-001-keep-wordpress.html">11. ADR-001</option>
+                <option value="ADR-002-headless-vs-checkout-only.html">12. ADR-002</option>
+                <option value="ADR-003-order-history-strategy.html">13. ADR-003</option>
+                <option value="MIGRATION_QA_TRACKER.html">14. Q&A Tracker</option>
+                <option value="B2B_MIGRATION_GUIDE.html">15. B2B Guide</option>
+                <option value="STORE_SIZE_PLAYBOOK.html" selected>16. Store Size Playbook</option>
+                <option value="MIGRATION_PERSONAS.html">17. Migration Personas</option>
+            </select>
+        </div>
+        <a href="MIGRATION_PERSONAS.html">Migration Personas →</a>
+    </nav>
+</body>
+</html>

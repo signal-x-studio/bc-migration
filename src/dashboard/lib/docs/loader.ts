@@ -1,8 +1,14 @@
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import type { DocFile, DocMetadata } from './types.js';
 
-const DOCS_DIR = path.join(process.cwd(), '../../docs');
+// Resolve docs directory relative to this file, not process.cwd()
+// This ensures it works regardless of where the process is started
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+// From src/dashboard/lib/docs/loader.ts -> src/dashboard/lib/docs -> src/dashboard -> src -> root -> docs
+const DOCS_DIR = path.resolve(__dirname, '../../../../docs');
 
 /**
  * Extract metadata from HTML file
@@ -126,27 +132,51 @@ export function getDocByPath(pathSegments: string[] | undefined): DocFile | null
   }
   
   const docs = getAllDocs();
-  // Remove .html extension if present
-  const normalizedSegments = pathSegments.map(seg => seg.replace(/\.html$/, ''));
+  // Remove .html extension if present and filter out empty segments
+  const normalizedSegments = pathSegments
+    .map(seg => seg.replace(/\.html$/, ''))
+    .filter(seg => seg.length > 0);
+  
+  if (normalizedSegments.length === 0) {
+    return null;
+  }
+  
   const targetPath = normalizedSegments.join('/');
   
   // Try exact match first
   let doc = docs.find(d => d.fullPath === targetPath);
   if (doc) return doc;
   
+  // Try exact match with .html extension (in case fullPath includes it)
+  doc = docs.find(d => d.fullPath === `${targetPath}.html`);
+  if (doc) return doc;
+  
   // Try case-insensitive match
   doc = docs.find(d => d.fullPath.toLowerCase() === targetPath.toLowerCase());
   if (doc) return doc;
   
-  // Try endsWith match (case-insensitive)
+  doc = docs.find(d => d.fullPath.toLowerCase() === `${targetPath.toLowerCase()}.html`);
+  if (doc) return doc;
+  
+  // Try endsWith match (case-insensitive) - handles partial paths
   doc = docs.find(d => d.fullPath.toLowerCase().endsWith(`/${targetPath.toLowerCase()}`));
   if (doc) return doc;
   
-  // Try matching the last segment only (for deep paths)
+  doc = docs.find(d => d.fullPath.toLowerCase().endsWith(`/${targetPath.toLowerCase()}.html`));
+  if (doc) return doc;
+  
+  // Try matching the last segment only (for deep paths or when path structure differs)
   const lastSegment = normalizedSegments[normalizedSegments.length - 1];
   doc = docs.find(d => {
     const docSegments = d.fullPath.split('/');
     return docSegments[docSegments.length - 1].toLowerCase() === lastSegment.toLowerCase();
+  });
+  if (doc) return doc;
+  
+  // Final fallback: try matching any segment in the path
+  doc = docs.find(d => {
+    const docSegments = d.fullPath.toLowerCase().split('/');
+    return normalizedSegments.some(seg => docSegments.includes(seg.toLowerCase()));
   });
   if (doc) return doc;
   

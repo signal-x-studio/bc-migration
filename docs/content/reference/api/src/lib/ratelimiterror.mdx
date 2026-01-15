@@ -1,0 +1,62 @@
+---
+title: "RateLimitError"
+description: "Rate limit exceeded error"
+category: "reference"
+order: 100
+section: "api"
+---
+
+# RateLimitError
+
+Rate limit exceeded error
+
+## Constructor
+
+```typescript
+RateLimitError(message: string, retryAfterMs?: number, context?: Record<string, unknown>): RateLimitError
+```
+
+### Parameters
+
+- **`message`** (`string`): No description
+- **`retryAfterMs`** (`number`) (optional): No description
+- **`context`** (`Record<string, unknown>`) (optional): No description
+
+### Returns
+
+`RateLimitError`
+
+## Properties
+
+### `code`
+
+Type: `string`
+
+### `retriable`
+
+Type: `boolean`
+
+### `context`
+
+Type: `Record<string, unknown>`
+
+### `timestamp`
+
+Type: `string`
+
+### `retryAfterMs`
+
+Type: `number`
+
+## Methods
+
+### `toJSON()`
+
+```typescript
+toJSON(): Record<string, unknown>
+```
+
+### Returns
+
+`Record<string, unknown>`
+

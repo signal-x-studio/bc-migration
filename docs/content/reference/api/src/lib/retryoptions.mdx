@@ -1,0 +1,21 @@
+---
+title: "RetryOptions"
+description: "RetryOptions"
+category: "reference"
+order: 300
+section: "api"
+---
+
+# RetryOptions
+
+## Properties
+
+| Name | Type | Description |
+|------|------|-------------|
+| `retries` | `number` | Maximum number of retry attempts |
+| `minTimeout` | `number` | Base delay in milliseconds (doubles each retry) |
+| `maxTimeout` | `number` | Maximum delay in milliseconds |
+| `factor` | `number` | Multiplier for exponential backoff |
+| `randomize` | `boolean` | Whether to add random jitter to delays |
+| `shouldRetry` | `reflection` | Custom function to determine if error is retriable |
+

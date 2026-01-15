@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WordPress Catalyst Components | BC Migration</title>
+    <style>
+        :root {
+            --bc-primary: #34313f;
+            --bc-accent: #5c6ac4;
+            --bc-success: #28a745;
+            --bc-warning: #ffc107;
+            --bc-danger: #dc3545;
+            --bc-light: #f8f9fa;
+            --bc-border: #e0e0e0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bc-light);
+            color: var(--bc-primary);
+            line-height: 1.6;
+            padding-bottom: 70px;
+        }
+
+        /* Sticky Navigation */
+        .sticky-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bc-primary); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); z-index: 1000; }
+        .sticky-nav a { color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 0.85rem; transition: background 0.2s; }
+        .sticky-nav a:hover { background: rgba(255,255,255,0.15); }
+        .sticky-nav .nav-center { font-size: 0.75rem; color: rgba(255,255,255,0.7); }
+        .sticky-nav .nav-center select { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 6px 10px; border-radius: 4px; font-size: 0.8rem; margin-left: 8px; }
+        .sticky-nav .nav-center select option { background: var(--bc-primary); }
+        @media (max-width: 768px) { .sticky-nav .nav-center { display: none; } }
+
+        .header {
+            background: linear-gradient(135deg, var(--bc-primary) 0%, #4a4458 100%);
+            color: white;
+            padding: 40px;
+        }
+
+        .header-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 30px;
+            color: var(--bc-accent);
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .source-box {
+            background: #e8f5e9;
+            border-left: 4px solid var(--bc-success);
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .source-box h3 {
+            font-size: 0.9rem;
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+
+        .source-box ul {
+            list-style: none;
+            font-size: 0.9rem;
+        }
+
+        .source-box li {
+            padding: 3px 0;
+        }
+
+        .source-box code {
+            background: rgba(0,0,0,0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.85rem;
+        }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .section h2 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--bc-border);
+        }
+
+        .section h3 {
+            font-size: 1.1rem;
+            margin: 25px 0 15px 0;
+            color: var(--bc-primary);
+        }
+
+        .section p {
+            margin-bottom: 15px;
+            color: #444;
+        }
+
+        .section ul, .section ol {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+
+        .section li {
+            margin-bottom: 8px;
+        }
+
+        .arch-diagram {
+            background: var(--bc-primary);
+            color: #f8f8f2;
+            padding: 25px;
+            border-radius: 8px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        .code-block {
+            background: var(--bc-primary);
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--bc-border);
+        }
+
+        th {
+            background: var(--bc-light);
+            font-weight: 600;
+        }
+
+        .component-card {
+            background: var(--bc-light);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .component-card h4 {
+            color: var(--bc-primary);
+            margin-bottom: 10px;
+        }
+
+        .component-card code {
+            background: rgba(0,0,0,0.08);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.85rem;
+        }
+
+        .key-insight {
+            background: #fff3e0;
+            border-left: 4px solid var(--bc-warning);
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .key-insight h4 {
+            font-size: 0.9rem;
+            color: #ef6c00;
+            margin-bottom: 8px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .feature-item {
+            background: var(--bc-light);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .feature-item h5 {
+            margin-bottom: 8px;
+            color: var(--bc-primary);
+        }
+
+        .feature-item p {
+            font-size: 0.9rem;
+            color: #666;
+            margin: 0;
+        }
+
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .theme-card {
+            background: var(--bc-light);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .theme-card h5 {
+            margin-bottom: 8px;
+            color: var(--bc-primary);
+        }
+
+        .theme-card p {
+            font-size: 0.85rem;
+            color: #666;
+            margin: 0;
+        }
+
+        .theme-card.catalyst {
+            border-top: 4px solid var(--bc-accent);
+        }
+
+        .theme-card.stencil {
+            border-top: 4px solid var(--bc-success);
+        }
+
+        .theme-card.makeswift {
+            border-top: 4px solid #ec4899;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 25px 20px;
+            }
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            .theme-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>WordPress Catalyst Components</h1>
+            <p class="subtitle">Render WordPress REST API content in BigCommerce headless storefronts</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <a href="index.html" class="back-link">&larr; Back to Documentation Hub</a>
+
+        <!-- Data Sources -->
+        <div class="source-box">
+            <h3>Implementation Source</h3>
+            <ul>
+                <li>Theme configuration: <code>src/dashboard/lib/wp-content-themes.ts</code></li>
+                <li>Components: <code>src/dashboard/components/wordpress/</code></li>
+                <li>Context: <code>src/dashboard/lib/contexts/WPConnectionContext.tsx</code></li>
+            </ul>
+        </div>
+
+        <!-- Overview -->
+        <section class="section">
+            <h2>Overview</h2>
+            <p>The WordPress Content Component system enables seamless integration of WordPress blog posts, pages, and content blocks directly into BigCommerce headless storefronts built with Catalyst, Stencil, or Makeswift.</p>
+
+            <p>This capability is central to the "Keep WordPress" migration strategy, allowing merchants to retain their WordPress content investment while migrating commerce functionality to BigCommerce.</p>
+
+            <div class="arch-diagram">
+<pre>
+┌─────────────────────────────────────────────────────────────────────┐
+│                     WORDPRESS (Content Source)                       │
+│                                                                       │
+│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐  │
+│  │     Posts       │    │      Pages      │    │     Media       │  │
+│  │  /wp-json/v2/   │    │  /wp-json/v2/   │    │  Featured Imgs  │  │
+│  └────────┬────────┘    └────────┬────────┘    └────────┬────────┘  │
+└───────────┼──────────────────────┼──────────────────────┼───────────┘
+            │                      │                      │
+            └──────────────────────┼──────────────────────┘
+                                   │ REST API
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                    WP CONTENT COMPONENTS                             │
+│                                                                       │
+│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐  │
+│  │ WPContentBlock  │    │ WPPostList      │    │ WPPostSelector  │  │
+│  │  (fetch + show) │    │  (paginated)    │    │  (picker UI)    │  │
+│  └────────┬────────┘    └────────┬────────┘    └────────┬────────┘  │
+│           │                      │                      │           │
+│           └──────────────────────┼──────────────────────┘           │
+│                                  ▼                                   │
+│                       ┌─────────────────────┐                       │
+│                       │  WPContentRenderer  │                       │
+│                       │   (HTML → Styled)   │                       │
+│                       └──────────┬──────────┘                       │
+│                                  │                                   │
+│                                  ▼                                   │
+│                       ┌─────────────────────┐                       │
+│                       │   Theme Configs     │                       │
+│                       │ catalyst│stencil│ms │                       │
+│                       └─────────────────────┘                       │
+└─────────────────────────────────────────────────────────────────────┘
+                                   │
+                                   ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                  BIGCOMMERCE STOREFRONT                              │
+│                                                                       │
+│      Catalyst (Next.js)  │  Stencil (BC Theme)  │  Makeswift        │
+└─────────────────────────────────────────────────────────────────────┘
+</pre>
+            </div>
+
+            <div class="key-insight">
+                <h4>Strategic Value</h4>
+                <p>Rather than migrating content to BigCommerce's native CMS, merchants can continue using WordPress for content management while displaying that content seamlessly within their BigCommerce storefront. This preserves SEO equity, editorial workflows, and plugin investments.</p>
+            </div>
+        </section>
+
+        <!-- Component Inventory -->
+        <section class="section">
+            <h2>Component Inventory</h2>
+
+            <div class="component-card">
+                <h4>WPContentRenderer</h4>
+                <p>Core rendering component that transforms WordPress HTML content and applies theme-specific Tailwind CSS styling. Handles all HTML elements including headings, paragraphs, lists, blockquotes, code blocks, images, and Gutenberg blocks.</p>
+                <p><strong>File:</strong> <code>components/wordpress/WPContentRenderer.tsx</code></p>
+                <p><strong>Props:</strong> <code>content</code> (HTML string), <code>theme</code> (catalyst|stencil|makeswift), <code>className</code></p>
+            </div>
+
+            <div class="component-card">
+                <h4>WPContentBlock</h4>
+                <p>Full-featured content block that fetches WordPress content by ID and renders with featured image, metadata (date, author, categories), and styled content body. Supports both posts and pages.</p>
+                <p><strong>File:</strong> <code>components/wordpress/WPContentBlock.tsx</code></p>
+                <p><strong>Props:</strong> <code>contentId</code>, <code>contentType</code> (post|page), <code>theme</code>, <code>showMeta</code>, <code>showFeaturedImage</code></p>
+            </div>
+
+            <div class="component-card">
+                <h4>WPPostList</h4>
+                <p>Paginated content browser with grid/list view modes. Displays post thumbnails, titles, dates, and excerpts. Supports selection callbacks for content picker interfaces.</p>
+                <p><strong>File:</strong> <code>components/wordpress/WPPostList.tsx</code></p>
+                <p><strong>Props:</strong> <code>contentType</code>, <code>perPage</code>, <code>onSelect</code>, <code>selectedId</code></p>
+            </div>
+
+            <div class="component-card">
+                <h4>WPPostSelector</h4>
+                <p>Dropdown selector component for choosing WordPress posts or pages. Includes search functionality and thumbnail previews. Ideal for Makeswift visual builder integration.</p>
+                <p><strong>File:</strong> <code>components/wordpress/WPPostSelector.tsx</code></p>
+                <p><strong>Props:</strong> <code>value</code>, <code>onChange</code>, <code>contentType</code>, <code>onContentTypeChange</code></p>
+            </div>
+        </section>
+
+        <!-- Theme System -->
+        <section class="section">
+            <h2>Theme Configuration System</h2>
+            <p>The theme system ensures WordPress content matches the visual design of each BigCommerce storefront framework.</p>
+
+            <div class="theme-grid">
+                <div class="theme-card catalyst">
+                    <h5>Catalyst</h5>
+                    <p>Next.js headless storefront</p>
+                    <p style="margin-top: 8px; font-size: 0.8rem;"><code>prose-slate</code> colors<br>Rounded corners, subtle shadows</p>
+                </div>
+                <div class="theme-card stencil">
+                    <h5>Stencil</h5>
+                    <p>Traditional BC theme</p>
+                    <p style="margin-top: 8px; font-size: 0.8rem;">Standard borders<br>Bordered code blocks</p>
+                </div>
+                <div class="theme-card makeswift">
+                    <h5>Makeswift</h5>
+                    <p>Visual page builder</p>
+                    <p style="margin-top: 8px; font-size: 0.8rem;"><code>prose-pink</code> accents<br>Gradients, large typography</p>
+                </div>
+            </div>
+
+            <h3>Theme Configuration Interface</h3>
+            <div class="code-block">
+<pre>interface WPContentThemeConfig {
+  // Container
+  container: string;
+
+  // Typography
+  heading1: string;
+  heading2: string;
+  heading3: string;
+  heading4: string;
+  paragraph: string;
+  link: string;
+
+  // Block Elements
+  blockquote: string;
+  codeBlock: string;
+  inlineCode: string;
+  list: string;
+  listItem: string;
+
+  // Media
+  image: string;
+  figure: string;
+  figcaption: string;
+
+  // Gutenberg Blocks
+  wpButton: string;
+  wpColumns: string;
+  wpColumn: string;
+  wpSeparator: string;
+  wpQuote: string;
+  wpPullquote: string;
+}</pre>
+            </div>
+        </section>
+
+        <!-- Styled Elements -->
+        <section class="section">
+            <h2>Styled Elements by Theme</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Element</th>
+                        <th>Catalyst</th>
+                        <th>Stencil</th>
+                        <th>Makeswift</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>h1</code></td>
+                        <td>3xl, tracking-tight</td>
+                        <td>3xl, bold</td>
+                        <td>4xl, tracking-tight</td>
+                    </tr>
+                    <tr>
+                        <td><code>paragraph</code></td>
+                        <td>slate-300, relaxed</td>
+                        <td>slate-300, relaxed</td>
+                        <td>slate-300, lg, relaxed</td>
+                    </tr>
+                    <tr>
+                        <td><code>link</code></td>
+                        <td>blue-400, underline-offset-2</td>
+                        <td>blue-500, underline</td>
+                        <td>pink-400, underline-offset-4</td>
+                    </tr>
+                    <tr>
+                        <td><code>blockquote</code></td>
+                        <td>slate-600 border</td>
+                        <td>blue-500 border + bg</td>
+                        <td>pink-500 border, lg</td>
+                    </tr>
+                    <tr>
+                        <td><code>code</code></td>
+                        <td>slate-800, rounded-xl</td>
+                        <td>slate-900, bordered</td>
+                        <td>gradient, rounded-2xl</td>
+                    </tr>
+                    <tr>
+                        <td><code>image</code></td>
+                        <td>rounded-xl, shadow-lg</td>
+                        <td>rounded, border</td>
+                        <td>rounded-2xl, shadow-2xl</td>
+                    </tr>
+                    <tr>
+                        <td><code>wp-button</code></td>
+                        <td>rounded-full, blue-600</td>
+                        <td>rounded, blue-600</td>
+                        <td>rounded-full, gradient</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Usage Examples -->
+        <section class="section">
+            <h2>Usage Examples</h2>
+
+            <h3>Basic Content Rendering</h3>
+            <div class="code-block">
+<pre>import { WPContentRenderer } from '@/components/wordpress/WPContentRenderer';
+
+// Render WordPress HTML with Catalyst styling
+&lt;WPContentRenderer
+  content={post.content.rendered}
+  theme="catalyst"
+/&gt;</pre>
+            </div>
+
+            <h3>Full Content Block with Metadata</h3>
+            <div class="code-block">
+<pre>import { WPContentBlock } from '@/components/wordpress/WPContentBlock';
+
+// Fetch and display a WordPress post by ID
+&lt;WPContentBlock
+  contentId={123}
+  contentType="post"
+  theme="makeswift"
+  showMeta={true}
+  showFeaturedImage={true}
+/&gt;</pre>
+            </div>
+
+            <h3>Content Picker for Makeswift</h3>
+            <div class="code-block">
+<pre>import { WPPostSelector } from '@/components/wordpress/WPPostSelector';
+
+// Dropdown selector for content selection
+&lt;WPPostSelector
+  value={selectedPost}
+  onChange={setSelectedPost}
+  contentType="post"
+  onContentTypeChange={setContentType}
+/&gt;</pre>
+            </div>
+
+            <h3>Browsable Content Grid</h3>
+            <div class="code-block">
+<pre>import { WPPostList } from '@/components/wordpress/WPPostList';
+
+// Paginated grid of WordPress posts
+&lt;WPPostList
+  contentType="post"
+  perPage={9}
+  onSelect={(item) =&gt; router.push(`/blog/${item.slug}`)}
+/&gt;</pre>
+            </div>
+        </section>
+
+        <!-- API Integration -->
+        <section class="section">
+            <h2>WordPress REST API Integration</h2>
+            <p>Components communicate with WordPress via internal API routes that proxy to the WordPress REST API:</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Internal Route</th>
+                        <th>WordPress Endpoint</th>
+                        <th>Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>/api/wp/posts</code></td>
+                        <td><code>/wp-json/wp/v2/posts</code></td>
+                        <td>Fetch posts with embeds</td>
+                    </tr>
+                    <tr>
+                        <td><code>/api/wp/pages</code></td>
+                        <td><code>/wp-json/wp/v2/pages</code></td>
+                        <td>Fetch pages with embeds</td>
+                    </tr>
+                    <tr>
+                        <td><code>/api/wp/content</code></td>
+                        <td><code>/wp-json/wp/v2/{type}/{id}</code></td>
+                        <td>Fetch single content item</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>WordPress Connection Context</h3>
+            <div class="code-block">
+<pre>import { useWPConnection } from '@/lib/contexts/WPConnectionContext';
+
+const { siteUrl, isConnected } = useWPConnection();
+
+// siteUrl: The WordPress site URL (e.g., "https://myblog.com")
+// isConnected: Boolean indicating valid connection</pre>
+            </div>
+        </section>
+
+        <!-- Gutenberg Blocks -->
+        <section class="section">
+            <h2>Gutenberg Block Support</h2>
+            <p>The renderer applies theme-specific styling to WordPress Gutenberg blocks:</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Gutenberg Block</th>
+                        <th>CSS Class</th>
+                        <th>Theme Handling</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Button</td>
+                        <td><code>wp-block-button__link</code></td>
+                        <td>Theme-specific button styles</td>
+                    </tr>
+                    <tr>
+                        <td>Columns</td>
+                        <td><code>wp-block-columns</code></td>
+                        <td>Auto-detected grid columns</td>
+                    </tr>
+                    <tr>
+                        <td>Column</td>
+                        <td><code>wp-block-column</code></td>
+                        <td>Background styling (Stencil)</td>
+                    </tr>
+                    <tr>
+                        <td>Separator</td>
+                        <td><code>wp-block-separator</code></td>
+                        <td>Theme border colors</td>
+                    </tr>
+                    <tr>
+                        <td>Quote</td>
+                        <td><code>wp-block-quote</code></td>
+                        <td>Left border accent</td>
+                    </tr>
+                    <tr>
+                        <td>Pullquote</td>
+                        <td><code>wp-block-pullquote</code></td>
+                        <td>Centered, border-y styling</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Migration Strategy -->
+        <section class="section">
+            <h2>Integration with Migration Strategy</h2>
+            <p>The WordPress Content Components support the broader "Keep WordPress" migration strategy:</p>
+
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <h5>SEO Preservation</h5>
+                    <p>WordPress content URLs remain authoritative, preventing link equity loss</p>
+                </div>
+                <div class="feature-item">
+                    <h5>Content Continuity</h5>
+                    <p>Existing WordPress content appears seamlessly in BigCommerce storefront</p>
+                </div>
+                <div class="feature-item">
+                    <h5>Editorial Independence</h5>
+                    <p>Content team continues using WordPress admin without retraining</p>
+                </div>
+                <div class="feature-item">
+                    <h5>Plugin Compatibility</h5>
+                    <p>WordPress content plugins (Yoast, ACF) continue functioning</p>
+                </div>
+            </div>
+
+            <div class="key-insight">
+                <h4>Makeswift Integration</h4>
+                <p>The WPPostSelector component is specifically designed for drag-and-drop integration with Makeswift's visual builder. Content editors can select WordPress posts/pages directly within the Makeswift interface, with preview thumbnails and search functionality.</p>
+            </div>
+        </section>
+
+        <!-- Dependencies -->
+        <section class="section">
+            <h2>Dependencies</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Dependency</th>
+                        <th>Purpose</th>
+                        <th>Version</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>React</td>
+                        <td>Component framework</td>
+                        <td>18.x</td>
+                    </tr>
+                    <tr>
+                        <td>Tailwind CSS</td>
+                        <td>Utility-first styling</td>
+                        <td>3.x</td>
+                    </tr>
+                    <tr>
+                        <td>@tailwindcss/typography</td>
+                        <td>Prose styling utilities</td>
+                        <td>0.5.x</td>
+                    </tr>
+                    <tr>
+                        <td>lucide-react</td>
+                        <td>Icon components</td>
+                        <td>0.x</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Sources & Citations -->
+        <section class="section">
+            <h2>Sources & Citations</h2>
+            <div style="background: var(--bc-light); border-radius: 8px; padding: 20px; font-size: 0.9rem;">
+                <p><strong>This document synthesizes content from:</strong></p>
+                <ul style="margin-top: 10px;">
+                    <li><strong>Component Implementation:</strong> bc-migration source code (src/dashboard/components/wordpress/)</li>
+                    <li><strong>Theme System:</strong> bc-migration source code (src/dashboard/lib/wp-content-themes.ts)</li>
+                    <li><strong>WordPress Integration Patterns:</strong> WordPress Block Editor documentation</li>
+                    <li><strong>BigCommerce API Usage:</strong> <a href="https://developer.bigcommerce.com" target="_blank">developer.bigcommerce.com</a> (official docs)</li>
+                    <li><strong>Component Architecture:</strong> bc-migration implementation design (our specification)</li>
+                    <li><strong>React/Tailwind Patterns:</strong> Framework best practices; not Granite-sourced</li>
+                </ul>
+                <p style="margin-top: 15px; color: #666;"><em>These components implement the integration architecture documented in ADR-002 (Full Headless). See Integration Architecture for the overall system design.</em></p>
+            </div>
+        </section>
+
+    </div>
+
+    <footer class="footer">
+        <p><strong>BC Migration Documentation</strong></p>
+        <p>WordPress Catalyst Components</p>
+    </footer>
+
+    <!-- Sticky Navigation -->
+    <nav class="sticky-nav">
+        <a href="INTEGRATION_ARCHITECTURE.html">← Integration Architecture</a>
+        <div class="nav-center">
+            <span>10 of 17</span>
+            <select onchange="if(this.value) window.location.href=this.value">
+                <option value="">Jump to...</option>
+                <option value="IMPLEMENTATION_BRIEF.html">★ Implementation Brief</option>
+                <option value="GRANITE_COMPARATIVE_ANALYSIS.html">1. Granite Analysis</option>
+                <option value="WPE_ARTEMIS_MIGRATION_ANALYSIS.html">2. WPE Artemis</option>
+                <option value="PLATFORM_DECISION_RATIONALE.html">3. Platform Decision</option>
+                <option value="MIGRATION_BUSINESS_CASE.html">4. Business Case</option>
+                <option value="COMPETITIVE_LANDSCAPE.html">5. Competitive Landscape</option>
+                <option value="PLUGIN_COMPATIBILITY_MATRIX.html">6. Plugin Matrix</option>
+                <option value="SEO_PRESERVATION_GUIDE.html">7. SEO Guide</option>
+                <option value="MIGRATION_RUNBOOK.html">8. Migration Runbook</option>
+                <option value="INTEGRATION_ARCHITECTURE.html">9. Integration Architecture</option>
+                <option value="WORDPRESS_CATALYST_COMPONENTS.html" selected>10. WP Catalyst Components</option>
+                <option value="ADR-001-keep-wordpress.html">11. ADR-001</option>
+                <option value="ADR-002-headless-vs-checkout-only.html">12. ADR-002</option>
+                <option value="ADR-003-order-history-strategy.html">13. ADR-003</option>
+                <option value="MIGRATION_QA_TRACKER.html">14. Q&A Tracker</option>
+                <option value="B2B_MIGRATION_GUIDE.html">15. B2B Guide</option>
+                <option value="STORE_SIZE_PLAYBOOK.html">16. Store Size Playbook</option>
+                <option value="MIGRATION_PERSONAS.html">17. Migration Personas</option>
+            </select>
+        </div>
+        <a href="ADR-001-keep-wordpress.html">ADR-001: Keep WordPress →</a>
+    </nav>
+</body>
+</html>

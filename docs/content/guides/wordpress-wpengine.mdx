@@ -1,0 +1,498 @@
+---
+title: WordPress & WP Engine Guide
+description: Migrating WooCommerce while keeping WordPress for content management
+category: guides
+section: wordpress
+order: 10
+---
+
+# WordPress & WP Engine Guide
+
+This guide covers migrating your WooCommerce store to BigCommerce while keeping WordPress as your content management system - a popular setup for WP Engine customers and WordPress-centric agencies.
+
+## Why Keep WordPress?
+
+Many businesses want to separate commerce from content:
+
+### Benefits of WordPress + BigCommerce
+
+**WordPress Strengths**:
+- Familiar content editing experience
+- Rich plugin ecosystem for marketing
+- SEO and content marketing tools
+- Blog and page management
+- Multi-user editorial workflow
+
+**BigCommerce Strengths**:
+- Enterprise-grade commerce platform
+- Better performance and scalability
+- Lower total cost of ownership
+- PCI compliance built-in
+- Superior multi-channel capabilities
+
+**Together**:
+- Best-in-class content AND commerce
+- Reduced hosting complexity (WP Engine for content only)
+- Faster WordPress site (no cart overhead)
+- Professional commerce experience
+
+## Architecture Options
+
+### Option 1: Headless WordPress + BigCommerce
+
+**Setup**: WordPress handles content, BigCommerce handles commerce, BC Bridge connects them.
+
+```
+WordPress (WP Engine)          BigCommerce
+├── Blog posts          ←→     ├── Product catalog
+├── Marketing pages            ├── Cart & checkout
+├── About/Contact              └── Order management
+└── BC Bridge Plugin
+    (Displays BC products on WP)
+```
+
+**Best For**:
+- Content-heavy businesses (blogs, magazines)
+- Companies with established WordPress editorial teams
+- Sites with extensive WordPress plugin investments
+- WP Engine customers wanting to keep WordPress
+
+**Implementation**:
+1. Migrate commerce data to BigCommerce
+2. Keep WordPress for blog/pages
+3. Install BC Bridge plugin
+4. Display BigCommerce products on WordPress pages
+
+### Option 2: BigCommerce with WordPress Blog
+
+**Setup**: BigCommerce as primary site, WordPress subdomain for blog.
+
+```
+BigCommerce (Primary)          WordPress (Blog Only)
+├── Homepage               ←→  blog.yoursite.com
+├── Product pages                ├── Blog posts
+├── Cart & checkout              └── Article content
+└── Account pages
+```
+
+**Best For**:
+- E-commerce-first businesses
+- Limited content needs beyond product pages
+- Want unified BigCommerce theme experience
+
+**Implementation**:
+1. Full migration to BigCommerce
+2. WordPress at `blog.yoursite.com`
+3. Link between the two sites
+
+### Option 3: Full BigCommerce Migration
+
+**Setup**: Everything on BigCommerce, WordPress retired.
+
+**Best For**:
+- Simplifying tech stack
+- Reducing hosting costs
+- Small content needs (blog not critical)
+- Fresh start with BigCommerce
+
+**Implementation**:
+1. Migrate all data to BigCommerce
+2. Set up BigCommerce blog
+3. Migrate WordPress pages to BigCommerce pages
+4. Implement URL redirects
+
+## WP Engine Specific Considerations
+
+### Current WP Engine Setup
+
+If you're on WP Engine with WooCommerce:
+
+**Before Migration**:
+- WordPress + WooCommerce: All on WP Engine
+- Hosting: $30-300+/month based on traffic
+- Performance: Limited by WooCommerce overhead
+- SSL: Included
+- CDN: Cloudflare or WP Engine CDN
+
+**After Migration (Headless)**:
+- WordPress: Content only on WP Engine (smaller plan possible)
+- BigCommerce: Commerce platform ($29.95-299.95/month)
+- BC Bridge: Connects the two
+- Performance: Significantly improved (no WooCommerce overhead)
+
+### Cost Comparison
+
+**Before** (WooCommerce on WP Engine):
+```
+WP Engine Managed WordPress: $300/month (Startup plan)
+SSL: Included
+CDN: Included
+Total: $300/month
+```
+
+**After** (WordPress + BigCommerce):
+```
+WP Engine Managed WordPress: $30/month (Personal plan - less traffic)
+BigCommerce Standard: $39.95/month
+Total: $69.95/month (77% savings!)
+```
+
+Plus better performance, security, and PCI compliance.
+
+### WP Engine Migration Process
+
+1. **Assess Current Site**:
+   ```bash
+   # SSH into WP Engine
+   wp plugin list --status=active
+   wp db size
+   wp media size
+   ```
+
+2. **Identify Content vs Commerce**:
+   - Content: Blog posts, pages, media library
+   - Commerce: Products, orders, customers
+
+3. **Migration Plan**:
+   - Week 1: Run BC Migration assessment
+   - Week 2: Migrate commerce data to BigCommerce
+   - Week 3: Install and configure BC Bridge
+   - Week 4: QA testing and go-live
+
+4. **Downsize WP Engine Plan** (after migration):
+   - Reduced traffic load (no product pages/checkout)
+   - Smaller database (no order data)
+   - Potentially downgrade WP Engine tier
+
+## BC Bridge Plugin Setup
+
+The BC Bridge plugin connects WordPress and BigCommerce.
+
+### Installation
+
+**Via WordPress Admin**:
+1. Navigate to **Plugins → Add New**
+2. Search for "BC Bridge"
+3. Click **Install Now**
+4. Click **Activate**
+
+**Via WP-CLI (WP Engine)**:
+```bash
+wp plugin install bc-bridge
+wp plugin activate bc-bridge
+```
+
+**Manual Installation**:
+```bash
+cd /wp-content/plugins/
+git clone https://github.com/yourusername/bc-bridge.git
+cd bc-bridge
+composer install
+```
+
+### Configuration
+
+Add to `wp-config.php`:
+
+```php
+// BigCommerce API Credentials
+define('BC_STORE_HASH', 'abc123xyz');
+define('BC_ACCESS_TOKEN', 'your-access-token');
+define('BC_CLIENT_ID', 'your-client-id');
+define('BC_CLIENT_SECRET', 'your-client-secret');
+
+// Optional: Storefront API (for cart/checkout)
+define('BC_STOREFRONT_TOKEN', 'your-storefront-token');
+
+// Optional: Performance
+define('BC_CACHE_TTL', 3600); // 1 hour cache
+define('BC_ENABLE_CDN', true);
+```
+
+Or use WordPress admin:
+1. Navigate to **Settings → BC Bridge**
+2. Enter API credentials
+3. Click **Save Settings**
+4. Click **Test Connection**
+
+### Displaying Products
+
+**Shortcode Method**:
+```php
+// Display single product
+[bc_product id="123"]
+
+// Display category
+[bc_category id="456"]
+
+// Display featured products
+[bc_products featured="true" limit="8"]
+
+// Display search results
+[bc_products search="keyword" limit="12"]
+```
+
+**Gutenberg Block**:
+1. Add new block in editor
+2. Search for "BigCommerce Product"
+3. Select product from dropdown
+4. Customize display options
+
+**PHP Template** (for theme developers):
+```php
+<?php
+// In your theme template
+if (function_exists('bc_display_product')) {
+  bc_display_product(123); // Product ID
+}
+?>
+```
+
+### Customizing Product Display
+
+**Override Templates**:
+```bash
+# Copy plugin templates to theme
+cp -r /wp-content/plugins/bc-bridge/templates /wp-content/themes/your-theme/bc-bridge/
+```
+
+**Edit Template**:
+```php
+// themes/your-theme/bc-bridge/product.php
+<div class="bc-product">
+  <div class="bc-product__image">
+    <img src="<?php echo esc_url($product->images[0]->url); ?>"
+         alt="<?php echo esc_attr($product->name); ?>">
+  </div>
+  <div class="bc-product__details">
+    <h2><?php echo esc_html($product->name); ?></h2>
+    <div class="bc-product__price">
+      $<?php echo number_format($product->price, 2); ?>
+    </div>
+    <div class="bc-product__description">
+      <?php echo wp_kses_post($product->description); ?>
+    </div>
+    <a href="<?php echo esc_url($product->custom_url); ?>"
+       class="bc-product__button">
+      View Product
+    </a>
+  </div>
+</div>
+```
+
+### Cart Integration
+
+**Add to Cart Button**:
+```php
+<button class="bc-add-to-cart" data-product-id="123">
+  Add to Cart
+</button>
+
+<script>
+document.querySelectorAll('.bc-add-to-cart').forEach(button => {
+  button.addEventListener('click', async (e) => {
+    const productId = e.target.dataset.productId;
+    const response = await fetch('/wp-json/bc-bridge/v1/cart/add', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ product_id: productId, quantity: 1 })
+    });
+    const data = await response.json();
+    // Update cart UI
+  });
+});
+</script>
+```
+
+**Cart Widget**:
+```php
+// Register sidebar widget
+function register_bc_cart_widget() {
+  register_sidebar(array(
+    'name' => 'BC Cart',
+    'id' => 'bc-cart',
+    'before_widget' => '<div class="bc-cart-widget">',
+    'after_widget' => '</div>',
+  ));
+}
+add_action('widgets_init', 'register_bc_cart_widget');
+```
+
+## Performance Optimization
+
+### WP Engine Caching
+
+Configure caching for BC Bridge:
+
+```php
+// wp-config.php
+// Exclude BC cart from caching
+define('WPE_CACHE_EXCLUDE_PATTERNS', [
+  '/cart',
+  '/checkout',
+  '/wp-json/bc-bridge/v1/cart*',
+]);
+```
+
+### Object Caching
+
+Enable Redis on WP Engine:
+
+```php
+// Enable Redis for BC API responses
+if (class_exists('Redis')) {
+  define('BC_USE_REDIS', true);
+  define('BC_REDIS_HOST', '127.0.0.1');
+  define('BC_REDIS_PORT', 6379);
+}
+```
+
+### CDN Configuration
+
+Use WP Engine CDN for product images:
+
+```php
+// Proxy BigCommerce images through WP CDN
+add_filter('bc_product_image_url', function($url) {
+  // Cache BC images on WP Engine CDN
+  return wp_get_attachment_image_url(
+    bc_cache_remote_image($url),
+    'large'
+  );
+});
+```
+
+## SEO Considerations
+
+### URL Structure
+
+**WordPress URLs** (keep existing):
+- Blog: `/blog/post-slug`
+- Pages: `/about`, `/contact`
+- Custom: `/resources/guide-slug`
+
+**BigCommerce URLs** (via BC Bridge):
+- Products: `/products/product-slug` (displays on WordPress)
+- Categories: `/shop/category-slug` (displays on WordPress)
+- Cart/Checkout: Embedded or redirect to BC
+
+### Redirects
+
+Preserve WooCommerce URLs:
+
+```php
+// functions.php
+add_action('template_redirect', function() {
+  global $wp;
+
+  // Redirect old WC product URLs to BC Bridge pages
+  if (preg_match('/^product\/(.+)$/', $wp->request, $matches)) {
+    $slug = $matches[1];
+    $bc_product = bc_get_product_by_slug($slug);
+
+    if ($bc_product) {
+      wp_redirect('/products/' . $slug, 301);
+      exit;
+    }
+  }
+});
+```
+
+### Schema Markup
+
+BC Bridge includes automatic schema markup:
+
+```json
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "Product Name",
+  "image": "image-url",
+  "description": "Product description",
+  "sku": "SKU123",
+  "brand": {
+    "@type": "Brand",
+    "name": "Brand Name"
+  },
+  "offers": {
+    "@type": "Offer",
+    "price": "99.99",
+    "priceCurrency": "USD",
+    "availability": "https://schema.org/InStock"
+  }
+}
+```
+
+## Testing Checklist
+
+Before going live with WordPress + BigCommerce:
+
+### Functional Testing
+- [ ] Products display correctly on WordPress pages
+- [ ] Add to cart works from WordPress
+- [ ] Cart updates in real-time
+- [ ] Checkout flow completes successfully
+- [ ] Order confirmation emails send
+- [ ] Customer account access works
+
+### Performance Testing
+- [ ] Page load times < 3 seconds
+- [ ] WP Engine cache working for static content
+- [ ] BC API responses cached appropriately
+- [ ] Images optimized and CDN-served
+- [ ] Mobile performance acceptable
+
+### SEO Testing
+- [ ] Product URLs resolve correctly
+- [ ] Schema markup validates
+- [ ] Redirects from WooCommerce URLs work
+- [ ] Sitemap includes all pages and products
+- [ ] No duplicate content issues
+
+### WordPress Testing
+- [ ] Blog posts still accessible
+- [ ] Page builder (Elementor/Divi) still works
+- [ ] WordPress admin loads quickly
+- [ ] Media library accessible
+- [ ] User roles and permissions intact
+
+## Troubleshooting
+
+### BC Bridge Connection Issues
+
+```bash
+# Test API connection via WP-CLI
+wp bc-bridge test-connection
+
+# Clear BC cache
+wp bc-bridge cache-clear
+
+# Regenerate access token
+wp bc-bridge regenerate-token
+```
+
+### WP Engine Specific Issues
+
+**Cache Issues**:
+```bash
+# Clear WP Engine cache
+wp cache flush
+wp transient delete --all
+
+# Purge CDN
+# From WP Engine portal → Performance → Purge Cache
+```
+
+**Memory Limits**:
+```php
+// wp-config.php
+define('WP_MEMORY_LIMIT', '256M');
+define('WP_MAX_MEMORY_LIMIT', '512M');
+```
+
+## Next Steps
+
+- [BC Bridge API Reference](/docs/reference/bc-bridge/api)
+- [BC Bridge Hooks & Filters](/docs/reference/bc-bridge/hooks)
+- [Theme Integration Guide](/docs/guides/bc-bridge/theme-integration)
+- [WP Engine Optimization](/docs/guides/performance/wp-engine)

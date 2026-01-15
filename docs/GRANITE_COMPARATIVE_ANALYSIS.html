@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Granite Comparative Analysis: WooCommerce, Shopify, Magento & BigCommerce</title>
+    <style>
+        :root {
+            --granite-purple: #5c2d91;
+            --granite-dark: #1a1a2e;
+            --granite-accent: #e94560;
+            --granite-light: #f8f9fa;
+            --granite-border: #e0e0e0;
+            --granite-success: #28a745;
+            --granite-warning: #ffc107;
+            --granite-info: #17a2b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--granite-light);
+            color: var(--granite-dark);
+            line-height: 1.6;
+            padding-bottom: 70px;
+        }
+
+        /* Sticky Navigation */
+        .sticky-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--granite-dark);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+            z-index: 1000;
+        }
+        .sticky-nav a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            transition: background 0.2s;
+        }
+        .sticky-nav a:hover { background: rgba(255,255,255,0.15); }
+        .sticky-nav .nav-center {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.7);
+        }
+        .sticky-nav .nav-center select {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-left: 8px;
+        }
+        .sticky-nav .nav-center select option { background: var(--granite-dark); }
+        @media (max-width: 768px) { .sticky-nav .nav-center { display: none; } }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, var(--granite-dark) 0%, #2d2d44 100%);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.3rem;
+            color: var(--granite-accent);
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header .subtitle {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .nav-section {
+            padding: 0 20px;
+            margin-bottom: 20px;
+        }
+
+        .nav-section h3 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.5;
+            margin-bottom: 10px;
+        }
+
+        .nav-section a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 8px 0;
+            font-size: 0.9rem;
+            opacity: 0.8;
+            transition: all 0.2s;
+        }
+
+        .nav-section a:hover {
+            opacity: 1;
+            padding-left: 5px;
+            color: var(--granite-accent);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 40px;
+            max-width: 1200px;
+        }
+
+        .page-header {
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 3px solid var(--granite-purple);
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            color: var(--granite-dark);
+            margin-bottom: 10px;
+        }
+
+        .page-header .meta {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .section {
+            margin-bottom: 50px;
+        }
+
+        .section h2 {
+            font-size: 1.8rem;
+            color: var(--granite-purple);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--granite-border);
+        }
+
+        .section h3 {
+            font-size: 1.3rem;
+            color: var(--granite-dark);
+            margin: 25px 0 15px;
+        }
+
+        .section p {
+            margin-bottom: 15px;
+        }
+
+        /* Key Terminology Box */
+        .terminology-box {
+            background: linear-gradient(135deg, var(--granite-purple) 0%, #7b3fa0 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .terminology-box h3 {
+            color: white;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .terminology-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .term-item {
+            background: rgba(255,255,255,0.1);
+            padding: 12px 15px;
+            border-radius: 6px;
+        }
+
+        .term-item strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #ffd700;
+        }
+
+        .term-item span {
+            font-size: 0.85rem;
+            color: white;
+        }
+
+        /* Platform Cards */
+        .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 25px 0;
+        }
+
+        .platform-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border-top: 4px solid var(--granite-purple);
+        }
+
+        .platform-card.woocommerce { border-top-color: #96588a; }
+        .platform-card.shopify { border-top-color: #96bf48; }
+        .platform-card.magento { border-top-color: #f26322; }
+        .platform-card.bigcommerce { border-top-color: #34313f; }
+
+        .platform-card h4 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .platform-card .best-for {
+            background: var(--granite-light);
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .platform-card .best-for strong {
+            display: block;
+            color: var(--granite-purple);
+            margin-bottom: 5px;
+        }
+
+        .strengths-list, .limitations-list {
+            margin: 10px 0;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .strengths-list li, .limitations-list li {
+            padding: 5px 0 5px 25px;
+            position: relative;
+            font-size: 0.9rem;
+        }
+
+        .strengths-list li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 10px;
+            width: 16px;
+            height: 16px;
+            background: var(--granite-success);
+            border-radius: 50%;
+        }
+
+        .limitations-list li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 10px;
+            width: 16px;
+            height: 16px;
+            background: var(--granite-warning);
+            border-radius: 50%;
+        }
+
+        /* Data Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin: 20px 0;
+        }
+
+        .data-table th {
+            background: var(--granite-dark);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .data-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--granite-border);
+            font-size: 0.9rem;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .data-table .highlight {
+            background: #e8f5e9;
+            font-weight: 600;
+        }
+
+        .score-best {
+            color: var(--granite-success);
+            font-weight: 700;
+        }
+
+        .score-good {
+            color: var(--granite-info);
+            font-weight: 600;
+        }
+
+        .score-moderate {
+            color: var(--granite-warning);
+        }
+
+        .score-poor {
+            color: var(--granite-accent);
+        }
+
+        /* Comparison Matrix */
+        .comparison-matrix {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin: 25px 0;
+        }
+
+        .comparison-matrix h4 {
+            margin-bottom: 20px;
+            color: var(--granite-purple);
+        }
+
+        /* Verdict Cards */
+        .verdict-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .verdict-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .verdict-card h5 {
+            color: var(--granite-purple);
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .verdict-card p {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* Stats Highlight */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, var(--granite-purple) 0%, #7b3fa0 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-box .number {
+            font-size: 2rem;
+            font-weight: 700;
+            display: block;
+        }
+
+        .stat-box .label {
+            font-size: 0.85rem;
+            color: white;
+        }
+
+        /* Migration Flow */
+        .migration-flow {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .migration-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px dashed var(--granite-border);
+        }
+
+        .migration-item:last-child {
+            border-bottom: none;
+        }
+
+        .migration-path {
+            flex: 1;
+            font-weight: 600;
+        }
+
+        .migration-percent {
+            background: var(--granite-purple);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        /* Callout Box */
+        .callout {
+            padding: 20px 25px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .callout.insight {
+            background: #e3f2fd;
+            border-left: 4px solid var(--granite-info);
+        }
+
+        .callout.warning {
+            background: #fff3e0;
+            border-left: 4px solid var(--granite-warning);
+        }
+
+        .callout.success {
+            background: #e8f5e9;
+            border-left: 4px solid var(--granite-success);
+        }
+
+        .callout h5 {
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        /* B2B Complexity Scores */
+        .complexity-score {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .score-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .score-0 { background: var(--granite-success); }
+        .score-1 { background: #8bc34a; }
+        .score-2 { background: var(--granite-warning); }
+        .score-3 { background: var(--granite-accent); }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .platform-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1>Granite Analysis</h1>
+                <div class="subtitle">WP Engine Migration Study</div>
+            </div>
+
+            <div class="nav-section">
+                <h3>Overview</h3>
+                <a href="#executive-summary">Executive Summary</a>
+                <a href="#methodology">Methodology</a>
+                <a href="#store-sizes">Store Size Definitions</a>
+            </div>
+
+            <div class="nav-section">
+                <h3>Platform Analysis</h3>
+                <a href="#platform-summaries">Platform Summaries</a>
+                <a href="#ease-of-use">Ease of Use</a>
+                <a href="#integration">Integration & APIs</a>
+                <a href="#tco">Total Cost of Ownership</a>
+                <a href="#performance">Performance & Speed</a>
+                <a href="#scalability">Scalability</a>
+            </div>
+
+            <div class="nav-section">
+                <h3>Deep Dives</h3>
+                <a href="#b2b-evaluation">B2B Evaluation</a>
+                <a href="#wordpress-integration">WordPress Integration</a>
+                <a href="#migration-patterns">Migration Patterns</a>
+            </div>
+
+            <div class="nav-section">
+                <h3>Recommendations</h3>
+                <a href="#recommendation-matrix">Decision Matrix</a>
+                <a href="#market-data">Market Data</a>
+                <a href="#strategic-alignment">bc-migration Alignment</a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="page-header">
+                <h1>Comprehensive Comparative Analysis</h1>
+                <p class="meta">WooCommerce, Shopify, Magento & BigCommerce | Version 1.0 - June 2025 | Granite Global Digital Agency</p>
+            </header>
+
+            <!-- Key Terminology -->
+            <div class="terminology-box">
+                <h3>Report Context</h3>
+                <div class="terminology-grid">
+                    <div class="term-item">
+                        <strong>Scope</strong>
+                        <span>11 evaluation criteria across B2C and B2B use cases</span>
+                    </div>
+                    <div class="term-item">
+                        <strong>Store Sizes</strong>
+                        <span>Small (800 products), Medium (24k), Large (100k-300k)</span>
+                    </div>
+                    <div class="term-item">
+                        <strong>Methodology</strong>
+                        <span>Standard templates, custom test data, platform-specific optimizations</span>
+                    </div>
+                    <div class="term-item">
+                        <strong>Commissioned By</strong>
+                        <span>WP Engine for Artemis (BigCommerce) migration analysis</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Executive Summary -->
+            <section id="executive-summary" class="section">
+                <h2>Executive Summary</h2>
+
+                <p>This 243-page analysis evaluates four leading e-commerce platforms across 11 critical criteria, examining both B2C retail and B2B wholesale use cases. The study provides data-driven recommendations based on store size, business type, and specific requirements.</p>
+
+                <div class="stats-row">
+                    <div class="stat-box">
+                        <span class="number">11</span>
+                        <span class="label">Evaluation Criteria</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="number">4</span>
+                        <span class="label">Platforms Analyzed</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="number">3</span>
+                        <span class="label">Store Size Tiers</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="number">40+</span>
+                        <span class="label">Business Personas</span>
+                    </div>
+                </div>
+
+                <div class="platform-grid">
+                    <div class="platform-card woocommerce">
+                        <h4>WooCommerce</h4>
+                        <div class="best-for">
+                            <strong>Best For:</strong>
+                            Content-driven brands, SMBs with WordPress expertise, businesses prioritizing SEO
+                        </div>
+                        <ul class="strengths-list">
+                            <li>Lowest TCO - Zero transaction fees, no monthly platform fees</li>
+                            <li>Best SEO scores (92%) via native WordPress integration</li>
+                            <li>Maximum flexibility - 50,000+ plugin ecosystem</li>
+                            <li>Best category page consistency across all store sizes</li>
+                        </ul>
+                        <ul class="limitations-list">
+                            <li>Requires technical maintenance and security updates</li>
+                            <li>Performance variability depends on hosting quality</li>
+                            <li>Admin slows significantly beyond 10,000 products</li>
+                            <li>Highest B2B complexity score (39)</li>
+                        </ul>
+                    </div>
+
+                    <div class="platform-card shopify">
+                        <h4>Shopify</h4>
+                        <div class="best-for">
+                            <strong>Best For:</strong>
+                            Fast-growing DTC brands, omnichannel retailers, social commerce
+                        </div>
+                        <ul class="strengths-list">
+                            <li>Performance leadership - 93% mobile scores, 93% CWV pass rate</li>
+                            <li>Fastest time to market, minimal technical knowledge required</li>
+                            <li>99.98% uptime, automatic scaling, consistent 0.7s load times</li>
+                            <li>8,000+ apps, best-in-class social commerce and POS</li>
+                        </ul>
+                        <ul class="limitations-list">
+                            <li>Transaction fees (0.5-2%) plus app subscriptions impact TCO</li>
+                            <li>11% performance degradation on category pages with large catalogs</li>
+                            <li>B2B requires Plus plan ($2,300+/month)</li>
+                            <li>Limited checkout modifications, 100-variant product limit</li>
+                        </ul>
+                    </div>
+
+                    <div class="platform-card magento">
+                        <h4>Magento (Open Source)</h4>
+                        <div class="best-for">
+                            <strong>Best For:</strong>
+                            Sophisticated B2B operations, enterprises with complex requirements
+                        </div>
+                        <ul class="strengths-list">
+                            <li>B2B dominance - Best complexity score (28), 38% B2B market share</li>
+                            <li>Enterprise scale - Handles 300,000+ products</li>
+                            <li>Multi-store leadership - Superior multi-brand architecture</li>
+                            <li>Performance potential - Can achieve 98% mobile when optimized</li>
+                        </ul>
+                        <ul class="limitations-list">
+                            <li>Highest TCO ($150k-$500k for large stores)</li>
+                            <li>Lowest SEO scores (73%) requiring significant optimization</li>
+                            <li>401 database tables, steep learning curve</li>
+                            <li>2-4 month migration timelines</li>
+                        </ul>
+                    </div>
+
+                    <div class="platform-card bigcommerce">
+                        <h4>BigCommerce</h4>
+                        <div class="best-for">
+                            <strong>Best For:</strong>
+                            Growing businesses wanting predictable costs, mid-market B2B
+                        </div>
+                        <ul class="strengths-list">
+                            <li>No transaction fees on any plan</li>
+                            <li>Native B2B features on mid-tier plans ($400/month vs Shopify's $2,300)</li>
+                            <li>Performance improves at scale (83%→85%)</li>
+                            <li>API excellence - 20,000 requests/hour vs Shopify's 2,400/hour</li>
+                            <li>Best-in-class WordPress plugin for headless commerce</li>
+                        </ul>
+                        <ul class="limitations-list">
+                            <li>Plans escalate quickly with revenue thresholds</li>
+                            <li>Lowest product page scores (75% mobile average)</li>
+                            <li>Smallest ecosystem (0.6-1% market share)</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TCO Analysis -->
+            <section id="tco" class="section">
+                <h2>Total Cost of Ownership</h2>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Store Size</th>
+                            <th>WooCommerce</th>
+                            <th>Shopify</th>
+                            <th>Magento</th>
+                            <th>BigCommerce</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Small B2C</strong></td>
+                            <td class="score-best">$500-$1,500/yr</td>
+                            <td>$800-$2,000/yr</td>
+                            <td class="score-poor">$2,000-$5,000/yr</td>
+                            <td>$800-$2,000/yr</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Medium B2C</strong></td>
+                            <td class="score-best">$2,000-$8,000/yr</td>
+                            <td>$3,000-$10,000/yr</td>
+                            <td class="score-poor">$10,000-$50,000/yr</td>
+                            <td>$3,000-$8,000/yr</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Large B2C</strong></td>
+                            <td class="score-best">$10,000-$50,000/yr</td>
+                            <td>$30,000-$100,000/yr</td>
+                            <td class="score-poor">$100,000-$500,000/yr</td>
+                            <td>$30,000-$100,000/yr</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Small B2B</strong></td>
+                            <td class="score-best">$1,000-$3,000/yr</td>
+                            <td>$2,000-$5,000/yr</td>
+                            <td class="score-poor">$5,000-$15,000/yr</td>
+                            <td class="score-good">$1,500-$4,000/yr</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Medium B2B</strong></td>
+                            <td class="score-best">$5,000-$15,000/yr</td>
+                            <td class="score-poor">$25,000-$50,000/yr (Plus)</td>
+                            <td>$50,000-$150,000/yr</td>
+                            <td class="score-good">$10,000-$30,000/yr</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Large B2B</strong></td>
+                            <td>$20,000-$100,000/yr</td>
+                            <td>$50,000-$150,000/yr</td>
+                            <td class="score-poor">$150,000-$1M+/yr</td>
+                            <td>$50,000-$200,000/yr</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout insight">
+                    <h5>Key Insight: Hidden Costs</h5>
+                    <p>"Free" platforms often become expensive through hosting, plugins, and developer time as requirements grow. Shopify's transaction fees (2-3%) can significantly impact high-volume stores. BigCommerce's higher monthly fees are offset by zero transaction fees.</p>
+                </div>
+            </section>
+
+            <!-- Performance -->
+            <section id="performance" class="section">
+                <h2>Performance & Speed Analysis</h2>
+
+                <h3>Product Page Performance (Mobile)</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Platform</th>
+                            <th>Small Store</th>
+                            <th>Medium Store</th>
+                            <th>Large Store</th>
+                            <th>Average</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Shopify</strong></td>
+                            <td class="score-best">92</td>
+                            <td class="score-best">94</td>
+                            <td class="score-best">93</td>
+                            <td class="score-best">93.0</td>
+                        </tr>
+                        <tr>
+                            <td><strong>WooCommerce</strong></td>
+                            <td>84</td>
+                            <td>86</td>
+                            <td>87</td>
+                            <td class="score-good">85.7</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Magento</strong></td>
+                            <td class="score-best">98</td>
+                            <td class="score-poor">72</td>
+                            <td class="score-poor">72</td>
+                            <td class="score-moderate">80.7</td>
+                        </tr>
+                        <tr>
+                            <td><strong>BigCommerce</strong></td>
+                            <td class="score-poor">71</td>
+                            <td>86</td>
+                            <td class="score-poor">68</td>
+                            <td class="score-poor">75.0</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Category Page Performance (Mobile) - Surprising Results</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Platform</th>
+                            <th>Small Store</th>
+                            <th>Medium Store</th>
+                            <th>Large Store</th>
+                            <th>Degradation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="highlight">
+                            <td><strong>WooCommerce</strong></td>
+                            <td>97</td>
+                            <td>94</td>
+                            <td>93</td>
+                            <td class="score-best">-4% (Best)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Shopify</strong></td>
+                            <td>99</td>
+                            <td>91</td>
+                            <td>88</td>
+                            <td class="score-poor">-11%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Magento</strong></td>
+                            <td>99</td>
+                            <td class="score-poor">77</td>
+                            <td>99</td>
+                            <td class="score-moderate">Erratic</td>
+                        </tr>
+                        <tr>
+                            <td><strong>BigCommerce</strong></td>
+                            <td>83</td>
+                            <td>84</td>
+                            <td>85</td>
+                            <td class="score-best">+2% (Improves!)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout success">
+                    <h5>Unexpected Finding: WooCommerce Category Page Leadership</h5>
+                    <p>WooCommerce shows the best mobile performance consistency on category pages with only 4% degradation from small to large catalogs. This challenges the assumption that SaaS platforms always outperform self-hosted solutions.</p>
+                </div>
+
+                <h3>Core Web Vitals Pass Rate</h3>
+                <div class="stats-row">
+                    <div class="stat-box">
+                        <span class="number">93%</span>
+                        <span class="label">Shopify</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="number">80%</span>
+                        <span class="label">BigCommerce</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="number">53%</span>
+                        <span class="label">Magento</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="number">34%</span>
+                        <span class="label">WooCommerce</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- B2B Deep Dive -->
+            <section id="b2b-evaluation" class="section">
+                <h2>B2B Platform Evaluation</h2>
+
+                <p>B2B e-commerce presents unique challenges beyond typical B2C storefronts. This analysis quantifies implementation complexity using a 0-3 scale:</p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Score</th>
+                            <th>Level</th>
+                            <th>Description</th>
+                            <th>Implementation Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="complexity-score"><span class="score-dot score-0"></span> 0</span></td>
+                            <td>Native</td>
+                            <td>Included feature, no additional work</td>
+                            <td>Immediate</td>
+                        </tr>
+                        <tr>
+                            <td><span class="complexity-score"><span class="score-dot score-1"></span> 1</span></td>
+                            <td>Plugin</td>
+                            <td>Marketplace plugin with configuration</td>
+                            <td>1-3 days</td>
+                        </tr>
+                        <tr>
+                            <td><span class="complexity-score"><span class="score-dot score-2"></span> 2</span></td>
+                            <td>Plugin + Custom</td>
+                            <td>Plugin plus customization required</td>
+                            <td>1-2 weeks</td>
+                        </tr>
+                        <tr>
+                            <td><span class="complexity-score"><span class="score-dot score-3"></span> 3</span></td>
+                            <td>Custom Dev</td>
+                            <td>Full custom development needed</td>
+                            <td>2-4+ weeks</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Total B2B Complexity Scores (Lower is Better)</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Platform</th>
+                            <th>Total Score</th>
+                            <th>Assessment</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="highlight">
+                            <td><strong>Magento</strong></td>
+                            <td class="score-best">28 points</td>
+                            <td>Winner - Most B2B Ready</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Shopify Plus</strong></td>
+                            <td>36 points</td>
+                            <td>Good with Plus</td>
+                        </tr>
+                        <tr>
+                            <td><strong>BigCommerce</strong></td>
+                            <td>37 points</td>
+                            <td>Strong native B2B</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Shopify Standard</strong></td>
+                            <td>38 points</td>
+                            <td>B2B afterthought</td>
+                        </tr>
+                        <tr>
+                            <td><strong>WooCommerce</strong></td>
+                            <td class="score-poor">39 points</td>
+                            <td>Most plugins required</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout insight">
+                    <h5>BigCommerce B2B Value Proposition</h5>
+                    <p>BigCommerce provides native B2B features (customer-specific pricing, price lists, quoting, net terms) on mid-tier plans at $400/month, while Shopify requires Plus at $2,300/month for comparable functionality. This represents significant value for mid-market B2B operations.</p>
+                </div>
+            </section>
+
+            <!-- WordPress Integration -->
+            <section id="wordpress-integration" class="section">
+                <h2>WordPress Integration Analysis</h2>
+
+                <div class="comparison-matrix">
+                    <h4>BigCommerce + WordPress (Headless Commerce)</h4>
+                    <p>BigCommerce offers the best-in-class WordPress integration through its official plugin, enabling true headless commerce where WordPress handles content/CMS while BigCommerce manages the e-commerce backend.</p>
+
+                    <h5 style="margin-top: 20px;">Key Features:</h5>
+                    <ul class="strengths-list">
+                        <li>Products sync as WordPress custom post types (SEO-friendly)</li>
+                        <li>PCI-compliant checkout hosted securely by BigCommerce</li>
+                        <li>Full REST/GraphQL API access</li>
+                        <li>Compatible with most WordPress themes</li>
+                        <li>Leverages WordPress's superior content management</li>
+                    </ul>
+
+                    <h5 style="margin-top: 20px;">Limitations:</h5>
+                    <ul class="limitations-list">
+                        <li>Checkout is hosted (not fully native to WordPress)</li>
+                        <li>Product SEO preservation challenging when migrating from WooCommerce</li>
+                        <li>Learning curve for syncing and plugin templating</li>
+                    </ul>
+                </div>
+
+                <div class="verdict-grid">
+                    <div class="verdict-card">
+                        <h5>Shopify + WordPress</h5>
+                        <p><strong>Integration:</strong> Buy Button or subdomain<br>
+                        <strong>Complexity:</strong> Low<br>
+                        <strong>Limitation:</strong> Design inconsistencies, fragmented analytics</p>
+                    </div>
+                    <div class="verdict-card">
+                        <h5>Magento + WordPress</h5>
+                        <p><strong>Integration:</strong> Custom API or bridge<br>
+                        <strong>Complexity:</strong> High<br>
+                        <strong>Limitation:</strong> Doubles maintenance burden</p>
+                    </div>
+                    <div class="verdict-card">
+                        <h5>BigCommerce + WordPress</h5>
+                        <p><strong>Integration:</strong> Native plugin (headless)<br>
+                        <strong>Complexity:</strong> Medium<br>
+                        <strong>Best For:</strong> Content-heavy sites needing enterprise e-commerce</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Migration Patterns -->
+            <section id="migration-patterns" class="section">
+                <h2>Platform Migration Patterns</h2>
+
+                <h3>Migration Flow Analysis (H1 2025)</h3>
+                <div class="migration-flow">
+                    <div class="migration-item">
+                        <span class="migration-path">WooCommerce → Shopify</span>
+                        <span class="migration-percent">22.6%</span>
+                    </div>
+                    <div class="migration-item">
+                        <span class="migration-path">Magento 1 → Shopify</span>
+                        <span class="migration-percent">18%</span>
+                    </div>
+                    <div class="migration-item">
+                        <span class="migration-path">Magento 1 → Magento 2</span>
+                        <span class="migration-percent">14%</span>
+                    </div>
+                    <div class="migration-item">
+                        <span class="migration-path">WooCommerce → BigCommerce</span>
+                        <span class="migration-percent">8%</span>
+                    </div>
+                    <div class="migration-item">
+                        <span class="migration-path">BigCommerce → Shopify</span>
+                        <span class="migration-percent">6%</span>
+                    </div>
+                    <div class="migration-item">
+                        <span class="migration-path">Shopify → Shopify Plus</span>
+                        <span class="migration-percent">5%</span>
+                    </div>
+                </div>
+
+                <h3>Platform Churn Rates</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Platform</th>
+                            <th>Churn Rate</th>
+                            <th>Primary Reasons</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>WooCommerce</strong></td>
+                            <td class="score-poor">30%</td>
+                            <td>Complexity, maintenance burden</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Magento</strong></td>
+                            <td class="score-moderate">16-17%</td>
+                            <td>Cost, complexity, EOL migration</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Shopify</strong></td>
+                            <td class="score-good">13.8%</td>
+                            <td>Limitations, cost at scale</td>
+                        </tr>
+                        <tr>
+                            <td><strong>BigCommerce</strong></td>
+                            <td class="score-best">7.5-8%</td>
+                            <td>App ecosystem size</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout warning">
+                    <h5>Migration Complexity</h5>
+                    <p><strong>Easiest:</strong> Moving TO Shopify (automated tools, 1-2 week timeline)<br>
+                    <strong>Moderate:</strong> Moving TO BigCommerce (API setup required, 2-4 weeks)<br>
+                    <strong>Hardest:</strong> Moving TO/FROM Magento (2-4 months, significant technical work)</p>
+                </div>
+            </section>
+
+            <!-- Recommendation Matrix -->
+            <section id="recommendation-matrix" class="section">
+                <h2>Platform Recommendation Matrix</h2>
+
+                <h3>By Store Size</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Scenario</th>
+                            <th>Best Choice</th>
+                            <th>Second Choice</th>
+                            <th>Key Considerations</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Small B2C</strong></td>
+                            <td class="score-best">Shopify</td>
+                            <td>WooCommerce</td>
+                            <td>Quick launch, minimal technical knowledge</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Small B2B</strong></td>
+                            <td class="score-best">BigCommerce</td>
+                            <td>WooCommerce</td>
+                            <td>Native B2B features without Plus pricing</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Medium B2C</strong></td>
+                            <td class="score-best">Shopify</td>
+                            <td>BigCommerce</td>
+                            <td>Reliability with room to grow</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Medium B2B</strong></td>
+                            <td class="score-best">Magento</td>
+                            <td>BigCommerce B2B</td>
+                            <td>Comprehensive wholesale capabilities</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Large B2C</strong></td>
+                            <td class="score-best">Magento</td>
+                            <td>Shopify Plus</td>
+                            <td>Enterprise scale, multi-store capabilities</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Large B2B</strong></td>
+                            <td class="score-best">Magento</td>
+                            <td>BigCommerce Enterprise</td>
+                            <td>Complex B2B, custom pricing matrices</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>By Use Case</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Use Case</th>
+                            <th>First Choice</th>
+                            <th>Rationale</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Content-Driven Commerce</td>
+                            <td class="score-best">WooCommerce</td>
+                            <td>Native WordPress integration, SEO advantages</td>
+                        </tr>
+                        <tr>
+                            <td>Multi-Channel Selling</td>
+                            <td class="score-best">Shopify</td>
+                            <td>Best native social commerce and POS</td>
+                        </tr>
+                        <tr>
+                            <td>Multi-Brand Operations</td>
+                            <td class="score-best">Magento</td>
+                            <td>Superior multi-store architecture</td>
+                        </tr>
+                        <tr>
+                            <td>Headless Commerce</td>
+                            <td class="score-best">BigCommerce</td>
+                            <td>API-first approach, WordPress plugin</td>
+                        </tr>
+                        <tr>
+                            <td>Quick Launch Priority</td>
+                            <td class="score-best">Shopify</td>
+                            <td>Fastest path to market</td>
+                        </tr>
+                        <tr>
+                            <td>High-Growth Startup</td>
+                            <td class="score-best">BigCommerce</td>
+                            <td>Scales without technical overhead</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Market Data -->
+            <section id="market-data" class="section">
+                <h2>Market Data Compilation</h2>
+
+                <h3>North America Market Share (2025)</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Platform</th>
+                            <th>USA Share</th>
+                            <th>Active Stores</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Shopify</strong></td>
+                            <td class="score-best">30%</td>
+                            <td>2.9 million</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Wix</strong></td>
+                            <td>20%</td>
+                            <td>1.9 million</td>
+                        </tr>
+                        <tr>
+                            <td><strong>WooCommerce</strong></td>
+                            <td>17-18%</td>
+                            <td>1.7 million</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Magento</strong></td>
+                            <td>5%</td>
+                            <td>485,000</td>
+                        </tr>
+                        <tr>
+                            <td><strong>BigCommerce</strong></td>
+                            <td>2%</td>
+                            <td>194,000</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>B2B Market Share</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Platform</th>
+                            <th>B2B Share</th>
+                            <th>Avg Order Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Magento</strong></td>
+                            <td class="score-best">38%</td>
+                            <td>$2,850</td>
+                        </tr>
+                        <tr>
+                            <td><strong>BigCommerce</strong></td>
+                            <td>22%</td>
+                            <td>$1,950</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Shopify Plus</strong></td>
+                            <td>18%</td>
+                            <td>$1,200</td>
+                        </tr>
+                        <tr>
+                            <td><strong>WooCommerce</strong></td>
+                            <td>12%</td>
+                            <td>$950</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Strategic Alignment -->
+            <section id="strategic-alignment" class="section">
+                <h2>bc-migration Project Alignment</h2>
+
+                <div class="callout success">
+                    <h5>This Granite Analysis Validates the bc-migration Approach</h5>
+                    <p>The comprehensive data supports WP Engine's "Artemis" strategy of migrating WooCommerce stores to BigCommerce, particularly for:</p>
+                </div>
+
+                <div class="platform-grid">
+                    <div class="platform-card">
+                        <h4>Alignment Points</h4>
+                        <ul class="strengths-list">
+                            <li><strong>B2B Value:</strong> BigCommerce provides native B2B at 1/6th the cost of Shopify Plus</li>
+                            <li><strong>WordPress Integration:</strong> Best-in-class headless commerce plugin maintains content/SEO benefits</li>
+                            <li><strong>Lowest Churn:</strong> 7.5-8% churn rate indicates high satisfaction post-migration</li>
+                            <li><strong>API Excellence:</strong> 20,000 req/hr enables robust integrations (8x Shopify)</li>
+                            <li><strong>Category Performance:</strong> Only platform showing improvement at scale (+2%)</li>
+                        </ul>
+                    </div>
+
+                    <div class="platform-card">
+                        <h4>Migration Considerations</h4>
+                        <ul class="limitations-list">
+                            <li><strong>SEO Risk:</strong> Product SEO preservation is challenging when migrating from WooCommerce</li>
+                            <li><strong>Ecosystem Size:</strong> Smaller app marketplace may require custom development</li>
+                            <li><strong>Learning Curve:</strong> Slightly higher than Shopify for merchants</li>
+                            <li><strong>Product Page Performance:</strong> Lower baseline (75%) requires optimization attention</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="comparison-matrix">
+                    <h4>Key Data Points for bc-migration Tool Development</h4>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>WooCommerce (Source)</th>
+                                <th>BigCommerce (Target)</th>
+                                <th>Implication</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>API Rate Limit</td>
+                                <td>No hard limit (paginated)</td>
+                                <td>20,000 req/hr</td>
+                                <td>bc-migration rate limiter at 150/30s is conservative</td>
+                            </tr>
+                            <tr>
+                                <td>Variant Limit</td>
+                                <td>Unlimited</td>
+                                <td>600 per product</td>
+                                <td>Tool must warn/truncate high-variant products</td>
+                            </tr>
+                            <tr>
+                                <td>Migration Timeline</td>
+                                <td>-</td>
+                                <td>2-4 weeks typical</td>
+                                <td>Tool automation can reduce to days</td>
+                            </tr>
+                            <tr>
+                                <td>B2B Complexity Score</td>
+                                <td>39 (highest)</td>
+                                <td>37</td>
+                                <td>Minimal B2B feature loss in migration</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <footer style="margin-top: 60px; padding-top: 30px; border-top: 2px solid var(--granite-border); text-align: center; color: #666;">
+                <p><strong>Source:</strong> Granite Global Digital Agency - Comprehensive Comparative Analysis v1.0 (June 2025)</p>
+                <p style="margin-top: 10px; font-size: 0.85rem;">243 pages | Commissioned by WP Engine for Artemis migration strategy analysis</p>
+            </footer>
+        </main>
+    </div>
+
+    <!-- Sticky Navigation -->
+    <nav class="sticky-nav">
+        <a href="index.html">← Home</a>
+        <div class="nav-center">
+            <span>1 of 17</span>
+            <select onchange="if(this.value) window.location.href=this.value">
+                <option value="">Jump to...</option>
+                <option value="IMPLEMENTATION_BRIEF.html">★ Implementation Brief</option>
+                <option value="index.html">Home</option>
+                <option value="GRANITE_COMPARATIVE_ANALYSIS.html" selected>1. Granite Analysis</option>
+                <option value="WPE_ARTEMIS_MIGRATION_ANALYSIS.html">2. WPE Artemis</option>
+                <option value="PLATFORM_DECISION_RATIONALE.html">3. Platform Decision</option>
+                <option value="MIGRATION_BUSINESS_CASE.html">4. Business Case</option>
+                <option value="COMPETITIVE_LANDSCAPE.html">5. Competitive Landscape</option>
+                <option value="PLUGIN_COMPATIBILITY_MATRIX.html">6. Plugin Matrix</option>
+                <option value="SEO_PRESERVATION_GUIDE.html">7. SEO Guide</option>
+                <option value="MIGRATION_RUNBOOK.html">8. Migration Runbook</option>
+                <option value="INTEGRATION_ARCHITECTURE.html">9. Integration Architecture</option>
+                <option value="WORDPRESS_CATALYST_COMPONENTS.html">10. WP Catalyst Components</option>
+                <option value="ADR-001-keep-wordpress.html">11. ADR-001</option>
+                <option value="ADR-002-headless-vs-checkout-only.html">12. ADR-002</option>
+                <option value="ADR-003-order-history-strategy.html">13. ADR-003</option>
+                <option value="MIGRATION_QA_TRACKER.html">14. Q&A Tracker</option>
+                <option value="B2B_MIGRATION_GUIDE.html">15. B2B Guide</option>
+                <option value="STORE_SIZE_PLAYBOOK.html">16. Store Size Playbook</option>
+                <option value="MIGRATION_PERSONAS.html">17. Migration Personas</option>
+            </select>
+        </div>
+        <a href="WPE_ARTEMIS_MIGRATION_ANALYSIS.html">WPE Artemis →</a>
+    </nav>
+</body>
+</html>

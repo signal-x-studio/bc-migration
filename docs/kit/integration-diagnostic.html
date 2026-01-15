@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integration Debt Diagnostic Framework - BigCommerce Product Architecture Kit</title>
+    <style>
+        :root {
+            --bc-primary: #34313f;
+            --bc-accent: #5c6ac4;
+            --bc-success: #22c55e;
+            --bc-warning: #f59e0b;
+            --bc-danger: #ef4444;
+            --bc-light: #f8f9fa;
+            --bc-border: #e0e0e0;
+            --sidebar-width: 260px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bc-light);
+            color: var(--bc-primary);
+            line-height: 1.6;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bc-primary);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 20px 0;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h1 {
+            font-size: 0.85rem;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        .sidebar-header .quarter {
+            font-size: 0.75rem;
+            opacity: 0.6;
+            margin-top: 4px;
+        }
+
+        .nav-section {
+            margin-bottom: 8px;
+        }
+
+        .nav-section-title {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: rgba(255,255,255,0.5);
+            padding: 12px 20px 8px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 10px 20px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.15s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-link:hover {
+            background: rgba(255,255,255,0.08);
+            color: white;
+        }
+
+        .nav-link.active {
+            background: var(--bc-accent);
+            color: white;
+            border-left-color: white;
+        }
+
+        /* Main Content */
+        .main {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 50px 60px;
+            max-width: 1000px;
+        }
+
+        .breadcrumb {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .breadcrumb a {
+            color: var(--bc-accent);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .main h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--bc-primary);
+        }
+
+        .main .subtitle {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .meta-inline {
+            display: flex;
+            gap: 30px;
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--bc-border);
+        }
+
+        .meta-inline strong {
+            color: var(--bc-primary);
+        }
+
+        /* Sections */
+        section {
+            margin-bottom: 50px;
+        }
+
+        section h2 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: var(--bc-primary);
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--bc-accent);
+        }
+
+        section h3 {
+            font-size: 1.15rem;
+            margin: 30px 0 15px;
+            color: var(--bc-primary);
+        }
+
+        section h4 {
+            font-size: 1rem;
+            margin: 20px 0 12px;
+            color: var(--bc-primary);
+        }
+
+        section p {
+            margin-bottom: 15px;
+            color: #444;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+            font-size: 0.9rem;
+        }
+
+        thead {
+            background: var(--bc-primary);
+            color: white;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 16px;
+            font-weight: 500;
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--bc-border);
+            vertical-align: top;
+        }
+
+        tr:hover td {
+            background: rgba(92, 106, 196, 0.04);
+        }
+
+        /* Diagram blocks */
+        .diagram {
+            background: var(--bc-primary);
+            color: #f8f8f2;
+            padding: 20px 25px;
+            border-radius: 8px;
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            overflow-x: auto;
+            margin-bottom: 25px;
+            white-space: pre;
+        }
+
+        /* Code/Template blocks */
+        .template-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px 25px;
+            border-radius: 8px;
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            overflow-x: auto;
+            margin-bottom: 25px;
+        }
+
+        .template-block .comment {
+            color: #6a9955;
+        }
+
+        .template-block .key {
+            color: #9cdcfe;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin-bottom: 20px;
+            padding-left: 25px;
+        }
+
+        li {
+            margin-bottom: 8px;
+            color: #444;
+        }
+
+        /* Callout */
+        .callout {
+            background: #eff6ff;
+            border-left: 4px solid var(--bc-accent);
+            padding: 16px 20px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 25px;
+        }
+
+        .callout.warning {
+            background: #fefce8;
+            border-left-color: var(--bc-warning);
+        }
+
+        .callout.success {
+            background: #f0fdf4;
+            border-left-color: var(--bc-success);
+        }
+
+        .callout h4 {
+            margin: 0 0 8px;
+            font-size: 0.95rem;
+        }
+
+        .callout p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        /* Dimension cards */
+        .dimension-card {
+            background: white;
+            border: 1px solid var(--bc-border);
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .dimension-header {
+            background: linear-gradient(135deg, var(--bc-accent), #7c3aed);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .dimension-number {
+            background: rgba(255,255,255,0.2);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .dimension-header h3 {
+            color: white;
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .dimension-content {
+            padding: 20px;
+        }
+
+        /* Assessment levels */
+        .levels-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .level-box {
+            background: var(--bc-light);
+            border-radius: 6px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .level-box .level-num {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--bc-accent);
+        }
+
+        .level-box .level-name {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--bc-primary);
+            margin-bottom: 4px;
+        }
+
+        .level-box .level-desc {
+            font-size: 0.7rem;
+            color: #666;
+        }
+
+        /* Two Column */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        /* Score card */
+        .score-summary {
+            background: white;
+            border: 2px solid var(--bc-accent);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .score-summary h4 {
+            margin: 0 0 15px;
+            color: var(--bc-accent);
+        }
+
+        .score-range {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .score-item {
+            text-align: center;
+            padding: 12px;
+            border-radius: 6px;
+        }
+
+        .score-item.critical { background: #fee2e2; }
+        .score-item.high { background: #fef3c7; }
+        .score-item.moderate { background: #dbeafe; }
+        .score-item.low { background: #dcfce7; }
+
+        .score-item .range {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .score-item .label {
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .sidebar { width: 220px; }
+            .main { margin-left: 220px; padding: 30px 40px; }
+            .levels-grid { grid-template-columns: repeat(2, 1fr); }
+            .two-col { grid-template-columns: 1fr; }
+            .score-range { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 700px) {
+            .sidebar { display: none; }
+            .main { margin-left: 0; padding: 20px; }
+            .meta-inline { flex-direction: column; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>BigCommerce - Q1 2026</h1>
+                <div class="quarter">Product Architecture Kit</div>
+            </div>
+
+            <nav>
+                <div class="nav-section">
+                    <div class="nav-section-title">Overview</div>
+                    <a href="index.html" class="nav-link">Executive Summary</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">April Summit</div>
+                    <a href="april-summit-workback.html" class="nav-link">Workback Plan</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Integration Diagnostic</div>
+                    <a href="integration-diagnostic.html" class="nav-link active">Framework Overview</a>
+                    <a href="#dimension-1" class="nav-link">1. Identity & Access</a>
+                    <a href="#dimension-2" class="nav-link">2. Data & Schema</a>
+                    <a href="#dimension-3" class="nav-link">3. API & Contracts</a>
+                    <a href="#dimension-4" class="nav-link">4. Infrastructure</a>
+                    <a href="#dimension-5" class="nav-link">5. User Experience</a>
+                    <a href="#dimension-6" class="nav-link">6. Billing & Licensing</a>
+                    <a href="#dimension-7" class="nav-link">7. Organizational</a>
+                    <a href="#assessment" class="nav-link">Assessment Template</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">AI-Native Architecture</div>
+                    <a href="ai-native-architecture.html" class="nav-link">Vision & Strategy</a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main">
+            <div class="breadcrumb">
+                <a href="index.html">Kit</a> / Integration Debt Diagnostic
+            </div>
+
+            <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 1px solid #f59e0b; border-radius: 8px; padding: 12px 20px; margin-bottom: 25px; font-size: 0.9rem; color: #92400e;">
+                <strong>Pre-Red-Team Document:</strong> This document was created before the Project Aion red team assessment (January 2026). The diagnostic framework remains valid; see <a href="year-one/red-team-response.html" style="color: #92400e; font-weight: 600;">Year One Planning</a> for adjusted execution strategy.
+            </div>
+
+            <h1>BigCommerce Integration Debt Diagnostic Framework</h1>
+            <p class="subtitle">Systematic assessment of integration debt across BigCommerce's acquired product portfolio</p>
+
+            <div class="meta-inline">
+                <span><strong>Timeline:</strong> Q2-Q3 2026</span>
+                <span><strong>Owner:</strong> Nino Chavez</span>
+            </div>
+
+            <!-- Executive Summary -->
+            <section id="executive-summary">
+                <h2>Executive Summary</h2>
+                <p>BigCommerce has grown through acquisition, creating three distinct products that serve different parts of the merchant journey:</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Acquired</th>
+                            <th>Primary Function</th>
+                            <th>Target Segment</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>BigCommerce Core</strong></td>
+                            <td>Original</td>
+                            <td>Commerce platform, checkout, catalog</td>
+                            <td>All segments</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Makeswift</strong></td>
+                            <td>2022</td>
+                            <td>Visual page builder, storefront design</td>
+                            <td>Mid-market, Enterprise</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Feedonomics</strong></td>
+                            <td>2021</td>
+                            <td>Product feed management, marketplace sync</td>
+                            <td>Enterprise, multi-channel</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout warning">
+                    <h4>The Problem</h4>
+                    <p>These products were built independently and integrated post-acquisition. Result: 3 separate logins, 2 billing systems, no shared customer view, and batch-only data sync.</p>
+                </div>
+
+                <div class="callout success">
+                    <h4>The Opportunity</h4>
+                    <p>A unified data layer is required for AI recommendations - siloed data blocks this entirely. Fixing identity alone would reduce support tickets by ~20%.</p>
+                </div>
+            </section>
+
+            <!-- Diagnostic Dimensions Overview -->
+            <section id="dimensions-overview">
+                <h2>Diagnostic Dimensions</h2>
+                <p>This framework assesses integration debt across seven dimensions:</p>
+
+                <div class="diagram">                    INTEGRATION DIMENSIONS
+
+  1. IDENTITY & ACCESS ──────> Single sign-on, permissions
+
+  2. DATA & SCHEMA ──────────> Data models, synchronization
+
+  3. API & CONTRACTS ────────> API consistency, versioning
+
+  4. INFRASTRUCTURE ─────────> Deployment, observability
+
+  5. USER EXPERIENCE ────────> Navigation, workflows
+
+  6. BILLING & LICENSING ────> Packaging, metering
+
+  7. ORGANIZATIONAL ─────────> Team structure, ownership</div>
+            </section>
+
+            <!-- Dimension 1 -->
+            <section id="dimension-1">
+                <div class="dimension-card">
+                    <div class="dimension-header">
+                        <div class="dimension-number">1</div>
+                        <h3>Identity & Access Management</h3>
+                    </div>
+                    <div class="dimension-content">
+                        <h4>Questions to Answer</h4>
+                        <table>
+                            <thead>
+                                <tr><th>Question</th><th>Why It Matters</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Is there a single identity provider across all products?</td><td>Merchants shouldn't need multiple logins</td></tr>
+                                <tr><td>How are permissions managed?</td><td>Role-based access should span products</td></tr>
+                                <tr><td>Can a merchant user access all products seamlessly?</td><td>Friction = churn risk</td></tr>
+                                <tr><td>How is API authentication handled?</td><td>Developers need consistent auth patterns</td></tr>
+                                <tr><td>Are there separate user databases?</td><td>Data duplication = inconsistency risk</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h4>Assessment Levels</h4>
+                        <div class="levels-grid">
+                            <div class="level-box">
+                                <div class="level-num">1</div>
+                                <div class="level-name">Siloed</div>
+                                <div class="level-desc">Completely separate identity systems</div>
+                            </div>
+                            <div class="level-box">
+                                <div class="level-num">2</div>
+                                <div class="level-name">Federated</div>
+                                <div class="level-desc">SSO exists but permissions are separate</div>
+                            </div>
+                            <div class="level-box">
+                                <div class="level-num">3</div>
+                                <div class="level-name">Unified</div>
+                                <div class="level-desc">Single identity with cross-product permissions</div>
+                            </div>
+                            <div class="level-box">
+                                <div class="level-num">4</div>
+                                <div class="level-name">Native</div>
+                                <div class="level-desc">Identity is invisible; products feel like one</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Dimension 2 -->
+            <section id="dimension-2">
+                <div class="dimension-card">
+                    <div class="dimension-header" style="background: linear-gradient(135deg, #7c3aed, #a78bfa);">
+                        <div class="dimension-number">2</div>
+                        <h3>Data & Schema</h3>
+                    </div>
+                    <div class="dimension-content">
+                        <h4>Questions to Answer</h4>
+                        <table>
+                            <thead>
+                                <tr><th>Question</th><th>Why It Matters</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Is there a canonical data model for core entities?</td><td>Inconsistent models = integration bugs</td></tr>
+                                <tr><td>How is data synchronized between products?</td><td>Real-time vs. batch affects UX</td></tr>
+                                <tr><td>Are there data duplication issues?</td><td>Duplication = inconsistency risk</td></tr>
+                                <tr><td>What happens when data changes in one product?</td><td>Event propagation matters</td></tr>
+                                <tr><td>Are there schema versioning strategies?</td><td>Breaking changes affect all products</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h4>Core Entities to Assess</h4>
+                        <table>
+                            <thead>
+                                <tr><th>Entity</th><th>BC Core</th><th>Makeswift</th><th>Feedonomics</th><th>Sync Mechanism</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Product</td><td>Yes</td><td>?</td><td>Yes</td><td>?</td></tr>
+                                <tr><td>Category</td><td>Yes</td><td>?</td><td>Yes</td><td>?</td></tr>
+                                <tr><td>Customer</td><td>Yes</td><td>?</td><td>?</td><td>?</td></tr>
+                                <tr><td>Order</td><td>Yes</td><td>?</td><td>Yes</td><td>?</td></tr>
+                                <tr><td>Inventory</td><td>Yes</td><td>?</td><td>Yes</td><td>?</td></tr>
+                                <tr><td>Content/Pages</td><td>Yes</td><td>Yes</td><td>-</td><td>?</td></tr>
+                                <tr><td>Media/Assets</td><td>Yes</td><td>Yes</td><td>Yes</td><td>?</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h4>Assessment Levels</h4>
+                        <div class="levels-grid">
+                            <div class="level-box">
+                                <div class="level-num">1</div>
+                                <div class="level-name">Siloed</div>
+                                <div class="level-desc">Separate data models, manual sync</div>
+                            </div>
+                            <div class="level-box">
+                                <div class="level-num">2</div>
+                                <div class="level-name">Replicated</div>
+                                <div class="level-desc">Data copied between systems</div>
+                            </div>
+                            <div class="level-box">
+                                <div class="level-num">3</div>
+                                <div class="level-name">Federated</div>
+                                <div class="level-desc">Single source of truth, APIs for access</div>
+                            </div>
+                            <div class="level-box">
+                                <div class="level-num">4</div>
+                                <div class="level-name">Unified</div>
+                                <div class="level-desc">Single data layer, all products read/write</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Dimension 3 -->
+            <section id="dimension-3">
+                <div class="dimension-card">
+                    <div class="dimension-header" style="background: linear-gradient(135deg, #059669, #34d399);">
+                        <div class="dimension-number">3</div>
+                        <h3>API & Contracts</h3>
+                    </div>
+                    <div class="dimension-content">
+                        <h4>Questions to Answer</h4>
+                        <table>
+                            <thead>
+                                <tr><th>Question</th><th>Why It Matters</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Are APIs consistent in style (REST, GraphQL, naming)?</td><td>Developer experience</td></tr>
+                                <tr><td>Is there a unified API gateway?</td><td>Single entry point reduces complexity</td></tr>
+                                <tr><td>How is API versioning handled?</td><td>Breaking changes affect integrations</td></tr>
+                                <tr><td>Are there internal APIs between products?</td><td>Internal contracts matter</td></tr>
+                                <tr><td>Is there API documentation consistency?</td><td>Developer onboarding</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h4>Assessment Levels</h4>
+                        <div class="levels-grid">
+                            <div class="level-box">
+                                <div class="level-num">1</div>
+                                <div class="level-name">Siloed</div>
+                                <div class="level-desc">Completely separate APIs, no consistency</div>
+                            </div>
+                            <div class="level-box">
+                                <div class="level-num">2</div>
+                                <div class="level-name">Documented</div>
+                                <div class="level-desc">Separate but documented APIs</div>
+                            </div>
+                            <div class="level-box">
+                                <div class="level-num">3</div>
+                                <div class="level-name">Consistent</div>
+                                <div class="level-desc">Shared patterns, conventions</div>
+                            </div>
+                            <div class="level-box">
+                                <div class="level-num">4</div>
+                                <div class="level-name">Unified</div>
+                                <div class="level-desc">Single API surface, composable</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Dimension 4 -->
+            <section id="dimension-4">
+                <div class="dimension-card">
+                    <div class="dimension-header" style="background: linear-gradient(135deg, #dc2626, #f87171);">
+                        <div class="dimension-number">4</div>
+                        <h3>Infrastructure</h3>
+                    </div>
+                    <div class="dimension-content">
+                        <h4>Questions to Answer</h4>
+                        <table>
+                            <thead>
+                                <tr><th>Question</th><th>Why It Matters</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Are products deployed on the same infrastructure?</td><td>Operational complexity</td></tr>
+                                <tr><td>Is there shared observability (logging, metrics, tracing)?</td><td>Debugging cross-product issues</td></tr>
+                                <tr><td>Are there shared services (CDN, caching, queues)?</td><td>Cost efficiency</td></tr>
+                                <tr><td>How are deployments coordinated?</td><td>Cross-product dependencies</td></tr>
+                                <tr><td>Is there a shared CI/CD pipeline?</td><td>Development velocity</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h4>Assessment Levels</h4>
+                        <div class="levels-grid">
+                            <div class="level-box">
+                                <div class="level-num">1</div>
+                                <div class="level-name">Siloed</div>
+                                <div class="level-desc">Completely separate infrastructure</div>
+                            </div>
+                            <div class="level-box">
+                                <div class="level-num">2</div>
+                                <div class="level-name">Colocated</div>
+                                <div class="level-desc">Same cloud, separate accounts/clusters</div>
+                            </div>
+                            <div class="level-box">
+                                <div class="level-num">3</div>
+                                <div class="level-name">Shared</div>
+                                <div class="level-desc">Common services, some shared infra</div>
+                            </div>
+                            <div class="level-box">
+                                <div class="level-num">4</div>
+                                <div class="level-name">Unified</div>
+                                <div class="level-desc">Single platform, shared everything</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Dimension 5 -->
+            <section id="dimension-5">
+                <div class="dimension-card">
+                    <div class="dimension-header" style="background: linear-gradient(135deg, #0891b2, #22d3ee);">
+                        <div class="dimension-number">5</div>
+                        <h3>User Experience</h3>
+                    </div>
+                    <div class="dimension-content">
+                        <h4>Questions to Answer</h4>
+                        <table>
+                            <thead>
+                                <tr><th>Question</th><th>Why It Matters</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Is there a unified navigation across products?</td><td>Merchant confusion</td></tr>
+                                <tr><td>Are design systems consistent?</td><td>Brand coherence</td></tr>
+                                <tr><td>How do merchants move between products?</td><td>Workflow friction</td></tr>
+                                <tr><td>Are notifications unified?</td><td>Alert fatigue</td></tr>
+                                <tr><td>Is there a single dashboard/home?</td><td>Merchant orientation</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h4>Assessment Levels</h4>
+                        <div class="levels-grid">
+                            <div class="level-box">
+                                <div class="level-num">1</div>
+                                <div class="level-name">Siloed</div>
+                                <div class="level-desc">Completely separate UIs</div>
+                            </div>
+                            <div class="level-box">
+                                <div class="level-num">2</div>
+                                <div class="level-name">Linked</div>
+                                <div class="level-desc">Links between products</div>
+                            </div>
+                            <div class="level-box">
+                                <div class="level-num">3</div>
+                                <div class="level-name">Embedded</div>
+                                <div class="level-desc">Products embedded in each other</div>
+                            </div>
+                            <div class="level-box">
+                                <div class="level-num">4</div>
+                                <div class="level-name">Unified</div>
+                                <div class="level-desc">Single cohesive experience</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Dimension 6 -->
+            <section id="dimension-6">
+                <div class="dimension-card">
+                    <div class="dimension-header" style="background: linear-gradient(135deg, #ca8a04, #facc15);">
+                        <div class="dimension-number">6</div>
+                        <h3>Billing & Licensing</h3>
+                    </div>
+                    <div class="dimension-content">
+                        <h4>Questions to Answer</h4>
+                        <table>
+                            <thead>
+                                <tr><th>Question</th><th>Why It Matters</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Is there unified billing?</td><td>Merchant billing complexity</td></tr>
+                                <tr><td>How are products packaged?</td><td>Sales complexity</td></tr>
+                                <tr><td>Are there cross-product bundles?</td><td>Pricing strategy</td></tr>
+                                <tr><td>How is usage metered?</td><td>Cost visibility</td></tr>
+                                <tr><td>Are there licensing dependencies?</td><td>Upgrade paths</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h4>Assessment Levels</h4>
+                        <div class="levels-grid">
+                            <div class="level-box">
+                                <div class="level-num">1</div>
+                                <div class="level-name">Siloed</div>
+                                <div class="level-desc">Separate billing systems</div>
+                            </div>
+                            <div class="level-box">
+                                <div class="level-num">2</div>
+                                <div class="level-name">Consolidated</div>
+                                <div class="level-desc">Separate systems, one invoice</div>
+                            </div>
+                            <div class="level-box">
+                                <div class="level-num">3</div>
+                                <div class="level-name">Bundled</div>
+                                <div class="level-desc">Product bundles, unified pricing</div>
+                            </div>
+                            <div class="level-box">
+                                <div class="level-num">4</div>
+                                <div class="level-name">Unified</div>
+                                <div class="level-desc">Single subscription, feature-based</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Dimension 7 -->
+            <section id="dimension-7">
+                <div class="dimension-card">
+                    <div class="dimension-header" style="background: linear-gradient(135deg, #7c3aed, #c4b5fd);">
+                        <div class="dimension-number">7</div>
+                        <h3>Organizational</h3>
+                    </div>
+                    <div class="dimension-content">
+                        <h4>Questions to Answer</h4>
+                        <table>
+                            <thead>
+                                <tr><th>Question</th><th>Why It Matters</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Are there separate P&Ls?</td><td>Incentive alignment</td></tr>
+                                <tr><td>Who owns cross-product decisions?</td><td>Decision velocity</td></tr>
+                                <tr><td>Are teams integrated or autonomous?</td><td>Collaboration patterns</td></tr>
+                                <tr><td>Is there shared engineering culture?</td><td>Technical consistency</td></tr>
+                                <tr><td>Are roadmaps coordinated?</td><td>Strategic alignment</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h4>Assessment Levels</h4>
+                        <div class="levels-grid">
+                            <div class="level-box">
+                                <div class="level-num">1</div>
+                                <div class="level-name">Autonomous</div>
+                                <div class="level-desc">Separate business units</div>
+                            </div>
+                            <div class="level-box">
+                                <div class="level-num">2</div>
+                                <div class="level-name">Coordinated</div>
+                                <div class="level-desc">Regular alignment, separate execution</div>
+                            </div>
+                            <div class="level-box">
+                                <div class="level-num">3</div>
+                                <div class="level-name">Integrated</div>
+                                <div class="level-desc">Shared goals, some shared teams</div>
+                            </div>
+                            <div class="level-box">
+                                <div class="level-num">4</div>
+                                <div class="level-name">Unified</div>
+                                <div class="level-desc">One team, one roadmap</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Assessment Summary -->
+            <section id="assessment">
+                <h2>Assessment Summary Template</h2>
+
+                <div class="score-summary">
+                    <h4>Integration Debt Score Interpretation</h4>
+                    <div class="score-range">
+                        <div class="score-item critical">
+                            <div class="range">0-7</div>
+                            <div class="label">Critical</div>
+                            <div style="font-size: 0.7rem; color: #666;">Products are functionally separate</div>
+                        </div>
+                        <div class="score-item high">
+                            <div class="range">8-14</div>
+                            <div class="label">High</div>
+                            <div style="font-size: 0.7rem; color: #666;">Some integration, significant friction</div>
+                        </div>
+                        <div class="score-item moderate">
+                            <div class="range">15-21</div>
+                            <div class="label">Moderate</div>
+                            <div style="font-size: 0.7rem; color: #666;">Workable, but inefficient</div>
+                        </div>
+                        <div class="score-item low">
+                            <div class="range">22-28</div>
+                            <div class="label">Low</div>
+                            <div style="font-size: 0.7rem; color: #666;">Well-integrated, minor improvements</div>
+                        </div>
+                    </div>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr><th>Dimension</th><th>Current</th><th>Target</th><th>Gap</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Identity & Access</td><td>/4</td><td>/4</td><td></td></tr>
+                        <tr><td>Data & Schema</td><td>/4</td><td>/4</td><td></td></tr>
+                        <tr><td>API & Contracts</td><td>/4</td><td>/4</td><td></td></tr>
+                        <tr><td>Infrastructure</td><td>/4</td><td>/4</td><td></td></tr>
+                        <tr><td>User Experience</td><td>/4</td><td>/4</td><td></td></tr>
+                        <tr><td>Billing & Licensing</td><td>/4</td><td>/4</td><td></td></tr>
+                        <tr><td>Organizational</td><td>/4</td><td>/4</td><td></td></tr>
+                        <tr style="font-weight: bold; background: var(--bc-light);"><td>TOTAL</td><td>/28</td><td>/28</td><td></td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Data Collection Process -->
+            <section id="process">
+                <h2>Data Collection Process</h2>
+
+                <h3>Phase 1: Document Review (Week 1)</h3>
+                <ol>
+                    <li>Gather existing architecture documentation for each product</li>
+                    <li>Review API documentation</li>
+                    <li>Review onboarding flows for each product</li>
+                    <li>Review billing/packaging documentation</li>
+                </ol>
+
+                <h3>Phase 2: Stakeholder Interviews (Weeks 2-3)</h3>
+                <table>
+                    <thead>
+                        <tr><th>Stakeholder</th><th>Focus Areas</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>BC Core Engineering Lead</td><td>Infrastructure, APIs, data model</td></tr>
+                        <tr><td>Makeswift Engineering Lead</td><td>Integration points, tech stack, roadmap</td></tr>
+                        <tr><td>Feedonomics Engineering Lead</td><td>Integration points, data sync, APIs</td></tr>
+                        <tr><td>DevOps/Platform Team</td><td>Infrastructure, observability, deployment</td></tr>
+                        <tr><td>Product Marketing</td><td>Packaging, positioning, merchant feedback</td></tr>
+                        <tr><td>Sales Engineering</td><td>Integration friction, customer complaints</td></tr>
+                        <tr><td>Support Lead</td><td>Common cross-product issues</td></tr>
+                        <tr><td>Finance</td><td>Billing systems, P&L structure</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>Phase 3: Technical Deep-Dive (Weeks 3-4)</h3>
+                <ol>
+                    <li>Trace a product entity (e.g., Product) across all three systems</li>
+                    <li>Map API calls for common merchant workflows</li>
+                    <li>Review infrastructure topology</li>
+                    <li>Analyze authentication/authorization flows</li>
+                </ol>
+
+                <h3>Phase 4: Synthesis & Recommendations (Week 5)</h3>
+                <ol>
+                    <li>Complete assessment summary</li>
+                    <li>Prioritize gaps by business impact</li>
+                    <li>Draft recommendations</li>
+                    <li>Present to CPO</li>
+                </ol>
+            </section>
+
+            <!-- AI Connection -->
+            <section id="ai-connection">
+                <h2>Connection to AI-Native Strategy</h2>
+
+                <table>
+                    <thead>
+                        <tr><th>AI Capability</th><th>Blocked By</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Unified product recommendations</td><td>Siloed data</td></tr>
+                        <tr><td>Cross-product personalization</td><td>Separate identity</td></tr>
+                        <tr><td>AI-assisted store setup</td><td>Disconnected onboarding</td></tr>
+                        <tr><td>Intelligent feed optimization</td><td>Feedonomics isolation</td></tr>
+                        <tr><td>Visual content generation</td><td>Makeswift API limitations</td></tr>
+                    </tbody>
+                </table>
+
+                <p><a href="ai-native-architecture.html" style="color: var(--bc-accent);">View Merchant Success Architecture &rarr;</a></p>
+            </section>
+
+            <div style="margin-top: 50px; padding-top: 30px; border-top: 1px solid var(--bc-border); color: #888; font-size: 0.85rem;">
+                <p><em>Last Updated: January 2026</em></p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Active nav link on scroll
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

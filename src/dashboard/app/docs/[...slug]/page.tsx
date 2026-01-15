@@ -1,66 +1,85 @@
-import { getDocByPath, getAllDocs } from '@/lib/docs/loader';
-import { processHTML } from '@/lib/docs/processor';
 import { notFound } from 'next/navigation';
-import { DocsContent } from '@/components/docs/DocsContent';
+import { docs } from '#site/content';
+import { DocsLayout } from '@/components/docs-mdx/DocsLayout';
+import { DocsSidebar } from '@/components/docs-mdx/DocsSidebar';
+import { TableOfContents } from '@/components/docs-mdx/TableOfContents';
+import { Breadcrumbs } from '@/components/docs-mdx/Breadcrumbs';
+import { generateNavigation } from '@/lib/docs-mdx/navigation';
+import { serialize } from 'next-mdx-remote/serialize';
+import { MDXRemote } from 'next-mdx-remote/rsc';
+import { mdxComponents } from '@/lib/docs-mdx/mdx-components';
 
+interface PageProps {
+  params: Promise<{
+    slug: string[];
+  }>;
+}
+
+// Generate static params for all documentation pages
 export async function generateStaticParams() {
-  const docs = getAllDocs();
-  return docs.map(doc => {
-    const segments = doc.fullPath.split('/').filter(Boolean);
-    return {
-      slug: segments.length > 0 ? segments : ['index'],
-    };
-  }).map(params => ({
-    slug: params.slug,
+  return docs.map((doc) => ({
+    slug: doc.slug.split('/'),
   }));
 }
 
-export default async function DocsPage({
-  params,
-}: {
-  params: Promise<{ slug?: string[] | string }>;
-}) {
-  // Next.js 16 requires params to be awaited
-  const resolvedParams = await params;
-  
-  // Handle both array and string formats, and ensure it's an array
-  let slugArray: string[] = [];
-  if (resolvedParams.slug) {
-    slugArray = Array.isArray(resolvedParams.slug) ? resolvedParams.slug : [resolvedParams.slug];
+// Generate metadata for SEO
+export async function generateMetadata({ params }: PageProps) {
+  const { slug } = await params;
+  const slugPath = slug.join('/');
+  const doc = docs.find((d) => d.slug === slugPath);
+
+  if (!doc) {
+    return {
+      title: 'Page Not Found',
+    };
   }
-  
-  const doc = getDocByPath(slugArray);
-  
+
+  return {
+    title: `${doc.title} | BC Migration Docs`,
+    description: doc.description || doc.title,
+  };
+}
+
+export default async function DocPage({ params }: PageProps) {
+  const { slug } = await params;
+  const slugPath = slug.join('/');
+
+  // Find the document by slug
+  const doc = docs.find((d) => d.slug === slugPath);
+
   if (!doc) {
     notFound();
   }
-  
-  const processedHTML = processHTML(doc.content);
-  
-  // Use a stable key based on the document path to ensure consistent rendering
-  const contentKey = doc.fullPath;
-  
+
+  // Generate breadcrumbs from slug
+  const breadcrumbs = [
+    { label: 'Docs', href: '/docs' },
+    ...slug.slice(0, -1).map((segment, index) => ({
+      label: segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' '),
+      href: `/docs/${slug.slice(0, index + 1).join('/')}`,
+    })),
+    { label: doc.title },
+  ];
+
+  // Generate navigation from all docs
+  const navigation = generateNavigation(docs);
+
   return (
-    <DocsContent>
-      <article className="docs-article">
-        <header className="mb-8 pb-6 border-b border-slate-800">
-          <h1 className="text-4xl font-bold text-slate-100 mb-3">
-            {doc.metadata.title}
-          </h1>
-          {doc.metadata.description && (
-            <p className="text-lg text-slate-400 leading-relaxed">
-              {doc.metadata.description}
-            </p>
-          )}
-        </header>
-        <div
-          key={contentKey}
-          className="docs-html-content"
-          dangerouslySetInnerHTML={{ __html: processedHTML }}
-          suppressHydrationWarning
-        />
+    <DocsLayout
+      sidebar={<DocsSidebar navigation={navigation} />}
+      toc={doc.toc ? <TableOfContents headings={doc.toc} /> : undefined}
+    >
+      <article className="prose dark:prose-invert max-w-none">
+        <Breadcrumbs items={breadcrumbs} />
+        <h1>{doc.title}</h1>
+        {doc.description && (
+          <p className="lead text-lg text-slate-600 dark:text-slate-400">
+            {doc.description}
+          </p>
+        )}
+        <MDXRemote source={doc.content} components={mdxComponents} />
       </article>
-    </DocsContent>
+    </DocsLayout>
   );
 }
 

@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Migration Personas | BC Migration</title>
+    <style>
+        :root {
+            --bc-primary: #34313f;
+            --bc-accent: #5c6ac4;
+            --bc-success: #28a745;
+            --bc-warning: #ffc107;
+            --bc-danger: #dc3545;
+            --bc-info: #17a2b8;
+            --bc-light: #f8f9fa;
+            --bc-border: #e0e0e0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bc-light);
+            color: var(--bc-primary);
+            line-height: 1.7;
+            padding-bottom: 70px;
+        }
+
+        /* Sticky Navigation */
+        .sticky-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bc-primary); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); z-index: 1000; }
+        .sticky-nav a { color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 0.85rem; transition: background 0.2s; }
+        .sticky-nav a:hover { background: rgba(255,255,255,0.15); }
+        .sticky-nav .nav-center { font-size: 0.75rem; color: rgba(255,255,255,0.7); }
+        .sticky-nav .nav-center select { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 6px 10px; border-radius: 4px; font-size: 0.8rem; margin-left: 8px; }
+        .sticky-nav .nav-center select option { background: var(--bc-primary); }
+        @media (max-width: 768px) { .sticky-nav .nav-center { display: none; } }
+
+        .header {
+            background: linear-gradient(135deg, var(--bc-primary) 0%, #4a4458 100%);
+            color: white;
+            padding: 50px 40px;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .back-link {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .back-link:hover { color: white; }
+
+        .doc-type {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+        }
+
+        .header-subtitle {
+            font-size: 1.1rem;
+            color: white;
+            max-width: 700px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .content {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            color: var(--bc-primary);
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid var(--bc-accent);
+        }
+
+        h2:first-child { margin-top: 0; }
+
+        h3 {
+            font-size: 1.15rem;
+            color: var(--bc-primary);
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: #444;
+        }
+
+        ul, ol {
+            margin-bottom: 15px;
+            padding-left: 25px;
+        }
+
+        li {
+            margin-bottom: 8px;
+            color: #444;
+        }
+
+        strong { color: var(--bc-primary); }
+
+        /* Persona Cards */
+        .persona-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .persona-card {
+            border-radius: 12px;
+            padding: 25px;
+            border: 2px solid var(--bc-border);
+            background: white;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .persona-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .persona-card .persona-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .persona-card h4 {
+            font-size: 1.15rem;
+            margin: 0;
+        }
+
+        .persona-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .persona-badge.b2c { background: #e3f2fd; color: #1565c0; }
+        .persona-badge.b2b { background: #fce4ec; color: #c2185b; }
+        .persona-badge.hybrid { background: #fff3e0; color: #ef6c00; }
+
+        .persona-card .persona-profile {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--bc-border);
+        }
+
+        .persona-card .persona-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .persona-stat {
+            text-align: center;
+            padding: 10px;
+            background: var(--bc-light);
+            border-radius: 6px;
+        }
+
+        .persona-stat .stat-value {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--bc-primary);
+        }
+
+        .persona-stat .stat-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #666;
+        }
+
+        .persona-card .pain-points {
+            background: #fff3e0;
+            border-radius: 6px;
+            padding: 12px 15px;
+            margin-bottom: 12px;
+        }
+
+        .persona-card .pain-points h5 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #ef6c00;
+            margin-bottom: 8px;
+        }
+
+        .persona-card .pain-points ul {
+            margin: 0;
+            padding-left: 18px;
+            font-size: 0.85rem;
+        }
+
+        .persona-card .bc-benefits {
+            background: #e8f5e9;
+            border-radius: 6px;
+            padding: 12px 15px;
+        }
+
+        .persona-card .bc-benefits h5 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #2e7d32;
+            margin-bottom: 8px;
+        }
+
+        .persona-card .bc-benefits ul {
+            margin: 0;
+            padding-left: 18px;
+            font-size: 0.85rem;
+        }
+
+        /* Recommendation Matrix */
+        .recommendation-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.9rem;
+        }
+
+        .recommendation-table th,
+        .recommendation-table td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--bc-border);
+        }
+
+        .recommendation-table th {
+            background: var(--bc-primary);
+            color: white;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .recommendation-table tr:hover { background: #f8f9fa; }
+
+        .fit-score {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .fit-score.excellent { background: #e8f5e9; color: #2e7d32; }
+        .fit-score.good { background: #e3f2fd; color: #1565c0; }
+        .fit-score.moderate { background: #fff3e0; color: #ef6c00; }
+        .fit-score.limited { background: #fce4ec; color: #c2185b; }
+
+        /* Decision Tree */
+        .decision-tree {
+            background: var(--bc-light);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 25px 0;
+        }
+
+        .decision-node {
+            background: white;
+            border: 2px solid var(--bc-border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .decision-node.question {
+            border-color: var(--bc-accent);
+            background: linear-gradient(135deg, #e8eaf6 0%, #f3e5f5 100%);
+        }
+
+        .decision-node h4 {
+            margin: 0 0 15px 0;
+            color: var(--bc-accent);
+        }
+
+        .decision-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .decision-option {
+            background: white;
+            border: 1px solid var(--bc-border);
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .decision-option strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .decision-option .arrow {
+            color: var(--bc-accent);
+            font-size: 1.2rem;
+            margin: 10px 0;
+        }
+
+        /* Callout Boxes */
+        .callout {
+            padding: 20px 25px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .callout.info {
+            background: #e3f2fd;
+            border-left: 4px solid var(--bc-info);
+        }
+
+        .callout.warning {
+            background: #fff3e0;
+            border-left: 4px solid var(--bc-warning);
+        }
+
+        .callout.success {
+            background: #e8f5e9;
+            border-left: 4px solid var(--bc-success);
+        }
+
+        .callout h4 {
+            margin: 0 0 10px 0;
+            font-size: 1rem;
+        }
+
+        .callout p {
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        .source-ref {
+            font-size: 0.8rem;
+            color: #888;
+            font-style: italic;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="index.html" class="back-link">&larr; Back to Documentation</a>
+            <div class="doc-type">Persona Analysis</div>
+            <h1>Migration Personas</h1>
+            <p class="header-subtitle">Merchant archetypes for targeted migration strategies and platform recommendations</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="content">
+            <h2>Overview</h2>
+            <p>Not all WooCommerce merchants are the same. This persona analysis segments merchants by business model, technical sophistication, and operational needs to provide tailored migration recommendations. Understanding which persona(s) apply helps scope the migration correctly and set appropriate expectations.</p>
+
+            <div class="callout info">
+                <h4>Persona-Based Migration</h4>
+                <p>Merchants often exhibit characteristics of multiple personas. The dominant persona drives the primary migration approach, while secondary traits inform customization needs and risk factors.</p>
+            </div>
+
+            <p class="source-ref">Source: Granite Analysis, Slides 121-172</p>
+
+            <h2>B2C Personas</h2>
+            <div class="persona-grid">
+                <div class="persona-card">
+                    <div class="persona-header">
+                        <h4>The Boutique Owner</h4>
+                        <span class="persona-badge b2c">B2C</span>
+                    </div>
+                    <p class="persona-profile">Small, curated product selection focused on brand experience and customer relationship. Often sells handmade, artisan, or niche products.</p>
+                    <div class="persona-stats">
+                        <div class="persona-stat">
+                            <div class="stat-value">&lt;500</div>
+                            <div class="stat-label">Products</div>
+                        </div>
+                        <div class="persona-stat">
+                            <div class="stat-value">$50-200K</div>
+                            <div class="stat-label">Revenue</div>
+                        </div>
+                        <div class="persona-stat">
+                            <div class="stat-value">Low</div>
+                            <div class="stat-label">Tech Savvy</div>
+                        </div>
+                    </div>
+                    <div class="pain-points">
+                        <h5>WooCommerce Pain Points</h5>
+                        <ul>
+                            <li>Plugin conflicts breaking site</li>
+                            <li>Security concerns</li>
+                            <li>Time spent on tech vs. product</li>
+                        </ul>
+                    </div>
+                    <div class="bc-benefits">
+                        <h5>BigCommerce Benefits</h5>
+                        <ul>
+                            <li>Managed platform security</li>
+                            <li>Focus on business, not tech</li>
+                            <li>Professional checkout experience</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="persona-card">
+                    <div class="persona-header">
+                        <h4>The Growth Retailer</h4>
+                        <span class="persona-badge b2c">B2C</span>
+                    </div>
+                    <p class="persona-profile">Established retailer experiencing rapid growth and hitting WooCommerce performance limits. Needs enterprise features without enterprise complexity.</p>
+                    <div class="persona-stats">
+                        <div class="persona-stat">
+                            <div class="stat-value">1K-10K</div>
+                            <div class="stat-label">Products</div>
+                        </div>
+                        <div class="persona-stat">
+                            <div class="stat-value">$500K-5M</div>
+                            <div class="stat-label">Revenue</div>
+                        </div>
+                        <div class="persona-stat">
+                            <div class="stat-value">Medium</div>
+                            <div class="stat-label">Tech Savvy</div>
+                        </div>
+                    </div>
+                    <div class="pain-points">
+                        <h5>WooCommerce Pain Points</h5>
+                        <ul>
+                            <li>Performance degradation at scale</li>
+                            <li>Plugin ecosystem chaos</li>
+                            <li>High hosting costs</li>
+                        </ul>
+                    </div>
+                    <div class="bc-benefits">
+                        <h5>BigCommerce Benefits</h5>
+                        <ul>
+                            <li>Built-in scalability</li>
+                            <li>Multi-channel selling</li>
+                            <li>Enterprise features included</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="persona-card">
+                    <div class="persona-header">
+                        <h4>The Content Creator</h4>
+                        <span class="persona-badge b2c">B2C</span>
+                    </div>
+                    <p class="persona-profile">Blogger, influencer, or content site that monetizes through product sales. WordPress is core to content strategy; commerce is secondary but important.</p>
+                    <div class="persona-stats">
+                        <div class="persona-stat">
+                            <div class="stat-value">&lt;200</div>
+                            <div class="stat-label">Products</div>
+                        </div>
+                        <div class="persona-stat">
+                            <div class="stat-value">$50-300K</div>
+                            <div class="stat-label">Revenue</div>
+                        </div>
+                        <div class="persona-stat">
+                            <div class="stat-value">High</div>
+                            <div class="stat-label">Content Focus</div>
+                        </div>
+                    </div>
+                    <div class="pain-points">
+                        <h5>WooCommerce Pain Points</h5>
+                        <ul>
+                            <li>Commerce plugins slow site</li>
+                            <li>Checkout experience feels dated</li>
+                            <li>Security adds complexity</li>
+                        </ul>
+                    </div>
+                    <div class="bc-benefits">
+                        <h5>BigCommerce Benefits</h5>
+                        <ul>
+                            <li>Keep WordPress for content</li>
+                            <li>Professional checkout</li>
+                            <li>Commerce complexity offloaded</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="persona-card">
+                    <div class="persona-header">
+                        <h4>The Multi-Channel Seller</h4>
+                        <span class="persona-badge b2c">B2C</span>
+                    </div>
+                    <p class="persona-profile">Sells across multiple platforms: website, Amazon, eBay, social commerce. Needs unified inventory and order management.</p>
+                    <div class="persona-stats">
+                        <div class="persona-stat">
+                            <div class="stat-value">500-5K</div>
+                            <div class="stat-label">Products</div>
+                        </div>
+                        <div class="persona-stat">
+                            <div class="stat-value">$200K-2M</div>
+                            <div class="stat-label">Revenue</div>
+                        </div>
+                        <div class="persona-stat">
+                            <div class="stat-value">3+</div>
+                            <div class="stat-label">Channels</div>
+                        </div>
+                    </div>
+                    <div class="pain-points">
+                        <h5>WooCommerce Pain Points</h5>
+                        <ul>
+                            <li>Manual channel sync</li>
+                            <li>Inventory inconsistencies</li>
+                            <li>Multiple plugin dependencies</li>
+                        </ul>
+                    </div>
+                    <div class="bc-benefits">
+                        <h5>BigCommerce Benefits</h5>
+                        <ul>
+                            <li>Native channel integrations</li>
+                            <li>Centralized inventory</li>
+                            <li>Unified order management</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="persona-card">
+                    <div class="persona-header">
+                        <h4>The Subscription Merchant</h4>
+                        <span class="persona-badge b2c">B2C</span>
+                    </div>
+                    <p class="persona-profile">Revenue primarily from recurring subscriptions: boxes, memberships, SaaS-like physical products. Customer retention is key metric.</p>
+                    <div class="persona-stats">
+                        <div class="persona-stat">
+                            <div class="stat-value">50-500</div>
+                            <div class="stat-label">Products</div>
+                        </div>
+                        <div class="persona-stat">
+                            <div class="stat-value">$100K-1M</div>
+                            <div class="stat-label">MRR</div>
+                        </div>
+                        <div class="persona-stat">
+                            <div class="stat-value">70%+</div>
+                            <div class="stat-label">Recurring</div>
+                        </div>
+                    </div>
+                    <div class="pain-points">
+                        <h5>WooCommerce Pain Points</h5>
+                        <ul>
+                            <li>WooCommerce Subscriptions limitations</li>
+                            <li>Dunning management gaps</li>
+                            <li>Payment retry complexity</li>
+                        </ul>
+                    </div>
+                    <div class="bc-benefits">
+                        <h5>BigCommerce Benefits</h5>
+                        <ul>
+                            <li>Partner integrations (ReCharge, Bold)</li>
+                            <li>Better payment handling</li>
+                            <li>Subscription analytics</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="persona-card">
+                    <div class="persona-header">
+                        <h4>The International Seller</h4>
+                        <span class="persona-badge b2c">B2C</span>
+                    </div>
+                    <p class="persona-profile">Ships globally with multi-currency, multi-language requirements. Complexity from international tax, duties, and localization.</p>
+                    <div class="persona-stats">
+                        <div class="persona-stat">
+                            <div class="stat-value">500-5K</div>
+                            <div class="stat-label">Products</div>
+                        </div>
+                        <div class="persona-stat">
+                            <div class="stat-value">5+</div>
+                            <div class="stat-label">Countries</div>
+                        </div>
+                        <div class="persona-stat">
+                            <div class="stat-value">3+</div>
+                            <div class="stat-label">Currencies</div>
+                        </div>
+                    </div>
+                    <div class="pain-points">
+                        <h5>WooCommerce Pain Points</h5>
+                        <ul>
+                            <li>Multi-currency plugin limitations</li>
+                            <li>Tax calculation complexity</li>
+                            <li>Localization maintenance</li>
+                        </ul>
+                    </div>
+                    <div class="bc-benefits">
+                        <h5>BigCommerce Benefits</h5>
+                        <ul>
+                            <li>Native multi-currency</li>
+                            <li>Built-in tax engine</li>
+                            <li>Multi-storefront capability</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <h2>B2B Personas</h2>
+            <div class="persona-grid">
+                <div class="persona-card">
+                    <div class="persona-header">
+                        <h4>The Wholesale Distributor</h4>
+                        <span class="persona-badge b2b">B2B</span>
+                    </div>
+                    <p class="persona-profile">Sells to retailers and resellers with volume-based pricing. Requires price lists, minimum order quantities, and account-specific catalogs.</p>
+                    <div class="persona-stats">
+                        <div class="persona-stat">
+                            <div class="stat-value">1K-50K</div>
+                            <div class="stat-label">Products</div>
+                        </div>
+                        <div class="persona-stat">
+                            <div class="stat-value">$1-20M</div>
+                            <div class="stat-label">Revenue</div>
+                        </div>
+                        <div class="persona-stat">
+                            <div class="stat-value">High</div>
+                            <div class="stat-label">Complexity</div>
+                        </div>
+                    </div>
+                    <div class="pain-points">
+                        <h5>WooCommerce Pain Points</h5>
+                        <ul>
+                            <li>B2B plugin limitations</li>
+                            <li>Price list management chaos</li>
+                            <li>No native quoting workflow</li>
+                        </ul>
+                    </div>
+                    <div class="bc-benefits">
+                        <h5>BigCommerce Benefits</h5>
+                        <ul>
+                            <li>B2B Edition features</li>
+                            <li>Native price lists</li>
+                            <li>Quote management</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="persona-card">
+                    <div class="persona-header">
+                        <h4>The Manufacturer</h4>
+                        <span class="persona-badge b2b">B2B</span>
+                    </div>
+                    <p class="persona-profile">Sells direct to businesses with complex product configurations, lead times, and ERP integration requirements.</p>
+                    <div class="persona-stats">
+                        <div class="persona-stat">
+                            <div class="stat-value">100-5K</div>
+                            <div class="stat-label">Products</div>
+                        </div>
+                        <div class="persona-stat">
+                            <div class="stat-value">$2-50M</div>
+                            <div class="stat-label">Revenue</div>
+                        </div>
+                        <div class="persona-stat">
+                            <div class="stat-value">ERP</div>
+                            <div class="stat-label">Critical</div>
+                        </div>
+                    </div>
+                    <div class="pain-points">
+                        <h5>WooCommerce Pain Points</h5>
+                        <ul>
+                            <li>ERP sync unreliable</li>
+                            <li>Complex pricing rules hard to model</li>
+                            <li>Lead time management gaps</li>
+                        </ul>
+                    </div>
+                    <div class="bc-benefits">
+                        <h5>BigCommerce Benefits</h5>
+                        <ul>
+                            <li>Native ERP integrations</li>
+                            <li>Complex catalog support</li>
+                            <li>API-first architecture</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="persona-card">
+                    <div class="persona-header">
+                        <h4>The Trade Seller</h4>
+                        <span class="persona-badge b2b">B2B</span>
+                    </div>
+                    <p class="persona-profile">Sells to trade professionals (contractors, designers, mechanics) with credentials-based pricing and account management.</p>
+                    <div class="persona-stats">
+                        <div class="persona-stat">
+                            <div class="stat-value">2K-20K</div>
+                            <div class="stat-label">Products</div>
+                        </div>
+                        <div class="persona-stat">
+                            <div class="stat-value">$500K-10M</div>
+                            <div class="stat-label">Revenue</div>
+                        </div>
+                        <div class="persona-stat">
+                            <div class="stat-value">Approval</div>
+                            <div class="stat-label">Required</div>
+                        </div>
+                    </div>
+                    <div class="pain-points">
+                        <h5>WooCommerce Pain Points</h5>
+                        <ul>
+                            <li>Account approval workflow</li>
+                            <li>Credentials verification</li>
+                            <li>Trade-only product visibility</li>
+                        </ul>
+                    </div>
+                    <div class="bc-benefits">
+                        <h5>BigCommerce Benefits</h5>
+                        <ul>
+                            <li>Company accounts</li>
+                            <li>Role-based permissions</li>
+                            <li>Customer-specific catalogs</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <h2>Hybrid Personas</h2>
+            <div class="persona-grid">
+                <div class="persona-card">
+                    <div class="persona-header">
+                        <h4>The DTC Brand</h4>
+                        <span class="persona-badge hybrid">Hybrid</span>
+                    </div>
+                    <p class="persona-profile">Direct-to-consumer brand that also sells wholesale. Manages both B2C and B2B channels with different pricing and experiences.</p>
+                    <div class="persona-stats">
+                        <div class="persona-stat">
+                            <div class="stat-value">200-2K</div>
+                            <div class="stat-label">Products</div>
+                        </div>
+                        <div class="persona-stat">
+                            <div class="stat-value">60/40</div>
+                            <div class="stat-label">B2C/B2B</div>
+                        </div>
+                        <div class="persona-stat">
+                            <div class="stat-value">Dual</div>
+                            <div class="stat-label">Storefronts</div>
+                        </div>
+                    </div>
+                    <div class="pain-points">
+                        <h5>WooCommerce Pain Points</h5>
+                        <ul>
+                            <li>Can't cleanly separate B2C/B2B</li>
+                            <li>Price visibility issues</li>
+                            <li>Single-site limitations</li>
+                        </ul>
+                    </div>
+                    <div class="bc-benefits">
+                        <h5>BigCommerce Benefits</h5>
+                        <ul>
+                            <li>Multi-storefront</li>
+                            <li>Channel-specific pricing</li>
+                            <li>Unified backend</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="persona-card">
+                    <div class="persona-header">
+                        <h4>The Marketplace Operator</h4>
+                        <span class="persona-badge hybrid">Hybrid</span>
+                    </div>
+                    <p class="persona-profile">Operates a marketplace with multiple vendors while also selling own products. Complex commission and payout requirements.</p>
+                    <div class="persona-stats">
+                        <div class="persona-stat">
+                            <div class="stat-value">5K-100K</div>
+                            <div class="stat-label">Products</div>
+                        </div>
+                        <div class="persona-stat">
+                            <div class="stat-value">10-500</div>
+                            <div class="stat-label">Vendors</div>
+                        </div>
+                        <div class="persona-stat">
+                            <div class="stat-value">High</div>
+                            <div class="stat-label">Complexity</div>
+                        </div>
+                    </div>
+                    <div class="pain-points">
+                        <h5>WooCommerce Pain Points</h5>
+                        <ul>
+                            <li>Multi-vendor plugin limitations</li>
+                            <li>Payout automation gaps</li>
+                            <li>Vendor onboarding complexity</li>
+                        </ul>
+                    </div>
+                    <div class="bc-benefits">
+                        <h5>BigCommerce Benefits</h5>
+                        <ul>
+                            <li>Partner marketplace apps</li>
+                            <li>API extensibility</li>
+                            <li>Enterprise scalability</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="persona-card">
+                    <div class="persona-header">
+                        <h4>The Franchisor</h4>
+                        <span class="persona-badge hybrid">Hybrid</span>
+                    </div>
+                    <p class="persona-profile">Central brand with multiple franchise locations needing localized storefronts with central brand control.</p>
+                    <div class="persona-stats">
+                        <div class="persona-stat">
+                            <div class="stat-value">500-5K</div>
+                            <div class="stat-label">Products</div>
+                        </div>
+                        <div class="persona-stat">
+                            <div class="stat-value">10-200</div>
+                            <div class="stat-label">Locations</div>
+                        </div>
+                        <div class="persona-stat">
+                            <div class="stat-value">Central</div>
+                            <div class="stat-label">Control</div>
+                        </div>
+                    </div>
+                    <div class="pain-points">
+                        <h5>WooCommerce Pain Points</h5>
+                        <ul>
+                            <li>Multi-site management overhead</li>
+                            <li>Brand consistency challenges</li>
+                            <li>Reporting fragmentation</li>
+                        </ul>
+                    </div>
+                    <div class="bc-benefits">
+                        <h5>BigCommerce Benefits</h5>
+                        <ul>
+                            <li>Multi-storefront architecture</li>
+                            <li>Centralized catalog management</li>
+                            <li>Consolidated reporting</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <h2>Platform Fit Matrix</h2>
+            <table class="recommendation-table">
+                <thead>
+                    <tr>
+                        <th>Persona</th>
+                        <th>BigCommerce Fit</th>
+                        <th>Recommended Plan</th>
+                        <th>Key Features Needed</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Boutique Owner</strong></td>
+                        <td><span class="fit-score excellent">Excellent</span></td>
+                        <td>Standard</td>
+                        <td>BC Bridge, Abandoned Cart, Reviews</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Growth Retailer</strong></td>
+                        <td><span class="fit-score excellent">Excellent</span></td>
+                        <td>Plus / Pro</td>
+                        <td>Multi-channel, Faceted Search, Price Lists</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Content Creator</strong></td>
+                        <td><span class="fit-score excellent">Excellent</span></td>
+                        <td>Standard</td>
+                        <td>BC Bridge (WordPress integration)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Multi-Channel Seller</strong></td>
+                        <td><span class="fit-score excellent">Excellent</span></td>
+                        <td>Plus</td>
+                        <td>Channel Manager, Inventory Sync</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Subscription Merchant</strong></td>
+                        <td><span class="fit-score good">Good</span></td>
+                        <td>Plus + Partner</td>
+                        <td>ReCharge or Bold Subscriptions</td>
+                    </tr>
+                    <tr>
+                        <td><strong>International Seller</strong></td>
+                        <td><span class="fit-score excellent">Excellent</span></td>
+                        <td>Pro / Enterprise</td>
+                        <td>Multi-currency, Multi-storefront</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Wholesale Distributor</strong></td>
+                        <td><span class="fit-score excellent">Excellent</span></td>
+                        <td>Enterprise + B2B</td>
+                        <td>B2B Edition, Price Lists, Quoting</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Manufacturer</strong></td>
+                        <td><span class="fit-score good">Good</span></td>
+                        <td>Enterprise + B2B</td>
+                        <td>ERP Integration, B2B Edition</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Trade Seller</strong></td>
+                        <td><span class="fit-score excellent">Excellent</span></td>
+                        <td>Enterprise + B2B</td>
+                        <td>Company Accounts, Role Permissions</td>
+                    </tr>
+                    <tr>
+                        <td><strong>DTC Brand</strong></td>
+                        <td><span class="fit-score excellent">Excellent</span></td>
+                        <td>Pro / Enterprise</td>
+                        <td>Multi-storefront, Customer Groups</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Marketplace Operator</strong></td>
+                        <td><span class="fit-score moderate">Moderate</span></td>
+                        <td>Enterprise + Custom</td>
+                        <td>Partner apps, API customization</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Franchisor</strong></td>
+                        <td><span class="fit-score good">Good</span></td>
+                        <td>Enterprise</td>
+                        <td>Multi-storefront, Central Catalog</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>Persona Decision Framework</h2>
+            <div class="decision-tree">
+                <div class="decision-node question">
+                    <h4>Step 1: Identify Business Model</h4>
+                    <div class="decision-options">
+                        <div class="decision-option">
+                            <strong>B2C Only</strong>
+                            <div class="arrow">↓</div>
+                            <span>Standard/Plus Track</span>
+                        </div>
+                        <div class="decision-option">
+                            <strong>B2B Only</strong>
+                            <div class="arrow">↓</div>
+                            <span>Enterprise + B2B Track</span>
+                        </div>
+                        <div class="decision-option">
+                            <strong>Hybrid B2C/B2B</strong>
+                            <div class="arrow">↓</div>
+                            <span>Multi-storefront Track</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="decision-node question">
+                    <h4>Step 2: Assess Complexity Drivers</h4>
+                    <div class="decision-options">
+                        <div class="decision-option">
+                            <strong>Simple Catalog</strong>
+                            <div class="arrow">↓</div>
+                            <span>Standard migration path</span>
+                        </div>
+                        <div class="decision-option">
+                            <strong>Complex Pricing</strong>
+                            <div class="arrow">↓</div>
+                            <span>Price list planning required</span>
+                        </div>
+                        <div class="decision-option">
+                            <strong>ERP/Integration Heavy</strong>
+                            <div class="arrow">↓</div>
+                            <span>Integration-first approach</span>
+                        </div>
+                        <div class="decision-option">
+                            <strong>Multi-Channel</strong>
+                            <div class="arrow">↓</div>
+                            <span>Channel consolidation plan</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="decision-node question">
+                    <h4>Step 3: Determine WordPress Dependency</h4>
+                    <div class="decision-options">
+                        <div class="decision-option">
+                            <strong>Content-Heavy (Keep WP)</strong>
+                            <div class="arrow">↓</div>
+                            <span>BC Bridge integration</span>
+                        </div>
+                        <div class="decision-option">
+                            <strong>Commerce-Only (Can Leave)</strong>
+                            <div class="arrow">↓</div>
+                            <span>Full BC storefront option</span>
+                        </div>
+                        <div class="decision-option">
+                            <strong>Flexible (Either)</strong>
+                            <div class="arrow">↓</div>
+                            <span>Evaluate based on team skills</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h2>Migration Approach by Persona</h2>
+            <table class="recommendation-table">
+                <thead>
+                    <tr>
+                        <th>Persona</th>
+                        <th>Migration Tier</th>
+                        <th>Special Considerations</th>
+                        <th>Risk Level</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Boutique Owner</strong></td>
+                        <td>Small Store</td>
+                        <td>Preserve brand experience, simple cutover</td>
+                        <td><span class="fit-score excellent">Low</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Growth Retailer</strong></td>
+                        <td>Medium Store</td>
+                        <td>Performance testing critical, plugin replacement</td>
+                        <td><span class="fit-score good">Medium</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Content Creator</strong></td>
+                        <td>Small Store</td>
+                        <td>WordPress theme compatibility, BC Bridge setup</td>
+                        <td><span class="fit-score excellent">Low</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Multi-Channel Seller</strong></td>
+                        <td>Medium Store</td>
+                        <td>Channel migration sequencing, inventory sync validation</td>
+                        <td><span class="fit-score good">Medium</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Subscription Merchant</strong></td>
+                        <td>Medium Store</td>
+                        <td>Subscription continuity, customer communication</td>
+                        <td><span class="fit-score moderate">Medium-High</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>International Seller</strong></td>
+                        <td>Large Store</td>
+                        <td>Multi-currency setup, tax configuration, localization</td>
+                        <td><span class="fit-score moderate">Medium-High</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Wholesale Distributor</strong></td>
+                        <td>Large Store</td>
+                        <td>Price list migration, customer group mapping</td>
+                        <td><span class="fit-score limited">High</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Manufacturer</strong></td>
+                        <td>Large Store</td>
+                        <td>ERP integration testing, complex product data</td>
+                        <td><span class="fit-score limited">High</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Trade Seller</strong></td>
+                        <td>Medium-Large</td>
+                        <td>Account approval workflow, customer credentials</td>
+                        <td><span class="fit-score moderate">Medium-High</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>DTC Brand</strong></td>
+                        <td>Medium Store</td>
+                        <td>Multi-storefront setup, B2B/B2C separation</td>
+                        <td><span class="fit-score good">Medium</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Marketplace Operator</strong></td>
+                        <td>Large Store</td>
+                        <td>Vendor migration, payout system replacement</td>
+                        <td><span class="fit-score limited">High</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Franchisor</strong></td>
+                        <td>Large Store</td>
+                        <td>Multi-site to multi-storefront, location setup</td>
+                        <td><span class="fit-score moderate">Medium-High</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>Persona Identification Checklist</h2>
+            <p>Use this checklist during discovery to identify the merchant's primary and secondary personas:</p>
+
+            <h3>Business Model Questions</h3>
+            <ul>
+                <li>What percentage of revenue comes from B2B vs B2C customers?</li>
+                <li>Do you sell on multiple channels (Amazon, eBay, social)?</li>
+                <li>Do you have subscription or recurring revenue products?</li>
+                <li>Do you operate in multiple countries or currencies?</li>
+                <li>Do you have franchisees or multiple locations?</li>
+            </ul>
+
+            <h3>Technical Complexity Questions</h3>
+            <ul>
+                <li>How many products and variants do you manage?</li>
+                <li>Do you have ERP, CRM, or other critical integrations?</li>
+                <li>Do you use price lists or customer-specific pricing?</li>
+                <li>How important is WordPress to your content strategy?</li>
+                <li>What is your peak traffic and order volume?</li>
+            </ul>
+
+            <h3>Pain Point Validation</h3>
+            <ul>
+                <li>What are your top 3 frustrations with WooCommerce?</li>
+                <li>What features do you wish you had today?</li>
+                <li>How much time does your team spend on maintenance?</li>
+                <li>Have you experienced security or performance incidents?</li>
+                <li>What triggered your interest in platform migration?</li>
+            </ul>
+
+            <div class="callout success">
+                <h4>Next Steps</h4>
+                <p>After identifying the merchant's persona(s), reference the <a href="STORE_SIZE_PLAYBOOK.html">Store Size Playbook</a> for migration timeline and approach, and the <a href="B2B_MIGRATION_GUIDE.html">B2B Migration Guide</a> if B2B personas apply.</p>
+            </div>
+
+            <h2>Sources & Citations</h2>
+            <div style="background: var(--bc-light); border-radius: 8px; padding: 20px; font-size: 0.9rem;">
+                <p><strong>This document synthesizes content from:</strong></p>
+                <ul style="margin-top: 10px;">
+                    <li><strong>Persona Framework:</strong> Granite Comparative Analysis, Slides 121-172</li>
+                    <li><strong>WooCommerce-Perfect Personas:</strong> Granite Slides 138-143 (10 personas who should stay on WooCommerce)</li>
+                    <li><strong>BigCommerce-Perfect Personas:</strong> Granite Slides 156-161 (10 personas ideal for BigCommerce)</li>
+                    <li><strong>Platform Selection Patterns:</strong> Granite Slides 171-172</li>
+                    <li><strong>B2B Personas:</strong> Granite Slides 66-73 (B2B platform evaluation)</li>
+                    <li><strong>Platform Fit Matrix:</strong> Synthesized from Granite persona analysis + BigCommerce pricing tiers</li>
+                    <li><strong>Migration Approach by Persona:</strong> Synthesized; combines Granite personas with bc-migration implementation tiers</li>
+                    <li><strong>Persona Identification Checklist:</strong> Our synthesis; not directly from Granite</li>
+                </ul>
+                <p style="margin-top: 15px; color: #666;"><em>Persona descriptions adapted from Granite analysis with migration-specific context added.</em></p>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>BC Migration Documentation Package | Migration Personas</p>
+    </footer>
+
+    <!-- Sticky Navigation -->
+    <nav class="sticky-nav">
+        <a href="STORE_SIZE_PLAYBOOK.html">← Store Size Playbook</a>
+        <div class="nav-center">
+            <span>17 of 17</span>
+            <select onchange="if(this.value) window.location.href=this.value">
+                <option value="">Jump to...</option>
+                <option value="IMPLEMENTATION_BRIEF.html">★ Implementation Brief</option>
+                <option value="GRANITE_COMPARATIVE_ANALYSIS.html">1. Granite Analysis</option>
+                <option value="WPE_ARTEMIS_MIGRATION_ANALYSIS.html">2. WPE Artemis</option>
+                <option value="PLATFORM_DECISION_RATIONALE.html">3. Platform Decision</option>
+                <option value="MIGRATION_BUSINESS_CASE.html">4. Business Case</option>
+                <option value="COMPETITIVE_LANDSCAPE.html">5. Competitive Landscape</option>
+                <option value="PLUGIN_COMPATIBILITY_MATRIX.html">6. Plugin Matrix</option>
+                <option value="SEO_PRESERVATION_GUIDE.html">7. SEO Guide</option>
+                <option value="MIGRATION_RUNBOOK.html">8. Migration Runbook</option>
+                <option value="INTEGRATION_ARCHITECTURE.html">9. Integration Architecture</option>
+                <option value="WORDPRESS_CATALYST_COMPONENTS.html">10. WP Catalyst Components</option>
+                <option value="ADR-001-keep-wordpress.html">11. ADR-001</option>
+                <option value="ADR-002-headless-vs-checkout-only.html">12. ADR-002</option>
+                <option value="ADR-003-order-history-strategy.html">13. ADR-003</option>
+                <option value="MIGRATION_QA_TRACKER.html">14. Q&A Tracker</option>
+                <option value="B2B_MIGRATION_GUIDE.html">15. B2B Guide</option>
+                <option value="STORE_SIZE_PLAYBOOK.html">16. Store Size Playbook</option>
+                <option value="MIGRATION_PERSONAS.html" selected>17. Migration Personas</option>
+            </select>
+        </div>
+        <a href="index.html">Back to Index →</a>
+    </nav>
+</body>
+</html>

@@ -1,0 +1,20 @@
+---
+title: "VariantTransformResult"
+description: "Result of transforming WC variations to BC options and variants"
+category: "reference"
+order: 300
+section: "api"
+---
+
+# VariantTransformResult
+
+Result of transforming WC variations to BC options and variants
+
+## Properties
+
+| Name | Type | Description |
+|------|------|-------------|
+| `options` | `Omit<BCOption, "id" | "product_id">[]` | - |
+| `variants` | `Omit<BCVariant, "id" | "product_id">[]` | - |
+| `warnings` | `string[]` | - |
+

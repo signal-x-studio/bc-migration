@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADR-003: Order History Migration Strategy</title>
+    <style>
+        :root {
+            --bc-primary: #34313f;
+            --bc-accent: #5c6ac4;
+            --bc-success: #28a745;
+            --bc-warning: #ffc107;
+            --bc-danger: #dc3545;
+            --bc-light: #f8f9fa;
+            --bc-border: #e0e0e0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bc-light);
+            color: var(--bc-primary);
+            line-height: 1.7;
+            padding-bottom: 70px;
+        }
+
+        /* Sticky Navigation */
+        .sticky-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bc-primary); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); z-index: 1000; }
+        .sticky-nav a { color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 0.85rem; transition: background 0.2s; }
+        .sticky-nav a:hover { background: rgba(255,255,255,0.15); }
+        .sticky-nav .nav-center { font-size: 0.75rem; color: rgba(255,255,255,0.7); }
+        .sticky-nav .nav-center select { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 6px 10px; border-radius: 4px; font-size: 0.8rem; margin-left: 8px; }
+        .sticky-nav .nav-center select option { background: var(--bc-primary); }
+        @media (max-width: 768px) { .sticky-nav .nav-center { display: none; } }
+
+        .header {
+            background: var(--bc-primary);
+            color: white;
+            padding: 40px;
+        }
+
+        .header-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .back-link {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .back-link:hover { color: white; }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .doc-type {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            opacity: 0.8;
+            margin-bottom: 8px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: var(--bc-success);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .content {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            color: var(--bc-primary);
+            margin-top: 35px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--bc-accent);
+        }
+
+        h2:first-child { margin-top: 0; }
+
+        h3 {
+            font-size: 1.1rem;
+            color: var(--bc-primary);
+            margin-top: 25px;
+            margin-bottom: 12px;
+        }
+
+        h4 {
+            font-size: 1rem;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: #444;
+        }
+
+        ul, ol {
+            margin-bottom: 15px;
+            padding-left: 25px;
+        }
+
+        li {
+            margin-bottom: 8px;
+            color: #444;
+        }
+
+        strong { color: var(--bc-primary); }
+
+        .decision-box {
+            background: linear-gradient(135deg, #e8eaf6 0%, #f3e5f5 100%);
+            border-left: 4px solid var(--bc-accent);
+            padding: 20px 25px;
+            border-radius: 0 8px 8px 0;
+            margin: 20px 0;
+        }
+
+        .decision-box p {
+            margin: 0;
+            font-size: 1.05rem;
+        }
+
+        .tier-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .tier-card {
+            background: var(--bc-light);
+            border-radius: 8px;
+            padding: 20px;
+            border-top: 4px solid var(--bc-accent);
+        }
+
+        .tier-card.tier-1 { border-top-color: var(--bc-success); }
+        .tier-card.tier-2 { border-top-color: var(--bc-warning); }
+        .tier-card.tier-3 { border-top-color: #6c757d; }
+
+        .tier-card h4 {
+            font-size: 0.95rem;
+            margin: 0 0 5px 0;
+        }
+
+        .tier-card .timeframe {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        .tier-card ul {
+            margin: 0;
+            padding-left: 18px;
+            font-size: 0.9rem;
+        }
+
+        .tier-card li {
+            margin-bottom: 5px;
+        }
+
+        .consequences-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .consequence-card {
+            background: var(--bc-light);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .consequence-card.positive { border-left: 4px solid var(--bc-success); }
+        .consequence-card.negative { border-left: 4px solid var(--bc-warning); }
+
+        .consequence-card h4 {
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+        }
+
+        .consequence-card ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .consequence-card li {
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+        }
+
+        .arch-diagram {
+            background: var(--bc-primary);
+            color: #f8f8f2;
+            padding: 25px;
+            border-radius: 8px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.75rem;
+            line-height: 1.4;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--bc-border);
+        }
+
+        th {
+            background: var(--bc-light);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #fafafa;
+        }
+
+        .alternative {
+            background: var(--bc-light);
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+        }
+
+        .alternative h4 {
+            font-size: 0.95rem;
+            margin: 0 0 8px 0;
+        }
+
+        .alternative p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .rejected {
+            color: var(--bc-danger);
+            font-weight: 600;
+        }
+
+        .cli-note {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .code-block {
+            background: var(--bc-primary);
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        .code-block .comment {
+            color: #6272a4;
+        }
+
+        .references {
+            background: var(--bc-light);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .references ul {
+            margin: 0;
+            list-style: none;
+            padding: 0;
+        }
+
+        .references li {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--bc-border);
+            font-size: 0.9rem;
+        }
+
+        .references li:last-child { border-bottom: none; }
+        .references a { color: var(--bc-accent); }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="index.html" class="back-link">&larr; Back to Documentation</a>
+            <div class="doc-type">Architecture Decision Record</div>
+            <h1>ADR-003: Order History Migration Strategy</h1>
+            <span class="status-badge">Accepted</span>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="content">
+            <h2>Context</h2>
+            <p>When migrating from WooCommerce to BigCommerce, historical order data presents a significant decision point:</p>
+
+            <ol>
+                <li><strong>Customer Expectations:</strong> Customers expect to see their order history in their account</li>
+                <li><strong>Business Operations:</strong> Staff need access to historical orders for customer service</li>
+                <li><strong>Analytics Continuity:</strong> Historical data enables trend analysis and forecasting</li>
+                <li><strong>Migration Complexity:</strong> Order data includes complex relationships (customers, products, addresses, payment records)</li>
+                <li><strong>Legal/Compliance:</strong> Some industries require order record retention</li>
+            </ol>
+
+            <h3>Data Considerations</h3>
+            <p>WooCommerce stores orders with:</p>
+            <ul>
+                <li>Order metadata in <code>wp_postmeta</code> (EAV pattern)</li>
+                <li>Line items with product references</li>
+                <li>Customer addresses (billing/shipping)</li>
+                <li>Payment transaction records</li>
+                <li>Order notes and status history</li>
+                <li>Refund records</li>
+            </ul>
+            <p>BigCommerce order structure differs significantly, requiring transformation.</p>
+
+            <h2>Decision</h2>
+            <div class="decision-box">
+                <p><strong>We will implement a tiered order history migration strategy.</strong></p>
+            </div>
+
+            <div class="tier-grid">
+                <div class="tier-card tier-1">
+                    <h4>Tier 1: Recent Orders</h4>
+                    <div class="timeframe">&lt; 12 months</div>
+                    <ul>
+                        <li>Full migration to BigCommerce via API</li>
+                        <li>Complete order details including line items, addresses, notes</li>
+                        <li>Enables customer self-service</li>
+                    </ul>
+                </div>
+                <div class="tier-card tier-2">
+                    <h4>Tier 2: Historical Orders</h4>
+                    <div class="timeframe">12-36 months</div>
+                    <ul>
+                        <li>Archive export to structured JSON/CSV</li>
+                        <li>Import to BigCommerce as read-only (where supported)</li>
+                        <li>Or maintain WordPress archive access</li>
+                    </ul>
+                </div>
+                <div class="tier-card tier-3">
+                    <h4>Tier 3: Legacy Orders</h4>
+                    <div class="timeframe">&gt; 36 months</div>
+                    <ul>
+                        <li>Export to archival format (JSON, CSV, PDF)</li>
+                        <li>Do not migrate to BigCommerce</li>
+                        <li>Retain in separate archive system</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>Rationale</h2>
+
+            <h3>Why Not Migrate All Orders?</h3>
+            <ol>
+                <li><strong>API Limits:</strong> BigCommerce API has rate limits; bulk historical import is slow</li>
+                <li><strong>Diminishing Returns:</strong> Older orders are rarely accessed</li>
+                <li><strong>Data Quality:</strong> Legacy WooCommerce orders often have inconsistent data</li>
+                <li><strong>Product References:</strong> Historical products may not exist in new catalog</li>
+                <li><strong>Cost/Time:</strong> Full migration adds weeks to timeline with minimal benefit</li>
+            </ol>
+
+            <h3>Why Not Skip Order Migration?</h3>
+            <ol>
+                <li><strong>Customer Experience:</strong> Recent orders are actively referenced</li>
+                <li><strong>Support Operations:</strong> Customer service needs recent order access</li>
+                <li><strong>Subscription Continuity:</strong> Subscription customers need order history</li>
+                <li><strong>Returns/Exchanges:</strong> Recent orders may have active return windows</li>
+            </ol>
+
+            <h2>Implementation Details</h2>
+            <div class="arch-diagram">
+<pre>┌─────────────────────────────────────────────────────────────┐
+│                    Order Migration Flow                      │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│   WooCommerce Orders                                         │
+│   ┌─────────────────────────────────────────────────────┐   │
+│   │  < 12 months  │  12-36 months  │    > 36 months     │   │
+│   └───────┬───────┴───────┬────────┴─────────┬──────────┘   │
+│           │               │                  │               │
+│           ▼               ▼                  ▼               │
+│   ┌───────────────┐ ┌───────────────┐ ┌───────────────┐     │
+│   │ Full Migration│ │ Archive +     │ │ Archive Only  │     │
+│   │ to BigCommerce│ │ Read-Only     │ │ (JSON/CSV/PDF)│     │
+│   └───────────────┘ └───────────────┘ └───────────────┘     │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘</pre>
+            </div>
+
+            <h3>Data Mapping</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>WooCommerce Field</th>
+                        <th>BigCommerce Field</th>
+                        <th>Migration Tier</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>order_id</code></td><td><code>id</code> (new)</td><td>Tier 1</td></tr>
+                    <tr><td><code>order_date</code></td><td><code>date_created</code></td><td>Tier 1</td></tr>
+                    <tr><td><code>status</code></td><td><code>status_id</code></td><td>Tier 1</td></tr>
+                    <tr><td><code>customer_id</code></td><td><code>customer_id</code></td><td>Tier 1</td></tr>
+                    <tr><td><code>billing_*</code></td><td><code>billing_address</code></td><td>Tier 1</td></tr>
+                    <tr><td><code>shipping_*</code></td><td><code>shipping_addresses[]</code></td><td>Tier 1</td></tr>
+                    <tr><td><code>line_items</code></td><td><code>products[]</code></td><td>Tier 1</td></tr>
+                    <tr><td><code>order_notes</code></td><td>Custom field/note</td><td>Tier 1</td></tr>
+                    <tr><td><code>payment_method</code></td><td><code>payment_method</code></td><td>Tier 1</td></tr>
+                    <tr><td><code>refunds</code></td><td>Refund records</td><td>Tier 1</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Customer Communication</h3>
+            <p>Pre-migration communication should set expectations:</p>
+            <ul>
+                <li>"Your recent order history will be available in your new account"</li>
+                <li>"For orders older than [date], please contact support"</li>
+                <li>Provide PDF export option for customers who want full history</li>
+            </ul>
+
+            <h2>Consequences</h2>
+            <div class="consequences-grid">
+                <div class="consequence-card positive">
+                    <h4>Positive</h4>
+                    <ul>
+                        <li>Faster Migration: Reduced data volume speeds timeline</li>
+                        <li>Cleaner Data: Only recent, higher-quality data migrates</li>
+                        <li>Customer Focus: Prioritizes orders customers actually need</li>
+                        <li>Compliance Ready: Archive strategy maintains required records</li>
+                    </ul>
+                </div>
+
+                <div class="consequence-card negative">
+                    <h4>Negative</h4>
+                    <ul>
+                        <li>Split History: Customers may need to access two systems</li>
+                        <li>Staff Training: Support staff need to know where to find historical orders</li>
+                        <li>Archive Maintenance: Must maintain archive system long-term</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>Alternatives Considered</h2>
+
+            <div class="alternative">
+                <h4>Alternative 1: Migrate All Orders</h4>
+                <p>Full historical migration regardless of age.</p>
+                <p class="rejected">Rejected: Excessive time/cost, diminishing returns, data quality issues</p>
+            </div>
+
+            <div class="alternative">
+                <h4>Alternative 2: Migrate No Orders</h4>
+                <p>Clean slate approach.</p>
+                <p class="rejected">Rejected: Poor customer experience, support burden, subscription issues</p>
+            </div>
+
+            <div class="alternative">
+                <h4>Alternative 3: Customer Self-Service Export</h4>
+                <p>Let customers export their own history before migration.</p>
+                <p class="rejected">Rejected: Low adoption rate, still need support fallback</p>
+            </div>
+
+            <h2>CLI Commands</h2>
+            <div class="cli-note">
+                <strong>Note:</strong> These commands represent the <em>planned interface</em> for the bc-migration tool. Command availability depends on implementation status.
+            </div>
+            <div class="code-block">
+<span class="comment"># Analyze order distribution by age</span>
+bc-migrate orders analyze --distribution
+
+<span class="comment"># Export orders by tier</span>
+bc-migrate orders export --tier 1 --format bigcommerce
+bc-migrate orders export --tier 2 --format json
+bc-migrate orders export --tier 3 --format pdf
+
+<span class="comment"># Migrate recent orders</span>
+bc-migrate orders migrate --tier 1 --validate
+
+<span class="comment"># Generate customer history PDFs</span>
+bc-migrate orders archive --tier 3 --format pdf --by-customer
+            </div>
+
+            <h2>Sources & Citations</h2>
+            <div style="background: var(--bc-light); border-radius: 8px; padding: 20px; font-size: 0.9rem;">
+                <p><strong>This decision synthesizes content from:</strong></p>
+                <ul style="margin-top: 10px;">
+                    <li><strong>BigCommerce Orders API:</strong> <a href="https://developer.bigcommerce.com/api-reference/orders" target="_blank">developer.bigcommerce.com</a> (official docs)</li>
+                    <li><strong>Order Migration Complexity:</strong> Granite Comparative Analysis, Slides 195-199</li>
+                    <li><strong>WooCommerce Data Structure:</strong> WordPress Codex (wp_posts + wp_postmeta schema)</li>
+                    <li><strong>Tiered Migration Approach:</strong> bc-migration implementation design (our specification)</li>
+                    <li><strong>GDPR Data Retention:</strong> Industry compliance guidelines; not Granite-sourced</li>
+                    <li><strong>Customer Communication Patterns:</strong> Synthesized from migration best practices</li>
+                </ul>
+                <p style="margin-top: 15px; color: #666;"><em>CLI commands shown above are the planned interface for bc-migration tooling. See Migration Runbook for full implementation workflow.</em></p>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>BC Migration Documentation Package</p>
+    </footer>
+
+    <!-- Sticky Navigation -->
+    <nav class="sticky-nav">
+        <a href="ADR-002-headless-vs-checkout-only.html">← ADR-002: Headless vs Checkout</a>
+        <div class="nav-center">
+            <span>13 of 17</span>
+            <select onchange="if(this.value) window.location.href=this.value">
+                <option value="">Jump to...</option>
+                <option value="IMPLEMENTATION_BRIEF.html">★ Implementation Brief</option>
+                <option value="GRANITE_COMPARATIVE_ANALYSIS.html">1. Granite Analysis</option>
+                <option value="WPE_ARTEMIS_MIGRATION_ANALYSIS.html">2. WPE Artemis</option>
+                <option value="PLATFORM_DECISION_RATIONALE.html">3. Platform Decision</option>
+                <option value="MIGRATION_BUSINESS_CASE.html">4. Business Case</option>
+                <option value="COMPETITIVE_LANDSCAPE.html">5. Competitive Landscape</option>
+                <option value="PLUGIN_COMPATIBILITY_MATRIX.html">6. Plugin Matrix</option>
+                <option value="SEO_PRESERVATION_GUIDE.html">7. SEO Guide</option>
+                <option value="MIGRATION_RUNBOOK.html">8. Migration Runbook</option>
+                <option value="INTEGRATION_ARCHITECTURE.html">9. Integration Architecture</option>
+                <option value="WORDPRESS_CATALYST_COMPONENTS.html">10. WP Catalyst Components</option>
+                <option value="ADR-001-keep-wordpress.html">11. ADR-001</option>
+                <option value="ADR-002-headless-vs-checkout-only.html">12. ADR-002</option>
+                <option value="ADR-003-order-history-strategy.html" selected>13. ADR-003</option>
+                <option value="MIGRATION_QA_TRACKER.html">14. Q&A Tracker</option>
+                <option value="B2B_MIGRATION_GUIDE.html">15. B2B Guide</option>
+                <option value="STORE_SIZE_PLAYBOOK.html">16. Store Size Playbook</option>
+                <option value="MIGRATION_PERSONAS.html">17. Migration Personas</option>
+            </select>
+        </div>
+        <a href="MIGRATION_QA_TRACKER.html">Q&A Tracker →</a>
+    </nav>
+</body>
+</html>

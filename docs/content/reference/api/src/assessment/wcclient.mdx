@@ -1,0 +1,145 @@
+---
+title: "WCClient"
+description: "WCClient"
+category: "reference"
+order: 100
+section: "api"
+---
+
+# WCClient
+
+## Constructor
+
+```typescript
+WCClient(config: WCConfig): WCClient
+```
+
+### Parameters
+
+- **`config`** (`WCConfig`): No description
+
+### Returns
+
+`WCClient`
+
+## Methods
+
+### `getCounts()`
+
+```typescript
+getCounts(endpoint: string): Promise<number>
+```
+
+### Parameters
+
+- **`endpoint`** (`string`): No description
+
+### Returns
+
+`Promise<number>`
+
+### `getProducts()`
+
+```typescript
+getProducts(params: any): Promise<any>
+```
+
+### Parameters
+
+- **`params`** (`any`): No description
+
+### Returns
+
+`Promise<any>`
+
+### `getSystemStatus()`
+
+```typescript
+getSystemStatus(): Promise<any>
+```
+
+### Returns
+
+`Promise<any>`
+
+### `getCategories()`
+
+```typescript
+getCategories(params: any): Promise<any>
+```
+
+### Parameters
+
+- **`params`** (`any`): No description
+
+### Returns
+
+`Promise<any>`
+
+### `getCustomers()`
+
+```typescript
+getCustomers(params: any): Promise<any>
+```
+
+### Parameters
+
+- **`params`** (`any`): No description
+
+### Returns
+
+`Promise<any>`
+
+### `getOrders()`
+
+```typescript
+getOrders(params: any): Promise<any>
+```
+
+### Parameters
+
+- **`params`** (`any`): No description
+
+### Returns
+
+`Promise<any>`
+
+### `getProductVariations()`
+
+```typescript
+getProductVariations(productId: number, params: any): Promise<any>
+```
+
+### Parameters
+
+- **`productId`** (`number`): The WC product ID
+- **`params`** (`any`): Optional query parameters (per_page, page, etc.)
+
+### Returns
+
+`Promise<any>`
+
+### `getAllProductVariations()`
+
+```typescript
+getAllProductVariations(productId: number): Promise<any[]>
+```
+
+### Parameters
+
+- **`productId`** (`number`): The WC product ID
+
+### Returns
+
+`Promise<any[]>`
+
+### `testConnection()`
+
+```typescript
+testConnection(): Promise<boolean>
+```
+
+### Returns
+
+`Promise<boolean>`
+

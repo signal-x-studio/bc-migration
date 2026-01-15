@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEO Preservation Guide | BC Migration</title>
+    <style>
+        :root {
+            --bc-primary: #34313f;
+            --bc-accent: #5c6ac4;
+            --bc-success: #28a745;
+            --bc-warning: #ffc107;
+            --bc-danger: #dc3545;
+            --bc-light: #f8f9fa;
+            --bc-border: #e0e0e0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bc-light);
+            color: var(--bc-primary);
+            line-height: 1.6;
+            padding-bottom: 70px;
+        }
+
+        /* Sticky Navigation */
+        .sticky-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bc-primary); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); z-index: 1000; }
+        .sticky-nav a { color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 0.85rem; transition: background 0.2s; }
+        .sticky-nav a:hover { background: rgba(255,255,255,0.15); }
+        .sticky-nav .nav-center { font-size: 0.75rem; color: rgba(255,255,255,0.7); }
+        .sticky-nav .nav-center select { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 6px 10px; border-radius: 4px; font-size: 0.8rem; margin-left: 8px; }
+        .sticky-nav .nav-center select option { background: var(--bc-primary); }
+        @media (max-width: 768px) { .sticky-nav .nav-center { display: none; } }
+
+        .header {
+            background: linear-gradient(135deg, var(--bc-primary) 0%, #4a4458 100%);
+            color: white;
+            padding: 40px;
+        }
+
+        .header-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 30px;
+            color: var(--bc-accent);
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .source-box {
+            background: #e8f5e9;
+            border-left: 4px solid var(--bc-success);
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .source-box h3 {
+            font-size: 0.9rem;
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+
+        .source-box ul {
+            list-style: none;
+            font-size: 0.9rem;
+        }
+
+        .source-box li {
+            padding: 3px 0;
+        }
+
+        .key-insight {
+            background: #fff3e0;
+            border-left: 4px solid var(--bc-warning);
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .key-insight h4 {
+            font-size: 0.9rem;
+            color: #ef6c00;
+            margin-bottom: 8px;
+        }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .section h2 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--bc-border);
+        }
+
+        .section h3 {
+            font-size: 1.1rem;
+            margin: 25px 0 15px 0;
+            color: var(--bc-primary);
+        }
+
+        .section p {
+            margin-bottom: 15px;
+            color: #444;
+        }
+
+        .section ul, .section ol {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+
+        .section li {
+            margin-bottom: 8px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .comparison-table th, .comparison-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--bc-border);
+        }
+
+        .comparison-table th {
+            background: var(--bc-light);
+            font-weight: 600;
+        }
+
+        .comparison-table .winner {
+            background: #e8f5e9;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .metric-card {
+            background: var(--bc-light);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--bc-accent);
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .metric-source {
+            font-size: 0.7rem;
+            color: #999;
+            margin-top: 3px;
+        }
+
+        .phase-card {
+            background: var(--bc-light);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .phase-card h4 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .phase-number {
+            background: var(--bc-accent);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .advantage-box {
+            background: #e8f5e9;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .advantage-box h4 {
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+
+        .code-block {
+            background: var(--bc-primary);
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 25px 20px;
+            }
+            .header h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>SEO Preservation Guide</h1>
+            <p class="subtitle">Maintaining Organic Search Equity During WooCommerce to BigCommerce Migration</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <a href="index.html" class="back-link">&larr; Back to Documentation Hub</a>
+
+        <!-- Data Sources -->
+        <div class="source-box">
+            <h3>Data Sources</h3>
+            <ul>
+                <li><strong>Granite Comparative Analysis</strong> - SEO scores by platform (p.12-15)</li>
+                <li><strong>WPE Artemis Migration Analysis</strong> - SEO preservation strategy</li>
+                <li><strong>ADR-001: Keep WordPress Architecture</strong> - SEO rationale</li>
+            </ul>
+        </div>
+
+        <!-- Key Metrics -->
+        <section class="section">
+            <h2>Platform SEO Comparison</h2>
+            <p>The Granite Comparative Analysis evaluated SEO capabilities across e-commerce platforms. These scores reflect native SEO features, URL flexibility, and content optimization capabilities.</p>
+
+            <div class="metric-grid">
+                <div class="metric-card">
+                    <div class="metric-value">92%</div>
+                    <div class="metric-label">WooCommerce SEO Score</div>
+                    <div class="metric-source">Granite Analysis</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">73%</div>
+                    <div class="metric-label">Magento SEO Score</div>
+                    <div class="metric-source">Granite Analysis</div>
+                </div>
+            </div>
+
+            <div class="key-insight">
+                <h4>Key Insight from Granite Analysis</h4>
+                <p>"WooCommerce achieves the best SEO scores (92%) via native WordPress integration. Content-driven brands and businesses prioritizing SEO are best served by platforms with strong WordPress connectivity."</p>
+            </div>
+        </section>
+
+        <!-- The Keep WordPress Advantage -->
+        <section class="section">
+            <h2>The "Keep WordPress" SEO Advantage</h2>
+            <p>The core architectural decision of the BC Migration approach—keeping WordPress as the frontend while migrating commerce to BigCommerce—provides significant SEO advantages over full replatforming.</p>
+
+            <div class="advantage-box">
+                <h4>What Stays in WordPress (SEO Intact)</h4>
+                <ul>
+                    <li>All content URLs remain unchanged (blog posts, pages, media)</li>
+                    <li>SEO plugins (Yoast, RankMath) continue working</li>
+                    <li>Existing internal linking structure preserved</li>
+                    <li>Meta descriptions, titles, and schema markup unchanged</li>
+                    <li>XML sitemaps for content continue as-is</li>
+                    <li>Canonical URLs for content pages unchanged</li>
+                </ul>
+            </div>
+
+            <h3>Comparison: Keep WordPress vs. Full Replatform</h3>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>SEO Factor</th>
+                        <th>Keep WordPress (Artemis)</th>
+                        <th>Full Replatform to Shopify</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="winner">
+                        <td><strong>Content URLs</strong></td>
+                        <td>Unchanged - all /blog/, /about/, etc. stay</td>
+                        <td>Require redirects to new domain structure</td>
+                    </tr>
+                    <tr class="winner">
+                        <td><strong>SEO Plugins</strong></td>
+                        <td>Yoast/RankMath continue working</td>
+                        <td>Must rebuild with native or app tools</td>
+                    </tr>
+                    <tr class="winner">
+                        <td><strong>URL Structure</strong></td>
+                        <td>Retained for content; product URLs can match</td>
+                        <td>URL rules differ; redirects more complex</td>
+                    </tr>
+                    <tr class="winner">
+                        <td><strong>Domain Authority</strong></td>
+                        <td>Fully preserved on same domain</td>
+                        <td>Risk of dilution if subdomain used</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Product URLs</strong></td>
+                        <td>Handled by BC Bridge plugin routing</td>
+                        <td>Migrate to platform URL structure</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p style="font-size: 0.85rem; color: #666; margin-top: 10px;"><em>Source: WPE Artemis Migration Analysis, Competitive Comparison section</em></p>
+        </section>
+
+        <!-- Migration Phases -->
+        <section class="section">
+            <h2>SEO Preservation in Migration Stages</h2>
+            <p>WPE's Artemis framework includes SEO Data Preservation as an explicit phase in Stage 1 of migration.</p>
+
+            <div class="phase-card">
+                <h4><span class="phase-number">1</span> Pre-Migration Audit</h4>
+                <p>Before migration, capture baseline SEO data:</p>
+                <ul>
+                    <li>Export all product URLs from WooCommerce</li>
+                    <li>Document current product meta titles and descriptions</li>
+                    <li>Capture Google Search Console rankings for product pages</li>
+                    <li>Note any custom URL structures (/shop/, /product/, etc.)</li>
+                </ul>
+            </div>
+
+            <div class="phase-card">
+                <h4><span class="phase-number">2</span> URL Mapping Strategy</h4>
+                <p>Plan URL handling for product pages:</p>
+                <ul>
+                    <li>BC Bridge plugin handles product routing from WordPress URLs</li>
+                    <li>Decide: Keep WordPress URL structure OR adopt BigCommerce patterns</li>
+                    <li>Generate redirect rules for any URL changes</li>
+                </ul>
+            </div>
+
+            <div class="phase-card">
+                <h4><span class="phase-number">3</span> Product Data Migration with SEO Fields</h4>
+                <p>The bc-migration tool preserves SEO data during product migration:</p>
+                <ul>
+                    <li>Product titles → BigCommerce product name</li>
+                    <li>Meta descriptions → BigCommerce meta description</li>
+                    <li>URL slugs → BigCommerce custom URL (when possible)</li>
+                    <li>Image alt text preserved during image migration</li>
+                </ul>
+            </div>
+
+            <div class="phase-card">
+                <h4><span class="phase-number">4</span> Post-Migration Verification</h4>
+                <p>After migration, validate SEO integrity:</p>
+                <ul>
+                    <li>Verify all product pages render with correct meta tags</li>
+                    <li>Test canonical URLs resolve correctly</li>
+                    <li>Confirm structured data (schema.org) is present</li>
+                    <li>Submit updated XML sitemap to Search Console</li>
+                    <li>Monitor rankings for key product pages</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- AI Enhancement -->
+        <section class="section">
+            <h2>AI-Powered SEO Enhancement (Roadmap)</h2>
+            <p>WPE's Artemis roadmap includes AI-powered tools for SEO improvement during migration:</p>
+
+            <div class="phase-card">
+                <h4>Content & SEO Enhancement (AI Roadmap)</h4>
+                <ul>
+                    <li><strong>Product Content Enhancement:</strong> LLM expands descriptions, improves readability, generates metadata</li>
+                    <li><strong>Automated Image Metadata:</strong> Computer vision for alt text, captions, SEO filenames</li>
+                    <li><strong>SEO Redirect Intelligence:</strong> Maps legacy URLs to new structure, generates redirect rules automatically</li>
+                </ul>
+                <p style="font-size: 0.85rem; color: #666; margin-top: 10px;"><em>Source: WPE Artemis Migration Analysis, AI Acceleration section</em></p>
+            </div>
+        </section>
+
+        <!-- Product URL Handling -->
+        <section class="section">
+            <h2>Product URL Strategy</h2>
+            <p>The BC Bridge plugin provides URL routing for product pages. There are two primary approaches:</p>
+
+            <h3>Option A: WordPress-Native URLs</h3>
+            <p>Products accessed via WordPress URL structure, with BC Bridge fetching data from BigCommerce API.</p>
+            <div class="code-block">
+<pre>WordPress URL:  /product/blue-widget/
+BC Bridge:      Fetches product data from BigCommerce API
+Checkout:       Redirects to BigCommerce checkout
+
+SEO Advantage:  URLs unchanged from WooCommerce</pre>
+            </div>
+
+            <h3>Option B: BigCommerce-Proxied URLs</h3>
+            <p>Products use BigCommerce URL structure, proxied through WordPress for consistent frontend.</p>
+            <div class="code-block">
+<pre>WordPress URL:  /shop/blue-widget/  (custom rewrite)
+BC Bridge:      Routes to BigCommerce product
+Checkout:       BigCommerce native
+
+SEO Note:       Requires redirects from old WooCommerce URLs</pre>
+            </div>
+
+            <div class="key-insight">
+                <h4>Recommendation</h4>
+                <p>For maximum SEO preservation, use Option A with existing WooCommerce URL structure. The BC Bridge plugin maintains URL compatibility while fetching commerce data from BigCommerce.</p>
+            </div>
+        </section>
+
+        <!-- What Requires Attention -->
+        <section class="section">
+            <h2>SEO Considerations Requiring Attention</h2>
+            <p>While the "Keep WordPress" approach preserves most SEO, some areas need explicit handling:</p>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>SEO Element</th>
+                        <th>Risk Level</th>
+                        <th>Mitigation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Product page URLs</td>
+                        <td>Medium</td>
+                        <td>BC Bridge maintains URL compatibility; set up 301 redirects for any changes</td>
+                    </tr>
+                    <tr>
+                        <td>Product schema markup</td>
+                        <td>Low</td>
+                        <td>BigCommerce generates Product schema; verify on migration</td>
+                    </tr>
+                    <tr>
+                        <td>Category page URLs</td>
+                        <td>Medium</td>
+                        <td>Plan category URL structure; implement redirects as needed</td>
+                    </tr>
+                    <tr>
+                        <td>Internal links to products</td>
+                        <td>Low</td>
+                        <td>Audit and update internal links in WordPress content</td>
+                    </tr>
+                    <tr>
+                        <td>Product XML sitemap</td>
+                        <td>Low</td>
+                        <td>Generate new product sitemap from BigCommerce; submit to Search Console</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="key-insight">
+                <h4>From Granite Analysis</h4>
+                <p>"Product SEO preservation is challenging when migrating from WooCommerce" — this is why the Keep WordPress approach is recommended: it preserves content SEO entirely and only requires attention to product-specific SEO elements.</p>
+            </div>
+        </section>
+
+        <!-- Sources & Citations -->
+        <section class="section">
+            <h2>Sources & Citations</h2>
+            <div style="background: var(--bc-light); border-radius: 8px; padding: 20px; font-size: 0.9rem;">
+                <p><strong>This document synthesizes content from:</strong></p>
+                <ul style="margin-top: 10px;">
+                    <li><strong>WooCommerce SEO Score:</strong> Granite Comparative Analysis, Slides 10-15 (92% SEO score)</li>
+                    <li><strong>SEO Migration Risks:</strong> Granite Comparative Analysis, Slides 85-95</li>
+                    <li><strong>Product SEO Challenges:</strong> Granite Slides 90-95 (quote cited above)</li>
+                    <li><strong>Keep WordPress Rationale:</strong> ADR-001 decision documentation</li>
+                    <li><strong>URL Structure Best Practices:</strong> Google Search Central documentation</li>
+                    <li><strong>Redirect Implementation:</strong> bc-migration implementation; not Granite-sourced</li>
+                    <li><strong>SEO Checklist:</strong> Synthesized from Granite analysis + industry best practices</li>
+                </ul>
+                <p style="margin-top: 15px; color: #666;"><em>The "Keep WordPress" architecture preserves ~90% of SEO value automatically. Focus SEO migration efforts on product-specific elements documented above.</em></p>
+            </div>
+        </section>
+
+    </div>
+
+    <footer class="footer">
+        <p><strong>BC Migration Documentation</strong></p>
+        <p>SEO Preservation Guide</p>
+    </footer>
+
+    <!-- Sticky Navigation -->
+    <nav class="sticky-nav">
+        <a href="PLUGIN_COMPATIBILITY_MATRIX.html">← Plugin Matrix</a>
+        <div class="nav-center">
+            <span>7 of 17</span>
+            <select onchange="if(this.value) window.location.href=this.value">
+                <option value="">Jump to...</option>
+                <option value="IMPLEMENTATION_BRIEF.html">★ Implementation Brief</option>
+                <option value="index.html">Home</option>
+                <option value="GRANITE_COMPARATIVE_ANALYSIS.html">1. Granite Analysis</option>
+                <option value="WPE_ARTEMIS_MIGRATION_ANALYSIS.html">2. WPE Artemis</option>
+                <option value="PLATFORM_DECISION_RATIONALE.html">3. Platform Decision</option>
+                <option value="MIGRATION_BUSINESS_CASE.html">4. Business Case</option>
+                <option value="COMPETITIVE_LANDSCAPE.html">5. Competitive Landscape</option>
+                <option value="PLUGIN_COMPATIBILITY_MATRIX.html">6. Plugin Matrix</option>
+                <option value="SEO_PRESERVATION_GUIDE.html" selected>7. SEO Guide</option>
+                <option value="MIGRATION_RUNBOOK.html">8. Migration Runbook</option>
+                <option value="INTEGRATION_ARCHITECTURE.html">9. Integration Architecture</option>
+                <option value="WORDPRESS_CATALYST_COMPONENTS.html">10. WP Catalyst Components</option>
+                <option value="ADR-001-keep-wordpress.html">11. ADR-001</option>
+                <option value="ADR-002-headless-vs-checkout-only.html">12. ADR-002</option>
+                <option value="ADR-003-order-history-strategy.html">13. ADR-003</option>
+                <option value="MIGRATION_QA_TRACKER.html">14. Q&A Tracker</option>
+                <option value="B2B_MIGRATION_GUIDE.html">15. B2B Guide</option>
+                <option value="STORE_SIZE_PLAYBOOK.html">16. Store Size Playbook</option>
+                <option value="MIGRATION_PERSONAS.html">17. Migration Personas</option>
+            </select>
+        </div>
+        <a href="MIGRATION_RUNBOOK.html">Migration Runbook →</a>
+    </nav>
+</body>
+</html>

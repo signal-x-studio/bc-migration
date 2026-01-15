@@ -1,0 +1,57 @@
+---
+title: "ConfigurationError"
+description: "Configuration error"
+category: "reference"
+order: 100
+section: "api"
+---
+
+# ConfigurationError
+
+Configuration error
+
+## Constructor
+
+```typescript
+ConfigurationError(message: string, context?: Record<string, unknown>): ConfigurationError
+```
+
+### Parameters
+
+- **`message`** (`string`): No description
+- **`context`** (`Record<string, unknown>`) (optional): No description
+
+### Returns
+
+`ConfigurationError`
+
+## Properties
+
+### `code`
+
+Type: `string`
+
+### `retriable`
+
+Type: `boolean`
+
+### `context`
+
+Type: `Record<string, unknown>`
+
+### `timestamp`
+
+Type: `string`
+
+## Methods
+
+### `toJSON()`
+
+```typescript
+toJSON(): Record<string, unknown>
+```
+
+### Returns
+
+`Record<string, unknown>`
+

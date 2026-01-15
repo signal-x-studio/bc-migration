@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platform Decision Rationale: Why BigCommerce</title>
+    <style>
+        :root {
+            --bc-primary: #34313f;
+            --bc-accent: #5c6ac4;
+            --bc-success: #28a745;
+            --bc-warning: #ffc107;
+            --bc-danger: #dc3545;
+            --bc-light: #f8f9fa;
+            --bc-border: #e0e0e0;
+            --shopify-green: #96bf48;
+            --magento-orange: #f26322;
+            --woo-purple: #96588a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bc-light);
+            color: var(--bc-primary);
+            line-height: 1.6;
+            padding-bottom: 70px;
+        }
+
+        /* Sticky Navigation */
+        .sticky-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bc-primary); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); z-index: 1000; }
+        .sticky-nav a { color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 0.85rem; transition: background 0.2s; }
+        .sticky-nav a:hover { background: rgba(255,255,255,0.15); }
+        .sticky-nav .nav-center { font-size: 0.75rem; color: rgba(255,255,255,0.7); }
+        .sticky-nav .nav-center select { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 6px 10px; border-radius: 4px; font-size: 0.8rem; margin-left: 8px; }
+        .sticky-nav .nav-center select option { background: var(--bc-primary); }
+        @media (max-width: 768px) { .sticky-nav .nav-center { display: none; } }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, var(--bc-primary) 0%, #4a4458 100%);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header .subtitle {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .nav-section {
+            padding: 0 20px;
+            margin-bottom: 20px;
+        }
+
+        .nav-section h3 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.5;
+            margin-bottom: 10px;
+        }
+
+        .nav-section a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 8px 0;
+            font-size: 0.9rem;
+            opacity: 0.8;
+            transition: all 0.2s;
+        }
+
+        .nav-section a:hover {
+            opacity: 1;
+            padding-left: 5px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 40px;
+            max-width: 1100px;
+        }
+
+        .page-header {
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 3px solid var(--bc-accent);
+        }
+
+        .page-header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+
+        .page-header .meta {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .section {
+            margin-bottom: 50px;
+        }
+
+        .section h2 {
+            font-size: 1.6rem;
+            color: var(--bc-primary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--bc-border);
+        }
+
+        .section h3 {
+            font-size: 1.2rem;
+            margin: 25px 0 15px;
+            color: var(--bc-primary);
+        }
+
+        .section p {
+            margin-bottom: 15px;
+        }
+
+        /* Decision Box */
+        .decision-box {
+            background: linear-gradient(135deg, var(--bc-primary) 0%, #4a4458 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .decision-box h2 {
+            color: white;
+            border: none;
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+        }
+
+        .decision-box .verdict {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--bc-success);
+            margin: 20px 0;
+        }
+
+        .decision-box p {
+            color: white;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Comparison Cards */
+        .platform-comparison {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .platform-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+
+        .platform-card.winner {
+            border: 3px solid var(--bc-success);
+            position: relative;
+        }
+
+        .platform-card.winner::after {
+            content: 'SELECTED';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bc-success);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .platform-card .logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 0.8rem;
+        }
+
+        .platform-card .logo.bc { background: var(--bc-primary); }
+        .platform-card .logo.shopify { background: var(--shopify-green); }
+        .platform-card .logo.magento { background: var(--magento-orange); }
+        .platform-card .logo.woo { background: var(--woo-purple); }
+
+        .platform-card h4 {
+            margin-bottom: 10px;
+        }
+
+        .platform-card .score {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--bc-primary);
+        }
+
+        .platform-card .label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        /* Criteria Table */
+        .criteria-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin: 20px 0;
+        }
+
+        .criteria-table th {
+            background: var(--bc-primary);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .criteria-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--bc-border);
+            font-size: 0.9rem;
+        }
+
+        .criteria-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .criteria-table .best {
+            background: #e8f5e9;
+            color: var(--bc-success);
+            font-weight: 600;
+        }
+
+        .criteria-table .good {
+            color: var(--bc-accent);
+        }
+
+        .criteria-table .poor {
+            color: var(--bc-danger);
+        }
+
+        /* Criterion Cards */
+        .criterion-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 25px 0;
+        }
+
+        .criterion-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .criterion-card h4 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .criterion-card .number {
+            width: 32px;
+            height: 32px;
+            background: var(--bc-accent);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        .criterion-card .winner-badge {
+            background: var(--bc-success);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: auto;
+        }
+
+        .criterion-card p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .criterion-card .data-point {
+            background: var(--bc-light);
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+
+        .criterion-card .data-point strong {
+            color: var(--bc-primary);
+        }
+
+        /* Callouts */
+        .callout {
+            padding: 20px 25px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .callout.decisive {
+            background: #e8f5e9;
+            border-left: 4px solid var(--bc-success);
+        }
+
+        .callout.consideration {
+            background: #fff3e0;
+            border-left: 4px solid var(--bc-warning);
+        }
+
+        .callout.data {
+            background: #e3f2fd;
+            border-left: 4px solid var(--bc-accent);
+        }
+
+        .callout h5 {
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        /* Score Summary */
+        .score-summary {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin: 25px 0;
+        }
+
+        .score-summary h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .score-row {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--bc-border);
+        }
+
+        .score-row:last-child {
+            border-bottom: none;
+        }
+
+        .score-row .criterion {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .score-row .scores {
+            display: flex;
+            gap: 20px;
+        }
+
+        .score-row .score-item {
+            text-align: center;
+            width: 80px;
+        }
+
+        .score-row .score-item .value {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .score-row .score-item .platform {
+            font-size: 0.7rem;
+            color: #888;
+        }
+
+        .score-row .score-item.winner .value {
+            color: var(--bc-success);
+        }
+
+        /* Verdict Section */
+        .verdict-section {
+            background: linear-gradient(135deg, var(--bc-success) 0%, #218838 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 12px;
+            margin: 40px 0;
+        }
+
+        .verdict-section h2 {
+            color: white;
+            border: none;
+            margin-bottom: 20px;
+        }
+
+        .verdict-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .verdict-section li {
+            padding: 10px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .verdict-section li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #90EE90;
+            font-weight: 700;
+        }
+
+        @media (max-width: 1024px) {
+            .platform-comparison {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            .platform-comparison {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1>Platform Decision</h1>
+                <div class="subtitle">Why BigCommerce</div>
+            </div>
+
+            <div class="nav-section">
+                <h3>Decision</h3>
+                <a href="#decision-summary">Decision Summary</a>
+                <a href="#evaluation-criteria">Evaluation Criteria</a>
+            </div>
+
+            <div class="nav-section">
+                <h3>Analysis</h3>
+                <a href="#wordpress-integration">WordPress Integration</a>
+                <a href="#api-capabilities">API Capabilities</a>
+                <a href="#b2b-features">B2B Features</a>
+                <a href="#tco-analysis">TCO Analysis</a>
+                <a href="#platform-stability">Platform Stability</a>
+            </div>
+
+            <div class="nav-section">
+                <h3>Trade-offs</h3>
+                <a href="#what-we-gain">What We Gain</a>
+                <a href="#what-we-accept">What We Accept</a>
+            </div>
+
+            <div class="nav-section">
+                <h3>Sources</h3>
+                <a href="../index.html">Documentation Hub</a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="page-header">
+                <h1>Platform Decision Rationale</h1>
+                <p class="meta">Architecture Decision Record | Why BigCommerce is the Target Platform</p>
+            </header>
+
+            <!-- Decision Summary -->
+            <section id="decision-summary" class="decision-box">
+                <h2>Platform Selection Decision</h2>
+                <div class="verdict">BigCommerce</div>
+                <p>Selected as the target commerce platform for WooCommerce migrations based on unique WordPress integration capabilities, API excellence, B2B value proposition, and lowest industry churn rate.</p>
+            </section>
+
+            <!-- Platform Comparison Overview -->
+            <section class="section">
+                <h2>Platform Comparison Overview</h2>
+                <p>Four platforms were evaluated as potential migration targets. Each was scored across 11 criteria weighted by importance to the WP Engine partnership use case.</p>
+
+                <div class="platform-comparison">
+                    <div class="platform-card winner">
+                        <div class="logo bc">BC</div>
+                        <h4>BigCommerce</h4>
+                        <div class="score" style="font-size: 1.2rem;">Selected</div>
+                        <div class="label">WordPress + B2B + API</div>
+                    </div>
+                    <div class="platform-card">
+                        <div class="logo shopify">SH</div>
+                        <h4>Shopify</h4>
+                        <div class="score" style="font-size: 1.2rem;">Rejected</div>
+                        <div class="label">No WordPress Integration</div>
+                    </div>
+                    <div class="platform-card">
+                        <div class="logo magento">MG</div>
+                        <h4>Magento</h4>
+                        <div class="score" style="font-size: 1.2rem;">Rejected</div>
+                        <div class="label">Complexity + Cost</div>
+                    </div>
+                    <div class="platform-card">
+                        <div class="logo woo">WC</div>
+                        <h4>WooCommerce</h4>
+                        <div class="score" style="font-size: 1.2rem;">Source</div>
+                        <div class="label">Migrating From</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Evaluation Criteria -->
+            <section id="evaluation-criteria" class="section">
+                <h2>Evaluation Criteria</h2>
+
+                <table class="criteria-table">
+                    <thead>
+                        <tr>
+                            <th>Criterion</th>
+                            <th>Weight</th>
+                            <th>BigCommerce</th>
+                            <th>Shopify</th>
+                            <th>Magento</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>WordPress Integration</strong></td>
+                            <td>20%</td>
+                            <td class="best">Native Plugin (10/10)</td>
+                            <td>Buy Button Only (4/10)</td>
+                            <td>Complex Bridge (3/10)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>API Rate Limits</strong></td>
+                            <td>15%</td>
+                            <td class="best">20,000 req/hr (10/10)</td>
+                            <td>2,400 req/hr (3/10)</td>
+                            <td>Variable (6/10)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>B2B at Mid-Tier</strong></td>
+                            <td>15%</td>
+                            <td class="best">$400/mo (10/10)</td>
+                            <td class="poor">$2,300/mo Plus (4/10)</td>
+                            <td>Native (8/10)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Transaction Fees</strong></td>
+                            <td>10%</td>
+                            <td class="best">None (10/10)</td>
+                            <td class="poor">0.5-2% (5/10)</td>
+                            <td>None (10/10)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Platform Churn Rate</strong></td>
+                            <td>10%</td>
+                            <td class="best">7.5% (10/10)</td>
+                            <td>13.8% (7/10)</td>
+                            <td>16-17% (5/10)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Performance at Scale</strong></td>
+                            <td>10%</td>
+                            <td class="good">+2% improvement (8/10)</td>
+                            <td class="poor">-11% degradation (5/10)</td>
+                            <td>Erratic (4/10)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Product Page Performance</strong></td>
+                            <td>5%</td>
+                            <td>75% mobile (6/10)</td>
+                            <td class="best">93% mobile (10/10)</td>
+                            <td>80.7% mobile (7/10)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Migration Complexity</strong></td>
+                            <td>5%</td>
+                            <td class="good">2-4 weeks (8/10)</td>
+                            <td class="best">1-2 weeks (10/10)</td>
+                            <td class="poor">2-4 months (3/10)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>App Ecosystem</strong></td>
+                            <td>5%</td>
+                            <td>Smaller (5/10)</td>
+                            <td class="best">8,000+ apps (10/10)</td>
+                            <td>Large (7/10)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Implementation TCO</strong></td>
+                            <td>5%</td>
+                            <td class="good">Medium (7/10)</td>
+                            <td>Medium-High (6/10)</td>
+                            <td class="poor">High (3/10)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- WordPress Integration -->
+            <section id="wordpress-integration" class="section">
+                <h2>Criterion 1: WordPress Integration</h2>
+
+                <div class="callout decisive">
+                    <h5>Decisive Factor: Only Native WordPress Plugin</h5>
+                    <p>BigCommerce is the only major commerce platform with a first-party WordPress plugin designed for headless commerce. This directly enables the "Keep WordPress" value proposition that differentiates this partnership.</p>
+                </div>
+
+                <div class="criterion-grid">
+                    <div class="criterion-card">
+                        <h4><span class="number">BC</span>BigCommerce<span class="winner-badge">WINNER</span></h4>
+                        <p>Official WordPress plugin enables true headless commerce. Products sync as custom post types, checkout is PCI-compliant via BC, and merchants keep their WordPress content/SEO.</p>
+                        <div class="data-point">
+                            <strong>Integration:</strong> Native plugin, full API access, product sync as CPTs
+                        </div>
+                    </div>
+                    <div class="criterion-card">
+                        <h4><span class="number">SH</span>Shopify</h4>
+                        <p>Buy Button or subdomain approach. Requires separate Shopify storefront or embeds, creating fragmented experience and analytics gaps.</p>
+                        <div class="data-point">
+                            <strong>Integration:</strong> Buy Button widget, design inconsistencies
+                        </div>
+                    </div>
+                    <div class="criterion-card">
+                        <h4><span class="number">MG</span>Magento</h4>
+                        <p>Requires custom API bridge or third-party solutions. Doubles maintenance burden and introduces complexity without clear benefit.</p>
+                        <div class="data-point">
+                            <strong>Integration:</strong> Custom development required, high complexity
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- API Capabilities -->
+            <section id="api-capabilities" class="section">
+                <h2>Criterion 2: API Capabilities</h2>
+
+                <div class="callout data">
+                    <h5>Data Point: 8x Higher API Throughput</h5>
+                    <p>BigCommerce offers 20,000 requests/hour compared to Shopify's 2,400 requests/hour. For a headless architecture that relies heavily on API calls, this difference is operationally critical.</p>
+                </div>
+
+                <table class="criteria-table">
+                    <thead>
+                        <tr>
+                            <th>API Capability</th>
+                            <th>BigCommerce</th>
+                            <th>Shopify</th>
+                            <th>Magento</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Rate Limit</strong></td>
+                            <td class="best">20,000 req/hour</td>
+                            <td class="poor">2,400 req/hour</td>
+                            <td>Variable</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Batch Operations</strong></td>
+                            <td>10 items/request</td>
+                            <td>10 items/request</td>
+                            <td>Variable</td>
+                        </tr>
+                        <tr>
+                            <td><strong>GraphQL</strong></td>
+                            <td>Yes (Storefront)</td>
+                            <td>Yes</td>
+                            <td>Yes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Webhooks</strong></td>
+                            <td>Comprehensive</td>
+                            <td>Comprehensive</td>
+                            <td>Limited</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Headless Support</strong></td>
+                            <td class="best">API-first design</td>
+                            <td>Hydrogen/Oxygen</td>
+                            <td>PWA Studio</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout consideration">
+                    <h5>Migration Implication</h5>
+                    <p>The bc-migration tool's rate limiter is set at 150 requests/30 seconds (conservative). With BigCommerce's 20,000/hour limit, we have significant headroom for parallel operations and can migrate large stores faster.</p>
+                </div>
+            </section>
+
+            <!-- B2B Features -->
+            <section id="b2b-features" class="section">
+                <h2>Criterion 3: B2B Features</h2>
+
+                <div class="callout decisive">
+                    <h5>Decisive Factor: 1/6th the Cost for B2B</h5>
+                    <p>BigCommerce provides native B2B features (customer-specific pricing, price lists, quote requests, net terms) at $400/month. Shopify requires Plus at $2,300/month for comparable functionality.</p>
+                </div>
+
+                <table class="criteria-table">
+                    <thead>
+                        <tr>
+                            <th>B2B Feature</th>
+                            <th>BigCommerce</th>
+                            <th>Shopify</th>
+                            <th>Magento</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Customer-Specific Pricing</strong></td>
+                            <td class="best">Native (Mid-tier)</td>
+                            <td>Plus Only ($2,300/mo)</td>
+                            <td>Native</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Price Lists</strong></td>
+                            <td class="best">Native</td>
+                            <td>Plus Only</td>
+                            <td>Native</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Quote Requests</strong></td>
+                            <td class="best">Native</td>
+                            <td>App Required</td>
+                            <td>Native</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Net Terms</strong></td>
+                            <td class="best">Native</td>
+                            <td>Plus Only</td>
+                            <td>Native</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Minimum Cost for B2B</strong></td>
+                            <td class="best">~$400/mo</td>
+                            <td class="poor">~$2,300/mo</td>
+                            <td>~$500/mo + hosting</td>
+                        </tr>
+                        <tr>
+                            <td><strong>B2B Complexity Score (Granite)</strong></td>
+                            <td>37</td>
+                            <td>36-38</td>
+                            <td class="best">28</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout data">
+                    <h5>Market Context</h5>
+                    <p>WooCommerce has the highest B2B complexity score (39) in the Granite analysis, meaning B2B merchants face the most friction. BigCommerce provides a clear upgrade path at accessible price points.</p>
+                </div>
+            </section>
+
+            <!-- TCO Analysis -->
+            <section id="tco-analysis" class="section">
+                <h2>Criterion 4: Total Cost of Ownership</h2>
+
+                <table class="criteria-table">
+                    <thead>
+                        <tr>
+                            <th>Store Size</th>
+                            <th>BigCommerce</th>
+                            <th>Shopify</th>
+                            <th>Magento</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Small B2C ($0-$500K GMV)</strong></td>
+                            <td>$800-$2,000/yr</td>
+                            <td>$800-$2,000/yr + fees</td>
+                            <td>$2,000-$5,000/yr</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Medium B2C ($500K-$5M GMV)</strong></td>
+                            <td class="best">$3,000-$8,000/yr</td>
+                            <td>$3,000-$10,000/yr + fees</td>
+                            <td class="poor">$10,000-$50,000/yr</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Medium B2B</strong></td>
+                            <td class="best">$10,000-$30,000/yr</td>
+                            <td class="poor">$25,000-$50,000/yr</td>
+                            <td>$50,000-$150,000/yr</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Transaction Fees</strong></td>
+                            <td class="best">$0</td>
+                            <td class="poor">0.5-2% of GMV</td>
+                            <td>$0</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout data">
+                    <h5>Transaction Fee Impact Example</h5>
+                    <p>A $2M GMV store on Shopify pays $10,000-$40,000/year in transaction fees alone. On BigCommerce, this is $0. Over 3 years, the savings can exceed $100,000.</p>
+                </div>
+            </section>
+
+            <!-- Platform Stability -->
+            <section id="platform-stability" class="section">
+                <h2>Criterion 5: Platform Stability</h2>
+
+                <div class="callout decisive">
+                    <h5>Decisive Factor: Lowest Churn in Industry</h5>
+                    <p>BigCommerce has a 7.5% annual churn rate - the lowest among all platforms evaluated. This indicates high merchant satisfaction post-migration and reduces re-migration risk.</p>
+                </div>
+
+                <div class="score-summary">
+                    <h3>Platform Churn Rates (Source: Granite)</h3>
+                    <div class="score-row">
+                        <div class="criterion">Annual Churn Rate</div>
+                        <div class="scores">
+                            <div class="score-item winner">
+                                <div class="value">7.5%</div>
+                                <div class="platform">BigCommerce</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="value">13.8%</div>
+                                <div class="platform">Shopify</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="value">16-17%</div>
+                                <div class="platform">Magento</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="value">30%</div>
+                                <div class="platform">WooCommerce</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <p>Low churn indicates that merchants who choose BigCommerce tend to stay. This aligns with the partnership goal of providing a long-term commerce solution rather than a stepping stone to another platform.</p>
+            </section>
+
+            <!-- What We Gain -->
+            <section id="what-we-gain" class="section">
+                <h2>What We Gain</h2>
+
+                <div class="criterion-grid">
+                    <div class="criterion-card">
+                        <h4><span class="number">1</span>WordPress Preservation</h4>
+                        <p>Only viable path to keep WordPress while upgrading commerce. Merchants retain content, SEO, themes, and plugins.</p>
+                    </div>
+                    <div class="criterion-card">
+                        <h4><span class="number">2</span>API Excellence</h4>
+                        <p>8x higher rate limits enable robust headless architecture and faster migrations without throttling concerns.</p>
+                    </div>
+                    <div class="criterion-card">
+                        <h4><span class="number">3</span>B2B Accessibility</h4>
+                        <p>Native B2B features at mid-tier pricing opens the wholesale segment without enterprise budgets.</p>
+                    </div>
+                    <div class="criterion-card">
+                        <h4><span class="number">4</span>Zero Transaction Fees</h4>
+                        <p>No platform transaction fees on any plan. Predictable costs regardless of GMV growth.</p>
+                    </div>
+                    <div class="criterion-card">
+                        <h4><span class="number">5</span>Low Re-Migration Risk</h4>
+                        <p>7.5% churn rate suggests merchants stay long-term, reducing support burden and partnership friction.</p>
+                    </div>
+                    <div class="criterion-card">
+                        <h4><span class="number">6</span>Scale Performance</h4>
+                        <p>Only platform showing performance improvement (+2%) as catalog size grows.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- What We Accept -->
+            <section id="what-we-accept" class="section">
+                <h2>What We Accept</h2>
+
+                <div class="callout consideration">
+                    <h5>Trade-offs Acknowledged</h5>
+                    <p>No platform wins on every dimension. These are conscious trade-offs accepted in choosing BigCommerce:</p>
+                </div>
+
+                <div class="criterion-grid">
+                    <div class="criterion-card">
+                        <h4>Lower Product Page Performance</h4>
+                        <p>75% mobile performance score vs Shopify's 93%. Mitigated by: WordPress caching, CDN optimization, and the fact that category pages (where BC excels) drive more traffic than PDPs for many stores.</p>
+                    </div>
+                    <div class="criterion-card">
+                        <h4>Smaller App Ecosystem</h4>
+                        <p>Fewer ready-made apps than Shopify. Mitigated by: superior API enabling custom integrations, and the partnership's focus on mid-market merchants who often need customization anyway.</p>
+                    </div>
+                    <div class="criterion-card">
+                        <h4>Longer Migration Timeline</h4>
+                        <p>2-4 weeks vs Shopify's 1-2 weeks. Mitigated by: automation via bc-migration tool reduces this significantly, and merchants gain WordPress preservation which Shopify cannot offer.</p>
+                    </div>
+                    <div class="criterion-card">
+                        <h4>Less Brand Recognition</h4>
+                        <p>2% US market share vs Shopify's 30%. Mitigated by: WP Engine partnership provides trusted channel, and BigCommerce's enterprise customer base validates capability.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Verdict -->
+            <section class="verdict-section">
+                <h2>Decision Verdict</h2>
+                <p>BigCommerce is selected as the target platform for the WP Engine migration partnership based on:</p>
+                <ul>
+                    <li><strong>Unique WordPress integration</strong> - Only platform enabling "Keep WordPress" value proposition</li>
+                    <li><strong>API excellence</strong> - 8x rate limits support robust headless architecture</li>
+                    <li><strong>B2B accessibility</strong> - Native features at 1/6th Shopify Plus cost</li>
+                    <li><strong>Zero transaction fees</strong> - Predictable economics regardless of growth</li>
+                    <li><strong>Platform stability</strong> - Lowest industry churn at 7.5%</li>
+                    <li><strong>Scale performance</strong> - Only platform improving at large catalog sizes</li>
+                </ul>
+                <p style="margin-top: 20px;"><strong>The trade-offs (ecosystem size, PDP performance, migration timeline) are acceptable given the strategic advantages and the specific needs of WordPress-invested mid-market merchants.</strong></p>
+            </section>
+
+            <!-- Sources & Citations -->
+            <section style="margin-top: 40px;">
+                <h2>Sources & Citations</h2>
+                <div style="background: var(--bc-light); border-radius: 8px; padding: 20px; font-size: 0.9rem;">
+                    <p><strong>This document synthesizes content from:</strong></p>
+                    <ul style="margin-top: 10px;">
+                        <li><strong>Platform Comparison Matrix:</strong> Granite Comparative Analysis, Slides 10-32</li>
+                        <li><strong>API Rate Limit Analysis:</strong> Granite Slides 25-28 (BigCommerce 8x advantage)</li>
+                        <li><strong>B2B Feature Comparison:</strong> Granite Slides 66-73</li>
+                        <li><strong>Transaction Fee Analysis:</strong> Granite Slides 100-115</li>
+                        <li><strong>Platform Churn Data:</strong> Granite Slides 5-9 (7.5% BigCommerce churn rate)</li>
+                        <li><strong>Scale Performance:</strong> Granite Slides 80-83 (catalog size benchmarks)</li>
+                        <li><strong>WordPress Integration:</strong> Granite Slides 25-32 (BigCommerce for WordPress)</li>
+                        <li><strong>Strategic Positioning:</strong> WPE Artemis Migration Analysis, Slides 8-15</li>
+                    </ul>
+                    <p style="margin-top: 15px; color: #666;"><em>Decision based on data current as of December 2025. Platform capabilities evolve; recommend quarterly review of competitive positioning.</em></p>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <footer style="margin-top: 60px; padding-top: 30px; border-top: 2px solid var(--bc-border); text-align: center; color: #666;">
+                <p><strong>BC Migration Documentation Package</strong></p>
+                <p style="margin-top: 10px; font-size: 0.85rem;">Decision Date: December 2025 | Review Cadence: Quarterly</p>
+            </footer>
+        </main>
+    </div>
+
+    <!-- Sticky Navigation -->
+    <nav class="sticky-nav">
+        <a href="WPE_ARTEMIS_MIGRATION_ANALYSIS.html">← WPE Artemis</a>
+        <div class="nav-center">
+            <span>3 of 17</span>
+            <select onchange="if(this.value) window.location.href=this.value">
+                <option value="">Jump to...</option>
+                <option value="IMPLEMENTATION_BRIEF.html">★ Implementation Brief</option>
+                <option value="index.html">Home</option>
+                <option value="GRANITE_COMPARATIVE_ANALYSIS.html">1. Granite Analysis</option>
+                <option value="WPE_ARTEMIS_MIGRATION_ANALYSIS.html">2. WPE Artemis</option>
+                <option value="PLATFORM_DECISION_RATIONALE.html" selected>3. Platform Decision</option>
+                <option value="MIGRATION_BUSINESS_CASE.html">4. Business Case</option>
+                <option value="COMPETITIVE_LANDSCAPE.html">5. Competitive Landscape</option>
+                <option value="PLUGIN_COMPATIBILITY_MATRIX.html">6. Plugin Matrix</option>
+                <option value="SEO_PRESERVATION_GUIDE.html">7. SEO Guide</option>
+                <option value="MIGRATION_RUNBOOK.html">8. Migration Runbook</option>
+                <option value="INTEGRATION_ARCHITECTURE.html">9. Integration Architecture</option>
+                <option value="WORDPRESS_CATALYST_COMPONENTS.html">10. WP Catalyst Components</option>
+                <option value="ADR-001-keep-wordpress.html">11. ADR-001</option>
+                <option value="ADR-002-headless-vs-checkout-only.html">12. ADR-002</option>
+                <option value="ADR-003-order-history-strategy.html">13. ADR-003</option>
+                <option value="MIGRATION_QA_TRACKER.html">14. Q&A Tracker</option>
+                <option value="B2B_MIGRATION_GUIDE.html">15. B2B Guide</option>
+                <option value="STORE_SIZE_PLAYBOOK.html">16. Store Size Playbook</option>
+                <option value="MIGRATION_PERSONAS.html">17. Migration Personas</option>
+            </select>
+        </div>
+        <a href="MIGRATION_BUSINESS_CASE.html">Business Case →</a>
+    </nav>
+</body>
+</html>

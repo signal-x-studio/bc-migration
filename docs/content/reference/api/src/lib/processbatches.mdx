@@ -1,0 +1,25 @@
+---
+title: "processBatches"
+description: "processBatches"
+category: "reference"
+order: 200
+section: "api"
+---
+
+# processBatches
+
+```typescript
+processBatches(items: T[], batchSize: number, processor: reflection, options: reflection): Promise<BatchProcessingResult>
+```
+
+### Parameters
+
+- **`items`** (`T[]`): Array of items to process
+- **`batchSize`** (`number`): Number of items per batch (default 10 for BC)
+- **`processor`** (`reflection`): Function that processes a batch and returns results
+- **`options`** (`reflection`): Additional options
+
+### Returns
+
+`Promise<BatchProcessingResult>`
+

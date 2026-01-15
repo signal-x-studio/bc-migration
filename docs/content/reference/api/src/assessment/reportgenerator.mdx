@@ -1,0 +1,50 @@
+---
+title: "ReportGenerator"
+description: "ReportGenerator"
+category: "reference"
+order: 100
+section: "api"
+---
+
+# ReportGenerator
+
+## Constructor
+
+```typescript
+ReportGenerator(result: AssessmentResult): ReportGenerator
+```
+
+### Parameters
+
+- **`result`** (`AssessmentResult`): No description
+
+### Returns
+
+`ReportGenerator`
+
+## Methods
+
+### `generateMarkdown()`
+
+```typescript
+generateMarkdown(): string
+```
+
+### Returns
+
+`string`
+
+### `save()`
+
+```typescript
+save(baseDir: string): Promise<reflection>
+```
+
+### Parameters
+
+- **`baseDir`** (`string`): No description
+
+### Returns
+
+`Promise<reflection>`
+

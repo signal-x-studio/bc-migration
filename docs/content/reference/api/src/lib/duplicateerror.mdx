@@ -1,0 +1,67 @@
+---
+title: "DuplicateError"
+description: "Duplicate item error"
+category: "reference"
+order: 100
+section: "api"
+---
+
+# DuplicateError
+
+Duplicate item error
+
+## Constructor
+
+```typescript
+DuplicateError(message: string, identifier: string, existingId?: number, context?: Record<string, unknown>): DuplicateError
+```
+
+### Parameters
+
+- **`message`** (`string`): No description
+- **`identifier`** (`string`): No description
+- **`existingId`** (`number`) (optional): No description
+- **`context`** (`Record<string, unknown>`) (optional): No description
+
+### Returns
+
+`DuplicateError`
+
+## Properties
+
+### `code`
+
+Type: `string`
+
+### `retriable`
+
+Type: `boolean`
+
+### `context`
+
+Type: `Record<string, unknown>`
+
+### `timestamp`
+
+Type: `string`
+
+### `identifier`
+
+Type: `string`
+
+### `existingId`
+
+Type: `number`
+
+## Methods
+
+### `toJSON()`
+
+```typescript
+toJSON(): Record<string, unknown>
+```
+
+### Returns
+
+`Record<string, unknown>`
+

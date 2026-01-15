@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capability Pods Position - BigCommerce Product Architect</title>
+    <style>
+        :root {
+            --bc-primary: #34313f;
+            --bc-accent: #5c6ac4;
+            --bc-success: #22c55e;
+            --bc-warning: #f59e0b;
+            --bc-danger: #ef4444;
+            --bc-light: #f8f9fa;
+            --bc-border: #e0e0e0;
+            --sidebar-width: 260px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bc-light);
+            color: var(--bc-primary);
+            line-height: 1.6;
+        }
+
+        .layout { display: flex; min-height: 100vh; }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bc-primary);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 20px 0;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h1 { font-size: 0.85rem; font-weight: 500; opacity: 0.9; }
+        .sidebar-header .quarter { font-size: 0.75rem; opacity: 0.6; margin-top: 4px; }
+
+        .nav-section { margin-bottom: 8px; }
+        .nav-section-title {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: rgba(255,255,255,0.5);
+            padding: 12px 20px 8px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 10px 20px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.15s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-link:hover { background: rgba(255,255,255,0.08); color: white; }
+        .nav-link.active { background: var(--bc-accent); color: white; border-left-color: white; }
+
+        .main {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 50px 60px;
+            max-width: 1000px;
+        }
+
+        .breadcrumb { font-size: 0.85rem; color: #666; margin-bottom: 20px; }
+        .breadcrumb a { color: var(--bc-accent); text-decoration: none; }
+
+        .main h1 { font-size: 2rem; margin-bottom: 10px; color: var(--bc-primary); }
+        .main .subtitle { font-size: 1rem; color: #666; margin-bottom: 30px; }
+
+        .confidential-banner {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border: 1px solid var(--bc-danger);
+            border-radius: 8px;
+            padding: 12px 20px;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+            color: #991b1b;
+        }
+
+        .meta-inline {
+            display: flex;
+            gap: 30px;
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--bc-border);
+        }
+
+        .meta-inline strong { color: var(--bc-primary); }
+
+        section { margin-bottom: 50px; }
+
+        section h2 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--bc-accent);
+            color: var(--bc-primary);
+        }
+
+        section h3 {
+            font-size: 1.1rem;
+            margin: 25px 0 15px;
+            color: var(--bc-primary);
+        }
+
+        p { margin-bottom: 15px; color: #444; }
+
+        .position-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 4px solid var(--bc-warning);
+            padding: 25px;
+            border-radius: 0 10px 10px 0;
+            margin-bottom: 30px;
+        }
+
+        .position-box p { margin-bottom: 10px; }
+        .position-box strong { color: #92400e; }
+
+        .risk-highlight {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border-left: 4px solid var(--bc-danger);
+            padding: 20px 25px;
+            border-radius: 0 8px 8px 0;
+            margin: 20px 0;
+        }
+
+        .risk-highlight strong { color: #991b1b; }
+
+        .concept-diagram {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            text-align: center;
+        }
+
+        .diagram-row {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 15px 0;
+        }
+
+        .diagram-box {
+            background: #f0f0f0;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .diagram-arrow {
+            font-size: 1.5rem;
+            color: #888;
+            margin: 10px 0;
+        }
+
+        .diagram-box.proposed {
+            background: #e0e7ff;
+            color: var(--bc-accent);
+        }
+
+        .appeal-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .appeal-item {
+            background: white;
+            border-radius: 8px;
+            padding: 15px 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            border-left: 3px solid var(--bc-success);
+        }
+
+        .appeal-item strong {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--bc-primary);
+        }
+
+        .appeal-item span {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .failure-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border: 1px solid var(--bc-border);
+        }
+
+        .failure-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .failure-number {
+            width: 36px;
+            height: 36px;
+            background: var(--bc-danger);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .failure-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--bc-primary);
+        }
+
+        .pattern-box {
+            background: #fef3c7;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+            font-size: 0.9rem;
+        }
+
+        .pattern-box strong { color: #92400e; }
+
+        .what-would-happen {
+            background: #fee2e2;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .what-would-happen strong { color: #991b1b; display: block; margin-bottom: 8px; }
+
+        .what-would-happen ul {
+            margin: 0;
+            padding-left: 20px;
+            font-size: 0.9rem;
+            color: #7f1d1d;
+        }
+
+        .phase-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            border-left: 4px solid var(--bc-accent);
+        }
+
+        .phase-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .phase-badge {
+            background: var(--bc-accent);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .phase-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--bc-primary);
+        }
+
+        .mechanism-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 0.9rem;
+        }
+
+        .mechanism-table th {
+            background: #f8f9fa;
+            padding: 10px 14px;
+            text-align: left;
+            font-weight: 500;
+            color: #666;
+        }
+
+        .mechanism-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .counter-argument {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+
+        .counter-argument h4 {
+            color: var(--bc-danger);
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+        }
+
+        .counter-argument .response {
+            background: #f0fdf4;
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        .counter-argument .response strong {
+            color: #166534;
+        }
+
+        .message-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+
+        .message-card h4 {
+            font-size: 0.9rem;
+            color: var(--bc-accent);
+            margin-bottom: 10px;
+        }
+
+        .message-card blockquote {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            font-style: italic;
+            color: #555;
+            border-left: 3px solid var(--bc-accent);
+            margin: 0;
+        }
+
+        .year-two-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .year-two-table th {
+            background: var(--bc-primary);
+            color: white;
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+
+        .year-two-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.9rem;
+        }
+
+        .conclusion-box {
+            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+            border-radius: 10px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+
+        .conclusion-box h3 {
+            color: var(--bc-accent);
+            margin-bottom: 15px;
+        }
+
+        .conclusion-box ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .conclusion-box li {
+            margin: 8px 0;
+            color: #3730a3;
+        }
+
+        .bottom-line {
+            background: var(--bc-primary);
+            color: white;
+            padding: 20px 25px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        @media print {
+            .sidebar { display: none; }
+            .main { margin-left: 0; max-width: 100%; }
+            .failure-card, .phase-card { break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1>Product Architect Kit</h1>
+                <div class="quarter">Year One Planning</div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Year One</div>
+                <a href="index.html" class="nav-link">Operating Plan</a>
+                <a href="first-90-days.html" class="nav-link">First 90 Days</a>
+                <a href="stakeholder-map.html" class="nav-link">Stakeholder Map</a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Decisions</div>
+                <a href="semantic-layer-decision.html" class="nav-link">ADR-001: Semantic Layer</a>
+                <a href="red-team-response.html" class="nav-link">Red Team Response</a>
+                <a href="capability-pods-position.html" class="nav-link active">Capability Pods Position</a>
+                <a href="vendor-evaluation.html" class="nav-link">Vendor Evaluation</a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Reference</div>
+                <a href="integration-interview-guide.html" class="nav-link">Interview Guide</a>
+                <a href="../index.html" class="nav-link">Back to Kit</a>
+            </div>
+        </nav>
+
+        <main class="main">
+            <div class="breadcrumb">
+                <a href="../index.html">Kit</a> / <a href="index.html">Year One</a> / Capability Pods Position
+            </div>
+
+            <h1>Why NOT Capability Pods (Yet)</h1>
+            <p class="subtitle">Position paper on deferring org restructure to Year Two</p>
+
+            <div class="confidential-banner">
+                <strong>Internal - Leadership Only:</strong> Not for distribution beyond Product Architecture and executive leadership.
+            </div>
+
+            <div class="meta-inline">
+                <span><strong>Date:</strong> January 2026</span>
+                <span><strong>Author:</strong> Nino Chavez</span>
+                <span><strong>Classification:</strong> Internal</span>
+            </div>
+
+            <!-- Executive Summary -->
+            <section>
+                <h2>Executive Summary</h2>
+
+                <p>The Capability Pods model - reorganizing BigCommerce into cross-functional pods aligned to customer capabilities rather than products - has theoretical appeal. However, implementing it now would be premature and risky.</p>
+
+                <div class="position-box">
+                    <p><strong>Our Position:</strong> Defer organizational restructuring until we have:</p>
+                    <ol style="margin: 10px 0 0 20px; color: #92400e;">
+                        <li>Evidence from the Q2 Integration Diagnostic about where coordination actually breaks down</li>
+                        <li>Demonstrated success with coordination mechanisms that don't require reorg</li>
+                        <li>Political capital from delivering tangible wins (bc-migration, integration improvements)</li>
+                    </ol>
+                </div>
+
+                <div class="risk-highlight">
+                    <strong>The Risk We're Avoiding:</strong> "Toxic Autonomy" - where pods optimize locally while the platform fragments further.
+                </div>
+            </section>
+
+            <!-- The Concept -->
+            <section>
+                <h2>The Capability Pods Concept</h2>
+
+                <h3>What It Proposes</h3>
+                <div class="concept-diagram">
+                    <div class="diagram-row">
+                        <div class="diagram-box">BC Core Team</div>
+                        <div class="diagram-box">Makeswift Team</div>
+                        <div class="diagram-box">Feedonomics Team</div>
+                    </div>
+                    <div class="diagram-arrow">reorganizes into</div>
+                    <div class="diagram-row">
+                        <div class="diagram-box proposed">Catalog Pod</div>
+                        <div class="diagram-box proposed">Storefront Pod</div>
+                        <div class="diagram-box proposed">Channel Pod</div>
+                        <div class="diagram-box proposed">Checkout Pod</div>
+                        <div class="diagram-box proposed">Admin Pod</div>
+                    </div>
+                </div>
+
+                <h3>The Appeal</h3>
+                <div class="appeal-list">
+                    <div class="appeal-item">
+                        <strong>Customer-Centric</strong>
+                        <span>Pods align to what merchants care about, not internal product boundaries</span>
+                    </div>
+                    <div class="appeal-item">
+                        <strong>End-to-End Ownership</strong>
+                        <span>Each pod owns the full stack for their capability</span>
+                    </div>
+                    <div class="appeal-item">
+                        <strong>Reduced Handoffs</strong>
+                        <span>Fewer cross-team dependencies for customer-facing features</span>
+                    </div>
+                    <div class="appeal-item">
+                        <strong>Clear Accountability</strong>
+                        <span>One pod, one capability, one P&L</span>
+                    </div>
+                </div>
+
+                <h3>Why It Looks Good on Paper</h3>
+                <p>The current structure creates friction:</p>
+                <ul style="margin-left: 20px; color: #555;">
+                    <li>A "unified checkout" feature requires coordination across 3 teams</li>
+                    <li>A "product sync" improvement needs Feedonomics and Core to align</li>
+                    <li>No one owns the merchant experience across products</li>
+                </ul>
+                <p style="margin-top: 15px;">Pods would theoretically solve this by making each capability self-contained.</p>
+            </section>
+
+            <!-- Why It Would Fail -->
+            <section>
+                <h2>Why It Would Fail Right Now</h2>
+
+                <!-- Reason 1 -->
+                <div class="failure-card">
+                    <div class="failure-header">
+                        <div class="failure-number">1</div>
+                        <div class="failure-title">Toxic Autonomy Risk</div>
+                    </div>
+
+                    <div class="pattern-box">
+                        <strong>The Pattern:</strong> When you give pods full autonomy before establishing shared standards, they optimize locally.
+                    </div>
+
+                    <div class="what-would-happen">
+                        <strong>What Would Happen:</strong>
+                        <ul>
+                            <li>Catalog Pod builds their own auth system (faster for them)</li>
+                            <li>Storefront Pod creates their own data model (cleaner for them)</li>
+                            <li>Channel Pod develops their own API patterns (makes sense for them)</li>
+                        </ul>
+                    </div>
+
+                    <p><strong>Result:</strong> You've recreated integration debt at the org level. Instead of 3 products that don't integrate well, you have 5 pods that don't integrate well.</p>
+
+                    <div class="pattern-box">
+                        <strong>Historical Examples:</strong>
+                        <ul style="margin: 10px 0 0 20px; color: #92400e;">
+                            <li>Spotify's "squad model" required years of platform investment before pods could be truly autonomous</li>
+                            <li>Amazon's two-pizza teams work because of massive shared infrastructure investment</li>
+                            <li>We have neither the platform maturity nor the shared infrastructure</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Reason 2 -->
+                <div class="failure-card">
+                    <div class="failure-header">
+                        <div class="failure-number">2</div>
+                        <div class="failure-title">We Don't Know Where Coordination Breaks</div>
+                    </div>
+
+                    <p><strong>The Problem:</strong> We're proposing a solution without diagnosing the problem.</p>
+
+                    <div class="what-would-happen" style="background: #fef3c7;">
+                        <strong style="color: #92400e;">What We Don't Know Yet:</strong>
+                        <ul style="color: #78350f;">
+                            <li>Which integration points cause the most friction?</li>
+                            <li>Is the problem technical (APIs, data sync) or organizational (incentives, priorities)?</li>
+                            <li>Which teams would need to be combined vs. just better coordinated?</li>
+                            <li>Where does the current structure actually work well?</li>
+                        </ul>
+                    </div>
+
+                    <p><strong>The Q2 Diagnostic Will Tell Us:</strong> 7-dimension scoring, specific pain points with evidence, where coordination would suffice, where structural change is actually needed.</p>
+
+                    <div class="risk-highlight">
+                        <strong>Premature Restructuring Risk:</strong> We might create a Storefront Pod when the real problem is that Makeswift and Core have incompatible data models - something a reorg won't fix.
+                    </div>
+                </div>
+
+                <!-- Reason 3 -->
+                <div class="failure-card">
+                    <div class="failure-header">
+                        <div class="failure-number">3</div>
+                        <div class="failure-title">Political Capital We Don't Have</div>
+                    </div>
+
+                    <p><strong>Reality Check:</strong> I'm a new Product Architect. Proposing org restructure in Month 1 would:</p>
+                    <ul style="margin-left: 20px; color: #555;">
+                        <li>Signal that I think I know better than people who've been here for years</li>
+                        <li>Create anxiety across all teams about their futures</li>
+                        <li>Consume leadership attention on org design instead of execution</li>
+                        <li>Make enemies before I've made allies</li>
+                    </ul>
+
+                    <div class="pattern-box">
+                        <strong>Better Approach:</strong> Deliver wins first (bc-migration), build relationships through diagnostic interviews, let evidence drive structural recommendations, propose changes from a position of credibility.
+                    </div>
+                </div>
+
+                <!-- Reason 4 -->
+                <div class="failure-card">
+                    <div class="failure-header">
+                        <div class="failure-number">4</div>
+                        <div class="failure-title">The Transition Cost</div>
+                    </div>
+
+                    <p><strong>What Reorg Requires:</strong> New reporting structures, new team compositions, new rituals and processes, new incentive alignment, new tooling and access patterns.</p>
+
+                    <p><strong>Estimated Disruption:</strong> 2-3 months of reduced velocity during transition</p>
+
+                    <div class="what-would-happen">
+                        <strong>What We'd Be Sacrificing:</strong>
+                        <ul>
+                            <li>Q1: bc-migration momentum</li>
+                            <li>Q2: Integration diagnostic quality</li>
+                            <li>Q3: Semantic layer POC timeline</li>
+                        </ul>
+                    </div>
+
+                    <p><strong>The Math Doesn't Work:</strong> A reorg that might help in 6 months vs. concrete deliverables in Q1-Q2.</p>
+                </div>
+            </section>
+
+            <!-- What We're Doing Instead -->
+            <section>
+                <h2>What We're Doing Instead</h2>
+
+                <!-- Phase 1 -->
+                <div class="phase-card">
+                    <div class="phase-header">
+                        <span class="phase-badge">Phase 1</span>
+                        <span class="phase-title">Coordination Mechanisms (Q1-Q2)</span>
+                    </div>
+
+                    <p><strong>Goal:</strong> Solve coordination problems without restructuring.</p>
+
+                    <table class="mechanism-table">
+                        <tr>
+                            <th>Mechanism</th>
+                            <th>Purpose</th>
+                            <th>Owner</th>
+                        </tr>
+                        <tr>
+                            <td>Cross-Product Roadmap Review</td>
+                            <td>Monthly visibility into all product plans</td>
+                            <td>Product Architect</td>
+                        </tr>
+                        <tr>
+                            <td>Integration Standup</td>
+                            <td>Weekly sync on cross-product dependencies</td>
+                            <td>Rotating</td>
+                        </tr>
+                        <tr>
+                            <td>Shared Architecture Principles</td>
+                            <td>Documented standards for new work</td>
+                            <td>Product Architect</td>
+                        </tr>
+                        <tr>
+                            <td>Integration Debt Backlog</td>
+                            <td>Prioritized list of friction points</td>
+                            <td>Product Architect</td>
+                        </tr>
+                    </table>
+
+                    <p><strong>Success Criteria:</strong> Teams can ship cross-product features without escalation. Dependencies are visible 2+ sprints in advance. Integration debt is tracked and prioritized.</p>
+                </div>
+
+                <!-- Phase 2 -->
+                <div class="phase-card">
+                    <div class="phase-header">
+                        <span class="phase-badge">Phase 2</span>
+                        <span class="phase-title">Evidence-Based Assessment (Q2)</span>
+                    </div>
+
+                    <p><strong>Goal:</strong> Determine if coordination mechanisms are sufficient or if structural change is needed.</p>
+
+                    <p><strong>Inputs:</strong></p>
+                    <ul style="margin-left: 20px; color: #555;">
+                        <li>Q2 Integration Diagnostic results</li>
+                        <li>Coordination mechanism effectiveness</li>
+                        <li>Stakeholder feedback from interviews</li>
+                        <li>Comparative analysis (how do similar companies structure?)</li>
+                    </ul>
+
+                    <p style="margin-top: 15px;"><strong>Outputs:</strong> Data on where coordination is working, data on where coordination is insufficient, specific recommendations for Year Two.</p>
+                </div>
+
+                <!-- Phase 3 -->
+                <div class="phase-card">
+                    <div class="phase-header">
+                        <span class="phase-badge">Phase 3</span>
+                        <span class="phase-title">Targeted Proposals (Q4)</span>
+                    </div>
+
+                    <p><strong>Goal:</strong> Propose structural changes only where evidence supports them.</p>
+
+                    <table class="mechanism-table">
+                        <tr>
+                            <th>Scenario</th>
+                            <th>Evidence</th>
+                            <th>Proposal</th>
+                        </tr>
+                        <tr>
+                            <td>Coordination sufficient</td>
+                            <td>Mechanisms solve friction</td>
+                            <td>Formalize and expand</td>
+                        </tr>
+                        <tr>
+                            <td>Specific pain points</td>
+                            <td>1-2 dimensions stuck</td>
+                            <td>Targeted team changes</td>
+                        </tr>
+                        <tr>
+                            <td>Systemic issues</td>
+                            <td>Multiple dimensions stuck</td>
+                            <td>Broader restructure</td>
+                        </tr>
+                        <tr>
+                            <td>Platform gaps</td>
+                            <td>Technical, not org problem</td>
+                            <td>Platform investment</td>
+                        </tr>
+                    </table>
+
+                    <p><strong>Key Principle:</strong> The burden of proof is on restructuring, not on the status quo.</p>
+                </div>
+            </section>
+
+            <!-- Counter-Arguments -->
+            <section>
+                <h2>Counter-Arguments Addressed</h2>
+
+                <div class="counter-argument">
+                    <h4>"But Amazon/Spotify/[Company] Uses Pods"</h4>
+                    <p>They also have massive shared platform investment (we don't), years of iteration on the model (we'd be starting fresh), and different scale and context (not directly comparable).</p>
+                    <div class="response">
+                        <strong>What We Can Learn:</strong> Build the platform first, then enable autonomy.
+                    </div>
+                </div>
+
+                <div class="counter-argument">
+                    <h4>"The Current Structure Is Clearly Broken"</h4>
+                    <p>Is it? We don't actually know yet. We see integration friction between products. But we don't know if it's structural or just under-invested, if a different structure would fix it or just move the problem, or what's working well that we'd disrupt.</p>
+                    <div class="response">
+                        <strong>The Diagnostic Will Tell Us:</strong> Let's get evidence before concluding the structure is the problem.
+                    </div>
+                </div>
+
+                <div class="counter-argument">
+                    <h4>"We're Losing to Competitors Who Move Faster"</h4>
+                    <p>A reorg won't make us faster in the short term - it will make us slower.</p>
+                    <p>What makes companies fast: Clear priorities (we can do this without reorg), reduced dependencies (we can invest in this without reorg), technical excellence (independent of org structure), strong coordination (what we're building in Q1-Q2).</p>
+                    <div class="response">
+                        <strong>The Real Speed Problem:</strong> Integration debt, not org structure.
+                    </div>
+                </div>
+
+                <div class="counter-argument">
+                    <h4>"People Are Frustrated with the Current State"</h4>
+                    <p>Valid. But frustration doesn't mean reorg is the answer.</p>
+                    <p>What people are frustrated about: Lack of visibility, dependencies that block progress, no clear owner for cross-product decisions, feeling like integration is no one's job.</p>
+                    <div class="response">
+                        <strong>What Would Fix This:</strong> Coordination mechanisms (faster, lower risk), clear ownership of integration (my role), visible roadmaps and dependencies, investment in integration work.
+                    </div>
+                </div>
+            </section>
+
+            <!-- Key Messages -->
+            <section>
+                <h2>Key Messages for Stakeholders</h2>
+
+                <div class="message-card">
+                    <h4>For Leadership</h4>
+                    <blockquote>"We're not saying Capability Pods are wrong - we're saying it's premature. Let's get evidence from the diagnostic, prove we can coordinate effectively, and then make an informed decision about structure in Year Two."</blockquote>
+                </div>
+
+                <div class="message-card">
+                    <h4>For Product Leads</h4>
+                    <blockquote>"Your teams aren't changing in Year One. We're focused on making coordination easier, not reorganizing. If structural changes make sense later, you'll be part of designing them."</blockquote>
+                </div>
+
+                <div class="message-card">
+                    <h4>For Engineering Leads</h4>
+                    <blockquote>"We're investing in integration, not disruption. The goal is to reduce friction, not create new reporting structures. Your feedback in the diagnostic will shape what we propose."</blockquote>
+                </div>
+
+                <div class="message-card">
+                    <h4>For Individual Contributors</h4>
+                    <blockquote>"No org changes are planned for Year One. We're improving how teams work together, not shuffling people around."</blockquote>
+                </div>
+            </section>
+
+            <!-- Conclusion -->
+            <section>
+                <h2>Conclusion</h2>
+
+                <p>The Capability Pods model is seductive because it promises to solve coordination problems through structure. But structure follows strategy, and we don't yet have enough information to know what structure would actually help.</p>
+
+                <div class="conclusion-box">
+                    <h3>Our Year One Focus</h3>
+                    <ul>
+                        <li>Deliver concrete wins (bc-migration)</li>
+                        <li>Build coordination mechanisms</li>
+                        <li>Gather evidence through diagnostic</li>
+                        <li>Earn the right to propose structural changes</li>
+                    </ul>
+                </div>
+
+                <div class="bottom-line">
+                    Year Two is for structural proposals. Year One is for understanding and credibility.
+                </div>
+            </section>
+
+            <footer style="margin-top: 60px; padding-top: 30px; border-top: 1px solid var(--bc-border); font-size: 0.85rem; color: #666;">
+                <p>Last Updated: January 2026</p>
+                <p style="margin-top: 10px;">Part of the Product Architect Year One Planning Kit</p>
+            </footer>
+        </main>
+    </div>
+</body>
+</html>

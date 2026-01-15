@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plugin Compatibility Matrix | BC Migration</title>
+    <style>
+        :root {
+            --bc-primary: #34313f;
+            --bc-accent: #5c6ac4;
+            --bc-success: #28a745;
+            --bc-warning: #ffc107;
+            --bc-danger: #dc3545;
+            --bc-light: #f8f9fa;
+            --bc-border: #e0e0e0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bc-light);
+            color: var(--bc-primary);
+            line-height: 1.6;
+            padding-bottom: 70px;
+        }
+
+        /* Sticky Navigation */
+        .sticky-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bc-primary); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); z-index: 1000; }
+        .sticky-nav a { color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 0.85rem; transition: background 0.2s; }
+        .sticky-nav a:hover { background: rgba(255,255,255,0.15); }
+        .sticky-nav .nav-center { font-size: 0.75rem; color: rgba(255,255,255,0.7); }
+        .sticky-nav .nav-center select { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 6px 10px; border-radius: 4px; font-size: 0.8rem; margin-left: 8px; }
+        .sticky-nav .nav-center select option { background: var(--bc-primary); }
+        @media (max-width: 768px) { .sticky-nav .nav-center { display: none; } }
+
+        .header {
+            background: linear-gradient(135deg, var(--bc-primary) 0%, #4a4458 100%);
+            color: white;
+            padding: 40px;
+        }
+
+        .header-content {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 30px;
+            color: var(--bc-accent);
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .source-box {
+            background: #e8f5e9;
+            border-left: 4px solid var(--bc-success);
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .source-box h3 {
+            font-size: 0.9rem;
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+
+        .source-box ul {
+            list-style: none;
+            font-size: 0.9rem;
+        }
+
+        .source-box li {
+            padding: 3px 0;
+        }
+
+        .source-box code {
+            background: rgba(0,0,0,0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.85rem;
+        }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .section h2 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--bc-border);
+        }
+
+        .section h3 {
+            font-size: 1.1rem;
+            margin: 25px 0 15px 0;
+            color: var(--bc-primary);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--bc-border);
+        }
+
+        th {
+            background: var(--bc-light);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            font-size: 0.95rem;
+        }
+
+        tr:hover {
+            background: #fafbfc;
+        }
+
+        .type-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .type-native {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .type-app {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .type-native-app {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .type-custom {
+            background: #fce4ec;
+            color: #c2185b;
+        }
+
+        .type-keep {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .category-header {
+            background: var(--bc-primary);
+            color: white;
+        }
+
+        .category-header td {
+            font-weight: 600;
+            padding: 10px 15px;
+        }
+
+        .notes {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+
+        .intro-text {
+            margin-bottom: 20px;
+            color: #444;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 25px 20px;
+            }
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            table {
+                font-size: 0.85rem;
+            }
+            th, td {
+                padding: 8px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>Plugin Compatibility Matrix</h1>
+            <p class="subtitle">WooCommerce Plugin to BigCommerce Migration Mapping</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <a href="index.html" class="back-link">&larr; Back to Documentation Hub</a>
+
+        <!-- Data Sources -->
+        <div class="source-box">
+            <h3>Data Sources</h3>
+            <ul>
+                <li><strong>WPE Artemis Migration Analysis</strong> - Official WP Engine plugin mapping table</li>
+                <li><strong>bc-migration Implementation</strong> - <code>src/assessment/data/plugin-mappings.json</code></li>
+                <li><strong>BigCommerce App Marketplace</strong> - Verified app availability</li>
+            </ul>
+        </div>
+
+        <!-- Legend -->
+        <section class="section">
+            <h2>Migration Type Legend</h2>
+            <div class="legend">
+                <div class="legend-item">
+                    <span class="type-badge type-native">Native</span>
+                    <span>Built into BigCommerce, no app required</span>
+                </div>
+                <div class="legend-item">
+                    <span class="type-badge type-app">App</span>
+                    <span>Available via BigCommerce App Marketplace</span>
+                </div>
+                <div class="legend-item">
+                    <span class="type-badge type-native-app">Native/App</span>
+                    <span>Native option available, app for advanced features</span>
+                </div>
+                <div class="legend-item">
+                    <span class="type-badge type-keep">Keep in WP</span>
+                    <span>Plugin remains in WordPress (non-commerce)</span>
+                </div>
+                <div class="legend-item">
+                    <span class="type-badge type-custom">Custom</span>
+                    <span>Requires custom development</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Payment Gateways -->
+        <section class="section">
+            <h2>Payment Gateway Plugins</h2>
+            <p class="intro-text">Payment gateway migrations are typically the simplest. BigCommerce includes native integrations for all major payment processors.</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>WooCommerce Plugin</th>
+                        <th>BigCommerce Solution</th>
+                        <th>Type</th>
+                        <th>Migration Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>WooCommerce Stripe Gateway</td>
+                        <td>Native Stripe Integration</td>
+                        <td><span class="type-badge type-native">Native</span></td>
+                        <td class="notes">Control Panel config via API keys. No plugin required.</td>
+                    </tr>
+                    <tr>
+                        <td>WooCommerce PayPal Payments</td>
+                        <td>Native PayPal Integration</td>
+                        <td><span class="type-badge type-native">Native</span></td>
+                        <td class="notes">Core integration eliminates security update concerns.</td>
+                    </tr>
+                    <tr>
+                        <td>WooCommerce Square</td>
+                        <td>Native Square Integration</td>
+                        <td><span class="type-badge type-native">Native</span></td>
+                        <td class="notes">Seamless POS and online synchronization.</td>
+                    </tr>
+                    <tr>
+                        <td>WooCommerce Authorize.Net</td>
+                        <td>Native Authorize.Net Integration</td>
+                        <td><span class="type-badge type-native">Native</span></td>
+                        <td class="notes">Pre-integrated gateway in payment settings.</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p style="margin-top: 15px; font-size: 0.85rem; color: #666;"><em>Source: WPE Artemis Migration Analysis, Section: Plugin Mapping</em></p>
+        </section>
+
+        <!-- Marketing & Email -->
+        <section class="section">
+            <h2>Marketing & Email Plugins</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>WooCommerce Plugin</th>
+                        <th>BigCommerce Solution</th>
+                        <th>Type</th>
+                        <th>Migration Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Mailchimp for WooCommerce</td>
+                        <td>Mailchimp App</td>
+                        <td><span class="type-badge type-app">App</span></td>
+                        <td class="notes">Direct integration for customer sync, abandoned cart, purchase data.</td>
+                    </tr>
+                    <tr>
+                        <td>Facebook for WooCommerce</td>
+                        <td>Native Channel Manager</td>
+                        <td><span class="type-badge type-native">Native</span></td>
+                        <td class="notes">Product syncing, Meta Pixel, Facebook/Instagram Shops from Control Panel.</td>
+                    </tr>
+                    <tr>
+                        <td>Google for WooCommerce</td>
+                        <td>Native Channel Manager</td>
+                        <td><span class="type-badge type-native">Native</span></td>
+                        <td class="notes">Auto-pushes product feed to Google Merchant Center with tracking.</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p style="margin-top: 15px; font-size: 0.85rem; color: #666;"><em>Source: WPE Artemis Migration Analysis, Section: Plugin Mapping</em></p>
+        </section>
+
+        <!-- Shipping & Tax -->
+        <section class="section">
+            <h2>Shipping & Tax Plugins</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>WooCommerce Plugin</th>
+                        <th>BigCommerce Solution</th>
+                        <th>Type</th>
+                        <th>Migration Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>WooCommerce Shipping & Tax</td>
+                        <td>Native Shipping Rules + Avalara</td>
+                        <td><span class="type-badge type-native">Native</span></td>
+                        <td class="notes">Real-time carrier quotes (UPS, FedEx, USPS) and tax automation.</td>
+                    </tr>
+                    <tr>
+                        <td>WooCommerce ShipStation</td>
+                        <td>ShipStation App</td>
+                        <td><span class="type-badge type-app">App</span></td>
+                        <td class="notes">Official app integrates with order management API.</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p style="margin-top: 15px; font-size: 0.85rem; color: #666;"><em>Source: WPE Artemis Migration Analysis, Section: Plugin Mapping</em></p>
+        </section>
+
+        <!-- Subscriptions & Memberships -->
+        <section class="section">
+            <h2>Subscriptions & Memberships</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>WooCommerce Plugin</th>
+                        <th>BigCommerce Solution</th>
+                        <th>Type</th>
+                        <th>Migration Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>WooCommerce Subscriptions</td>
+                        <td>ReCharge or Bold Subscriptions</td>
+                        <td><span class="type-badge type-app">App</span></td>
+                        <td class="notes">Specialized apps for recurring payments and customer portals.</td>
+                    </tr>
+                    <tr>
+                        <td>WooCommerce Memberships</td>
+                        <td>Classic Information Systems or MemberStack</td>
+                        <td><span class="type-badge type-app">App</span></td>
+                        <td class="notes">Requires third-party app for equivalent functionality.</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p style="margin-top: 15px; font-size: 0.85rem; color: #666;"><em>Source: WPE Artemis + bc-migration plugin-mappings.json</em></p>
+        </section>
+
+        <!-- Commerce Features -->
+        <section class="section">
+            <h2>Commerce Feature Plugins</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>WooCommerce Plugin</th>
+                        <th>BigCommerce Solution</th>
+                        <th>Type</th>
+                        <th>Migration Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>YITH WooCommerce Wishlist</td>
+                        <td>Native Wishlist Feature</td>
+                        <td><span class="type-badge type-native">Native</span></td>
+                        <td class="notes">Built-in wishlist function, no app required.</td>
+                    </tr>
+                    <tr>
+                        <td>Advanced Custom Fields (ACF)</td>
+                        <td>BigCommerce Metafields</td>
+                        <td><span class="type-badge type-native">Native</span></td>
+                        <td class="notes">Use Metafields for custom data. Shared Variant Modifiers for UI-impacting fields.</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p style="margin-top: 15px; font-size: 0.85rem; color: #666;"><em>Source: WPE Artemis + bc-migration plugin-mappings.json</em></p>
+        </section>
+
+        <!-- Multi-language & Localization -->
+        <section class="section">
+            <h2>Multi-Language & Localization</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>WooCommerce Plugin</th>
+                        <th>BigCommerce Solution</th>
+                        <th>Type</th>
+                        <th>Migration Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>WPML</td>
+                        <td>BigCommerce Multi-Storefront (MSF)</td>
+                        <td><span class="type-badge type-native">Native</span></td>
+                        <td class="notes">Native multi-language/multi-region support via MSF.</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p style="margin-top: 15px; font-size: 0.85rem; color: #666;"><em>Source: bc-migration plugin-mappings.json</em></p>
+        </section>
+
+        <!-- WordPress-Only Plugins -->
+        <section class="section">
+            <h2>WordPress-Only Plugins (Keep in WordPress)</h2>
+            <p class="intro-text">These plugins are not commerce-related and remain unchanged in WordPress after migration. This is a key advantage of the "Keep WordPress" architecture.</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Plugin Category</th>
+                        <th>Example Plugins</th>
+                        <th>Type</th>
+                        <th>Migration Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>SEO</td>
+                        <td>Yoast SEO, RankMath, All in One SEO</td>
+                        <td><span class="type-badge type-keep">Keep in WP</span></td>
+                        <td class="notes">Continues managing WordPress content SEO. Product SEO handled by BigCommerce native fields.</td>
+                    </tr>
+                    <tr>
+                        <td>Page Builders</td>
+                        <td>Elementor, Divi, WPBakery</td>
+                        <td><span class="type-badge type-keep">Keep in WP</span></td>
+                        <td class="notes">No migration needed. Continue using for all non-product pages.</td>
+                    </tr>
+                    <tr>
+                        <td>Forms</td>
+                        <td>Gravity Forms, WPForms, Contact Form 7</td>
+                        <td><span class="type-badge type-keep">Keep in WP</span></td>
+                        <td class="notes">Contact and lead forms remain in WordPress.</td>
+                    </tr>
+                    <tr>
+                        <td>Security</td>
+                        <td>Wordfence, Sucuri, iThemes Security</td>
+                        <td><span class="type-badge type-keep">Keep in WP</span></td>
+                        <td class="notes">Continue protecting WordPress frontend. BigCommerce handles commerce security.</td>
+                    </tr>
+                    <tr>
+                        <td>Caching</td>
+                        <td>WP Rocket, W3 Total Cache</td>
+                        <td><span class="type-badge type-keep">Keep in WP</span></td>
+                        <td class="notes">WordPress caching unaffected. Product data cached by BC Bridge plugin.</td>
+                    </tr>
+                    <tr>
+                        <td>Analytics</td>
+                        <td>MonsterInsights, Google Site Kit</td>
+                        <td><span class="type-badge type-keep">Keep in WP</span></td>
+                        <td class="notes">Content analytics in WordPress. E-commerce tracking via BC native integration.</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p style="margin-top: 15px; font-size: 0.85rem; color: #666;"><em>Source: bc-migration architecture decision (ADR-001: Keep WordPress)</em></p>
+        </section>
+
+        <!-- Migration Summary -->
+        <section class="section">
+            <h2>Migration Complexity Summary</h2>
+            <p class="intro-text">Based on the plugin mappings, most common WooCommerce plugins have direct equivalents in BigCommerce.</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Migration Type</th>
+                        <th>Plugin Categories</th>
+                        <th>Complexity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="type-badge type-native">Native</span></td>
+                        <td>Payment gateways, channel managers, shipping, wishlists, metafields, multi-storefront</td>
+                        <td>Low - Configuration only, no development</td>
+                    </tr>
+                    <tr>
+                        <td><span class="type-badge type-app">App</span></td>
+                        <td>Email marketing, advanced shipping, subscriptions, memberships</td>
+                        <td>Low-Medium - App installation and configuration</td>
+                    </tr>
+                    <tr>
+                        <td><span class="type-badge type-keep">Keep in WP</span></td>
+                        <td>SEO, page builders, forms, security, caching, content analytics</td>
+                        <td>None - No migration required</td>
+                    </tr>
+                    <tr>
+                        <td><span class="type-badge type-custom">Custom</span></td>
+                        <td>Highly customized WooCommerce extensions</td>
+                        <td>High - Requires development assessment</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Sources & Citations -->
+        <section class="section">
+            <h2>Sources & Citations</h2>
+            <div style="background: var(--bc-light); border-radius: 8px; padding: 20px; font-size: 0.9rem;">
+                <p><strong>This document synthesizes content from:</strong></p>
+                <ul style="margin-top: 10px;">
+                    <li><strong>Plugin Migration Categories:</strong> WPE Artemis Migration Analysis, Slides 25-35</li>
+                    <li><strong>WooCommerce Plugin Analysis:</strong> Granite Comparative Analysis, Slides 45-60</li>
+                    <li><strong>BigCommerce App Marketplace:</strong> BigCommerce App Store (apps.bigcommerce.com)</li>
+                    <li><strong>Plugin-to-App Mappings:</strong> bc-migration implementation (plugin-mappings.json)</li>
+                    <li><strong>WordPress Plugin Compatibility:</strong> bc-migration assessment tool output</li>
+                    <li><strong>Effort Estimates:</strong> Synthesized from implementation experience; not Granite-sourced</li>
+                </ul>
+                <p style="margin-top: 15px; color: #666;"><em>Plugin mappings are continuously updated. Run bc-migrate assess for current plugin analysis specific to your store.</em></p>
+            </div>
+        </section>
+
+    </div>
+
+    <footer class="footer">
+        <p><strong>BC Migration Documentation</strong></p>
+        <p>Plugin Compatibility Matrix</p>
+    </footer>
+
+    <!-- Sticky Navigation -->
+    <nav class="sticky-nav">
+        <a href="COMPETITIVE_LANDSCAPE.html">← Competitive Landscape</a>
+        <div class="nav-center">
+            <span>6 of 17</span>
+            <select onchange="if(this.value) window.location.href=this.value">
+                <option value="">Jump to...</option>
+                <option value="IMPLEMENTATION_BRIEF.html">★ Implementation Brief</option>
+                <option value="index.html">Home</option>
+                <option value="GRANITE_COMPARATIVE_ANALYSIS.html">1. Granite Analysis</option>
+                <option value="WPE_ARTEMIS_MIGRATION_ANALYSIS.html">2. WPE Artemis</option>
+                <option value="PLATFORM_DECISION_RATIONALE.html">3. Platform Decision</option>
+                <option value="MIGRATION_BUSINESS_CASE.html">4. Business Case</option>
+                <option value="COMPETITIVE_LANDSCAPE.html">5. Competitive Landscape</option>
+                <option value="PLUGIN_COMPATIBILITY_MATRIX.html" selected>6. Plugin Matrix</option>
+                <option value="SEO_PRESERVATION_GUIDE.html">7. SEO Guide</option>
+                <option value="MIGRATION_RUNBOOK.html">8. Migration Runbook</option>
+                <option value="INTEGRATION_ARCHITECTURE.html">9. Integration Architecture</option>
+                <option value="WORDPRESS_CATALYST_COMPONENTS.html">10. WP Catalyst Components</option>
+                <option value="ADR-001-keep-wordpress.html">11. ADR-001</option>
+                <option value="ADR-002-headless-vs-checkout-only.html">12. ADR-002</option>
+                <option value="ADR-003-order-history-strategy.html">13. ADR-003</option>
+                <option value="MIGRATION_QA_TRACKER.html">14. Q&A Tracker</option>
+                <option value="B2B_MIGRATION_GUIDE.html">15. B2B Guide</option>
+                <option value="STORE_SIZE_PLAYBOOK.html">16. Store Size Playbook</option>
+                <option value="MIGRATION_PERSONAS.html">17. Migration Personas</option>
+            </select>
+        </div>
+        <a href="SEO_PRESERVATION_GUIDE.html">SEO Guide →</a>
+    </nav>
+</body>
+</html>

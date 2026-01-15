@@ -1,0 +1,48 @@
+---
+title: "CategoryMigrator"
+description: "CategoryMigrator"
+category: "reference"
+order: 100
+section: "api"
+---
+
+# CategoryMigrator
+
+## Constructor
+
+```typescript
+CategoryMigrator(wcClient: WCClient, bcClient: BCClient, options: reflection): CategoryMigrator
+```
+
+### Parameters
+
+- **`wcClient`** (`WCClient`): No description
+- **`bcClient`** (`BCClient`): No description
+- **`options`** (`reflection`): No description
+
+### Returns
+
+`CategoryMigrator`
+
+## Methods
+
+### `getIdMapping()`
+
+```typescript
+getIdMapping(): Map<number, number>
+```
+
+### Returns
+
+`Map<number, number>`
+
+### `run()`
+
+```typescript
+run(): Promise<MigrationStats>
+```
+
+### Returns
+
+`Promise<MigrationStats>`
+

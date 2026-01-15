@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B2B Migration Guide | BC Migration</title>
+    <style>
+        :root {
+            --bc-primary: #34313f;
+            --bc-accent: #5c6ac4;
+            --bc-success: #28a745;
+            --bc-warning: #ffc107;
+            --bc-danger: #dc3545;
+            --bc-info: #17a2b8;
+            --bc-light: #f8f9fa;
+            --bc-border: #e0e0e0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bc-light);
+            color: var(--bc-primary);
+            line-height: 1.6;
+            padding-bottom: 70px;
+        }
+
+        /* Sticky Navigation */
+        .sticky-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bc-primary); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); z-index: 1000; }
+        .sticky-nav a { color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 0.85rem; transition: background 0.2s; }
+        .sticky-nav a:hover { background: rgba(255,255,255,0.15); }
+        .sticky-nav .nav-center { font-size: 0.75rem; color: rgba(255,255,255,0.7); }
+        .sticky-nav .nav-center select { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 6px 10px; border-radius: 4px; font-size: 0.8rem; margin-left: 8px; }
+        .sticky-nav .nav-center select option { background: var(--bc-primary); }
+        @media (max-width: 768px) { .sticky-nav .nav-center { display: none; } }
+
+        .header {
+            background: linear-gradient(135deg, var(--bc-primary) 0%, #4a4458 100%);
+            color: white;
+            padding: 40px;
+        }
+
+        .header-content {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .back-link {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .back-link:hover { color: white; }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .header .meta {
+            margin-top: 15px;
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--bc-warning);
+            color: var(--bc-primary);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 30px 40px;
+        }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        }
+
+        .section h2 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: var(--bc-primary);
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--bc-accent);
+        }
+
+        .section h3 {
+            font-size: 1.1rem;
+            margin: 20px 0 10px 0;
+            color: var(--bc-primary);
+        }
+
+        .section p {
+            margin-bottom: 15px;
+            color: #444;
+        }
+
+        .callout {
+            background: #e8f4fd;
+            border-left: 4px solid var(--bc-info);
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .callout.warning {
+            background: #fff8e6;
+            border-left-color: var(--bc-warning);
+        }
+
+        .callout.danger {
+            background: #fef2f2;
+            border-left-color: var(--bc-danger);
+        }
+
+        .callout h4 {
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            color: var(--bc-primary);
+        }
+
+        .callout p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--bc-border);
+        }
+
+        th {
+            background: var(--bc-primary);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .feature-card {
+            background: var(--bc-light);
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid var(--bc-border);
+        }
+
+        .feature-card h4 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: var(--bc-primary);
+        }
+
+        .feature-card p {
+            font-size: 0.85rem;
+            margin: 0;
+            color: #666;
+        }
+
+        .status-tag {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-tag.native { background: #d1fae5; color: #059669; }
+        .status-tag.api { background: #dbeafe; color: #1d4ed8; }
+        .status-tag.partial { background: #fef3c7; color: #d97706; }
+        .status-tag.custom { background: #fce7f3; color: #db2777; }
+        .status-tag.gap { background: #fee2e2; color: #dc2626; }
+
+        .complexity-meter {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .complexity-bar {
+            flex: 1;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .complexity-fill {
+            height: 100%;
+            border-radius: 4px;
+        }
+
+        .complexity-fill.low { width: 33%; background: var(--bc-success); }
+        .complexity-fill.medium { width: 66%; background: var(--bc-warning); }
+        .complexity-fill.high { width: 100%; background: var(--bc-danger); }
+
+        ul {
+            margin: 10px 0 15px 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="index.html" class="back-link">← Back to Index</a>
+            <h1>B2B Migration Guide</h1>
+            <p class="subtitle">Migrating B2B WooCommerce stores to BigCommerce B2B Edition</p>
+            <span class="badge">Granite Gap Analysis</span>
+            <p class="meta">Source: Granite Comparative Analysis Slides 66-73, 174-182 | Last Updated: December 2025</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Executive Summary -->
+        <section class="section">
+            <h2>Executive Summary</h2>
+            <p>B2B migrations are significantly more complex than B2C due to custom pricing, customer groups, quoting workflows, and ERP integrations. This guide addresses the specific considerations for migrating WooCommerce B2B stores to BigCommerce B2B Edition.</p>
+
+            <div class="callout warning">
+                <h4>Complexity Warning</h4>
+                <p>B2B migrations typically require 2-3x the effort of equivalent B2C migrations due to pricing complexity, approval workflows, and integration requirements. Plan accordingly.</p>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>BigCommerce B2B Edition</h4>
+                    <p>Native B2B capabilities including price lists, customer groups, quoting, and purchase orders. Enterprise-grade solution.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>WooCommerce B2B Landscape</h4>
+                    <p>Fragmented plugin ecosystem: B2BKing, WooCommerce B2B, Wholesale Suite. Each with different data models.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Migration Complexity</h4>
+                    <p>Custom pricing rules, approval workflows, and ERP integrations require careful mapping and potential rebuilding.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- B2B Feature Comparison -->
+        <section class="section">
+            <h2>B2B Feature Comparison</h2>
+            <p>Mapping WooCommerce B2B plugin capabilities to BigCommerce B2B Edition features:</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>WooCommerce (Plugin)</th>
+                        <th>BigCommerce B2B</th>
+                        <th>Migration Path</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Customer Groups</strong></td>
+                        <td>B2BKing, Wholesale Suite</td>
+                        <td><span class="status-tag native">Native</span></td>
+                        <td>Direct mapping possible</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Price Lists</strong></td>
+                        <td>Various plugins, custom code</td>
+                        <td><span class="status-tag native">Native</span></td>
+                        <td>Requires data transformation</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tiered/Volume Pricing</strong></td>
+                        <td>Tiered Pricing Table, Dynamic Pricing</td>
+                        <td><span class="status-tag native">Native</span></td>
+                        <td>Rule conversion needed</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Customer-Specific Pricing</strong></td>
+                        <td>B2BKing, custom meta</td>
+                        <td><span class="status-tag api">API</span></td>
+                        <td>Price Lists API migration</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Quote Requests (RFQ)</strong></td>
+                        <td>YITH Request a Quote, B2BKing</td>
+                        <td><span class="status-tag native">Native</span></td>
+                        <td>Workflow rebuild required</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Purchase Orders</strong></td>
+                        <td>WooCommerce PO plugins</td>
+                        <td><span class="status-tag native">Native</span></td>
+                        <td>Direct migration</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Net Terms (Net 30/60/90)</strong></td>
+                        <td>B2BKing, custom code</td>
+                        <td><span class="status-tag native">Native</span></td>
+                        <td>Configuration migration</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Catalog Visibility</strong></td>
+                        <td>Catalog Visibility plugins</td>
+                        <td><span class="status-tag native">Native</span></td>
+                        <td>Rule mapping required</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Minimum Order Quantities</strong></td>
+                        <td>Min/Max plugins</td>
+                        <td><span class="status-tag native">Native</span></td>
+                        <td>Product-level migration</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Company Accounts</strong></td>
+                        <td>B2BKing, custom</td>
+                        <td><span class="status-tag native">Native</span></td>
+                        <td>Account structure migration</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Buyer Roles & Permissions</strong></td>
+                        <td>B2BKing, User Role Editor</td>
+                        <td><span class="status-tag native">Native</span></td>
+                        <td>Role mapping needed</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Approval Workflows</strong></td>
+                        <td>Custom code typically</td>
+                        <td><span class="status-tag native">Native</span></td>
+                        <td>Workflow rebuild</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Quick Order Forms</strong></td>
+                        <td>Various plugins</td>
+                        <td><span class="status-tag native">Native</span></td>
+                        <td>Configuration only</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CSV/Bulk Ordering</strong></td>
+                        <td>Bulk Order plugins</td>
+                        <td><span class="status-tag native">Native</span></td>
+                        <td>Native replacement</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ERP Integration</strong></td>
+                        <td>Custom, Zapier, plugins</td>
+                        <td><span class="status-tag api">API</span></td>
+                        <td>Integration rebuild</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Price List Migration -->
+        <section class="section">
+            <h2>Price List Migration Strategy</h2>
+            <p>B2B pricing is the most complex aspect of migration. BigCommerce uses a Price Lists system that differs from WooCommerce's plugin-based approach.</p>
+
+            <h3>WooCommerce B2B Pricing Models</h3>
+            <ul>
+                <li><strong>Role-Based Pricing:</strong> WordPress user roles (wholesale_customer, vip_customer) with percentage discounts</li>
+                <li><strong>Customer-Specific:</strong> Per-customer prices stored in user meta or custom tables</li>
+                <li><strong>Tiered Pricing:</strong> Quantity-based price breaks (buy 10+ get 10% off)</li>
+                <li><strong>Category Discounts:</strong> Wholesale pricing by product category</li>
+                <li><strong>Negotiated Contracts:</strong> Custom pricing per customer, often in spreadsheets or ERP</li>
+            </ul>
+
+            <h3>BigCommerce Price Lists Architecture</h3>
+            <ul>
+                <li><strong>Price Lists:</strong> Named pricing configurations assignable to customer groups</li>
+                <li><strong>Price Records:</strong> SKU-level price overrides within a price list</li>
+                <li><strong>Bulk Pricing:</strong> Native quantity-based pricing rules</li>
+                <li><strong>Customer Group Assignment:</strong> Map customers to price lists via groups</li>
+            </ul>
+
+            <div class="callout">
+                <h4>Migration Approach</h4>
+                <p>Extract WooCommerce pricing data → Transform to BC Price List format → Import via Price Lists API → Validate pricing accuracy → Assign customer groups</p>
+            </div>
+
+            <h3>Data Transformation Example</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>WooCommerce Source</th>
+                        <th>BigCommerce Target</th>
+                        <th>Transformation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>User role: wholesale_customer</td>
+                        <td>Customer Group: Wholesale</td>
+                        <td>Create group, assign users</td>
+                    </tr>
+                    <tr>
+                        <td>_wholesale_price meta</td>
+                        <td>Price List: Wholesale Prices</td>
+                        <td>Extract meta, create price records</td>
+                    </tr>
+                    <tr>
+                        <td>Tiered pricing plugin data</td>
+                        <td>Bulk Pricing Rules</td>
+                        <td>Convert quantity breaks</td>
+                    </tr>
+                    <tr>
+                        <td>Customer-specific prices</td>
+                        <td>Customer-level Price List</td>
+                        <td>One price list per customer (if needed)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- B2B Complexity Scoring -->
+        <section class="section">
+            <h2>B2B Migration Complexity Scoring</h2>
+            <p>Use this framework to assess B2B migration complexity (per Granite methodology):</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Factor</th>
+                        <th>Low (1)</th>
+                        <th>Medium (2)</th>
+                        <th>High (3)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Customer Groups</strong></td>
+                        <td>1-3 groups</td>
+                        <td>4-10 groups</td>
+                        <td>10+ groups or per-customer</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Price Lists</strong></td>
+                        <td>Single wholesale tier</td>
+                        <td>Multiple tiers</td>
+                        <td>Customer-specific pricing</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tiered Pricing</strong></td>
+                        <td>None or simple</td>
+                        <td>Standard quantity breaks</td>
+                        <td>Complex rules, combinations</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Quoting</strong></td>
+                        <td>None</td>
+                        <td>Basic RFQ</td>
+                        <td>Full workflow with approvals</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Payment Terms</strong></td>
+                        <td>Standard (credit card)</td>
+                        <td>Net 30 only</td>
+                        <td>Multiple terms, credit limits</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Company Accounts</strong></td>
+                        <td>Individual buyers</td>
+                        <td>Basic company accounts</td>
+                        <td>Multi-level hierarchy</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ERP Integration</strong></td>
+                        <td>None</td>
+                        <td>One-way sync</td>
+                        <td>Bi-directional, real-time</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Custom Catalogs</strong></td>
+                        <td>Shared catalog</td>
+                        <td>Hidden products</td>
+                        <td>Per-group catalogs</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Complexity Score Interpretation</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Score 8-12: Low Complexity</h4>
+                    <div class="complexity-meter">
+                        <div class="complexity-bar"><div class="complexity-fill low"></div></div>
+                        <span>Low</span>
+                    </div>
+                    <p>Standard B2B migration. 4-6 week timeline. Self-service or light agency involvement.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Score 13-18: Medium Complexity</h4>
+                    <div class="complexity-meter">
+                        <div class="complexity-bar"><div class="complexity-fill medium"></div></div>
+                        <span>Medium</span>
+                    </div>
+                    <p>Significant customization. 8-12 week timeline. Agency recommended.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Score 19-24: High Complexity</h4>
+                    <div class="complexity-meter">
+                        <div class="complexity-bar"><div class="complexity-fill high"></div></div>
+                        <span>High</span>
+                    </div>
+                    <p>Enterprise B2B migration. 12-20 week timeline. Full SI engagement required.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quote Workflow Migration -->
+        <section class="section">
+            <h2>Quote Workflow Migration</h2>
+            <p>B2B quoting (RFQ) is a common WooCommerce customization that maps well to BigCommerce's native quoting system.</p>
+
+            <h3>WooCommerce Quoting Landscape</h3>
+            <ul>
+                <li><strong>YITH Request a Quote:</strong> Most popular, stores quotes as custom post type</li>
+                <li><strong>B2BKing Quotes:</strong> Integrated with B2BKing B2B suite</li>
+                <li><strong>Custom Implementations:</strong> Many stores have bespoke quoting systems</li>
+            </ul>
+
+            <h3>BigCommerce Native Quoting</h3>
+            <ul>
+                <li>Quote creation from cart or by sales rep</li>
+                <li>Quote approval workflows</li>
+                <li>Quote-to-order conversion</li>
+                <li>Quote expiration and versioning</li>
+                <li>API access for integration</li>
+            </ul>
+
+            <div class="callout warning">
+                <h4>Historical Quote Data</h4>
+                <p>Historical WooCommerce quotes are typically NOT migrated. Consider exporting to PDF/archive for reference. New quotes start fresh in BigCommerce.</p>
+            </div>
+        </section>
+
+        <!-- Company Account Migration -->
+        <section class="section">
+            <h2>Company Account Structure</h2>
+            <p>B2B stores often have company accounts with multiple buyers, approval hierarchies, and shared carts.</p>
+
+            <h3>Migration Considerations</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>WooCommerce Pattern</th>
+                        <th>BigCommerce B2B</th>
+                        <th>Migration Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Individual WordPress users</td>
+                        <td>Company → Users</td>
+                        <td>Group users into companies</td>
+                    </tr>
+                    <tr>
+                        <td>Company stored in user meta</td>
+                        <td>Company entity</td>
+                        <td>Extract and create companies</td>
+                    </tr>
+                    <tr>
+                        <td>User roles for permissions</td>
+                        <td>Buyer roles (Admin, Buyer, etc.)</td>
+                        <td>Map roles appropriately</td>
+                    </tr>
+                    <tr>
+                        <td>B2BKing company accounts</td>
+                        <td>Companies API</td>
+                        <td>Direct structure migration</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Buyer Role Mapping</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Typical WooCommerce Role</th>
+                        <th>BigCommerce B2B Role</th>
+                        <th>Capabilities</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Company Admin</td>
+                        <td>Company Admin</td>
+                        <td>Manage users, view all orders, full access</td>
+                    </tr>
+                    <tr>
+                        <td>Purchasing Manager</td>
+                        <td>Senior Buyer</td>
+                        <td>Approve orders, manage budgets</td>
+                    </tr>
+                    <tr>
+                        <td>Buyer</td>
+                        <td>Junior Buyer</td>
+                        <td>Create orders, require approval</td>
+                    </tr>
+                    <tr>
+                        <td>View Only</td>
+                        <td>Custom Role</td>
+                        <td>Browse catalog, no purchasing</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- ERP Integration -->
+        <section class="section">
+            <h2>ERP Integration Considerations</h2>
+            <p>B2B stores commonly integrate with ERP systems. These integrations must be rebuilt for BigCommerce.</p>
+
+            <div class="callout danger">
+                <h4>Critical: ERP Integration Rebuild</h4>
+                <p>ERP integrations (NetSuite, SAP, Microsoft Dynamics, etc.) require complete rebuilding. Plan for this as a separate workstream with dedicated timeline.</p>
+            </div>
+
+            <h3>Common ERP Integration Points</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Data Flow</th>
+                        <th>WooCommerce Approach</th>
+                        <th>BigCommerce Approach</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Product/Pricing Sync</td>
+                        <td>Plugins, WP Cron, custom</td>
+                        <td>Catalog API, webhooks</td>
+                    </tr>
+                    <tr>
+                        <td>Inventory Sync</td>
+                        <td>Real-time or scheduled</td>
+                        <td>Inventory API, webhooks</td>
+                    </tr>
+                    <tr>
+                        <td>Customer Sync</td>
+                        <td>User meta, custom tables</td>
+                        <td>Customers API, Companies API</td>
+                    </tr>
+                    <tr>
+                        <td>Order Push</td>
+                        <td>Order hooks, plugins</td>
+                        <td>Orders API, webhooks</td>
+                    </tr>
+                    <tr>
+                        <td>Invoice/Payment</td>
+                        <td>Payment gateway callbacks</td>
+                        <td>Payment webhooks, API</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>BigCommerce ERP Connectors</h3>
+            <p>BigCommerce has native connectors and partnerships for major ERPs:</p>
+            <ul>
+                <li><strong>NetSuite:</strong> Native SuiteCommerce integration</li>
+                <li><strong>Microsoft Dynamics:</strong> Celigo, other iPaaS</li>
+                <li><strong>SAP:</strong> Partner integrations available</li>
+                <li><strong>Acumatica:</strong> Native connector</li>
+                <li><strong>QuickBooks:</strong> Native integration</li>
+            </ul>
+        </section>
+
+        <!-- Migration Checklist -->
+        <section class="section">
+            <h2>B2B Migration Checklist</h2>
+
+            <h3>Pre-Migration Assessment</h3>
+            <ul>
+                <li>☐ Inventory all B2B plugins in use</li>
+                <li>☐ Document customer group structure</li>
+                <li>☐ Export all pricing rules and price lists</li>
+                <li>☐ Map company account hierarchy</li>
+                <li>☐ Document quote/RFQ workflows</li>
+                <li>☐ Identify all ERP integration points</li>
+                <li>☐ Calculate B2B complexity score</li>
+            </ul>
+
+            <h3>Data Migration</h3>
+            <ul>
+                <li>☐ Create customer groups in BigCommerce</li>
+                <li>☐ Build price lists for each pricing tier</li>
+                <li>☐ Migrate company accounts</li>
+                <li>☐ Assign users to companies and roles</li>
+                <li>☐ Configure payment terms</li>
+                <li>☐ Set up catalog visibility rules</li>
+            </ul>
+
+            <h3>Integration Rebuild</h3>
+            <ul>
+                <li>☐ Rebuild ERP product sync</li>
+                <li>☐ Rebuild ERP inventory sync</li>
+                <li>☐ Rebuild ERP order push</li>
+                <li>☐ Configure BigCommerce webhooks</li>
+                <li>☐ Test bi-directional data flow</li>
+            </ul>
+
+            <h3>Validation</h3>
+            <ul>
+                <li>☐ Verify pricing accuracy for each customer group</li>
+                <li>☐ Test tiered pricing calculations</li>
+                <li>☐ Validate quote workflow end-to-end</li>
+                <li>☐ Confirm company account permissions</li>
+                <li>☐ Test payment terms functionality</li>
+                <li>☐ Verify ERP sync accuracy</li>
+            </ul>
+        </section>
+
+        <!-- Sources & Citations -->
+        <section class="section">
+            <h2>Sources & Citations</h2>
+            <div style="background: var(--bc-light); border-radius: 8px; padding: 20px; font-size: 0.9rem;">
+                <p><strong>This document synthesizes content from:</strong></p>
+                <ul style="margin-top: 10px;">
+                    <li><strong>B2B Platform Comparison:</strong> Granite Comparative Analysis, Slides 66-73</li>
+                    <li><strong>B2B Feature Matrix:</strong> Granite Comparative Analysis, Slides 174-182</li>
+                    <li><strong>WooCommerce B2B Plugin Analysis:</strong> Granite Comparative Analysis, Slides 45-52</li>
+                    <li><strong>BigCommerce B2B Edition Features:</strong> BigCommerce official documentation + Granite Slides 70-73</li>
+                    <li><strong>ERP Integration Patterns:</strong> Industry standard approaches; not Granite-sourced</li>
+                    <li><strong>Migration Checklist:</strong> Synthesized from Granite B2B analysis + bc-migration implementation patterns</li>
+                </ul>
+                <p style="margin-top: 15px; color: #666;"><em>B2B migrations require additional complexity scoring. See Store Size Playbook for base tier assessment, then add B2B complexity factors from this guide.</em></p>
+            </div>
+        </section>
+
+    </div>
+
+    <footer class="footer">
+        <p><strong>BC Migration Documentation Package</strong></p>
+        <p>B2B Migration Guide</p>
+    </footer>
+
+    <!-- Sticky Navigation -->
+    <nav class="sticky-nav">
+        <a href="MIGRATION_QA_TRACKER.html">← Q&A Tracker</a>
+        <div class="nav-center">
+            <span>15 of 17</span>
+            <select onchange="if(this.value) window.location.href=this.value">
+                <option value="">Jump to...</option>
+                <option value="IMPLEMENTATION_BRIEF.html">★ Implementation Brief</option>
+                <option value="GRANITE_COMPARATIVE_ANALYSIS.html">1. Granite Analysis</option>
+                <option value="WPE_ARTEMIS_MIGRATION_ANALYSIS.html">2. WPE Artemis</option>
+                <option value="PLATFORM_DECISION_RATIONALE.html">3. Platform Decision</option>
+                <option value="MIGRATION_BUSINESS_CASE.html">4. Business Case</option>
+                <option value="COMPETITIVE_LANDSCAPE.html">5. Competitive Landscape</option>
+                <option value="PLUGIN_COMPATIBILITY_MATRIX.html">6. Plugin Matrix</option>
+                <option value="SEO_PRESERVATION_GUIDE.html">7. SEO Guide</option>
+                <option value="MIGRATION_RUNBOOK.html">8. Migration Runbook</option>
+                <option value="INTEGRATION_ARCHITECTURE.html">9. Integration Architecture</option>
+                <option value="WORDPRESS_CATALYST_COMPONENTS.html">10. WP Catalyst Components</option>
+                <option value="ADR-001-keep-wordpress.html">11. ADR-001</option>
+                <option value="ADR-002-headless-vs-checkout-only.html">12. ADR-002</option>
+                <option value="ADR-003-order-history-strategy.html">13. ADR-003</option>
+                <option value="MIGRATION_QA_TRACKER.html">14. Q&A Tracker</option>
+                <option value="B2B_MIGRATION_GUIDE.html" selected>15. B2B Guide</option>
+                <option value="STORE_SIZE_PLAYBOOK.html">16. Store Size Playbook</option>
+                <option value="MIGRATION_PERSONAS.html">17. Migration Personas</option>
+            </select>
+        </div>
+        <a href="STORE_SIZE_PLAYBOOK.html">Store Size Playbook →</a>
+    </nav>
+</body>
+</html>

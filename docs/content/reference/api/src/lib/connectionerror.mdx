@@ -1,0 +1,62 @@
+---
+title: "ConnectionError"
+description: "Connection error"
+category: "reference"
+order: 100
+section: "api"
+---
+
+# ConnectionError
+
+Connection error
+
+## Constructor
+
+```typescript
+ConnectionError(message: string, endpoint?: string, context?: Record<string, unknown>): ConnectionError
+```
+
+### Parameters
+
+- **`message`** (`string`): No description
+- **`endpoint`** (`string`) (optional): No description
+- **`context`** (`Record<string, unknown>`) (optional): No description
+
+### Returns
+
+`ConnectionError`
+
+## Properties
+
+### `code`
+
+Type: `string`
+
+### `retriable`
+
+Type: `boolean`
+
+### `context`
+
+Type: `Record<string, unknown>`
+
+### `timestamp`
+
+Type: `string`
+
+### `endpoint`
+
+Type: `string`
+
+## Methods
+
+### `toJSON()`
+
+```typescript
+toJSON(): Record<string, unknown>
+```
+
+### Returns
+
+`Record<string, unknown>`
+

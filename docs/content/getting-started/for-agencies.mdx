@@ -1,0 +1,442 @@
+---
+title: Getting Started for Agencies
+description: Multi-client management and white-label deployment for agencies and partners
+category: getting-started
+section: agencies
+order: 3
+---
+
+# Getting Started for Agencies
+
+This guide helps agencies and migration partners manage multiple client migrations, white-label deployments, and offer migration services at scale.
+
+## Agency Use Cases
+
+### Migration Service Provider
+Offer WooCommerce to BigCommerce migration as a service to your clients.
+
+### WordPress/WP Engine Partner
+Migrate WP Engine clients from WooCommerce to BigCommerce while maintaining WordPress for content.
+
+### BigCommerce Partner
+Help clients transition from WooCommerce to BigCommerce as part of your platform services.
+
+## Multi-Client Management
+
+### Client Isolation
+
+Each client migration is isolated with separate:
+- **Connection Configs**: Stored per client in browser localStorage
+- **Migration State**: Independent progress tracking
+- **Assessment Data**: Client-specific reports
+- **Credentials**: Never shared between clients
+
+### Managing Multiple Migrations
+
+**Recommended Workflow**:
+
+1. **Client Onboarding**:
+   - Create a checklist for each client
+   - Gather WooCommerce and BigCommerce credentials
+   - Run initial assessment
+   - Provide cost and timeline estimates
+
+2. **Project Tracking**:
+   - Use the dashboard for each client migration
+   - Export assessment reports for client review
+   - Track progress through the 4-phase wizard
+   - Generate completion reports
+
+3. **Quality Assurance**:
+   - Test each migration in staging first
+   - Verify data accuracy before go-live
+   - Provide post-migration support period
+
+### Browser-Based Multi-Client Setup
+
+Since credentials are stored in localStorage:
+
+```bash
+# Option 1: Use browser profiles (Chrome/Edge/Firefox)
+- Create separate browser profile per client
+- Install as PWA per profile
+- Keeps credentials isolated
+
+# Option 2: Use incognito/private windows
+- Open private window for each client
+- Configure credentials
+- Complete migration
+- Close window (clears localStorage)
+
+# Option 3: Manual credential management
+- Export/import credential JSON
+- Store securely in password manager
+- Load per client session
+```
+
+## White-Label Deployment
+
+### Self-Hosted Deployment
+
+Deploy your own branded instance:
+
+```bash
+# Clone and customize
+git clone https://github.com/yourusername/bc-migration.git
+cd bc-migration
+
+# Customize branding
+# Edit src/dashboard/app/layout.tsx for agency branding
+# Update logo in src/dashboard/public/
+# Modify colors in src/dashboard/app/globals.css
+
+# Build and deploy
+cd src/dashboard
+npm run build
+
+# Deploy to your infrastructure
+# Option 1: Vercel
+vercel --prod
+
+# Option 2: Docker
+docker build -t agency-bc-migration .
+docker run -p 3000:3000 agency-bc-migration
+
+# Option 3: Traditional hosting
+npm start
+```
+
+### Branding Customization
+
+**Logo and Name**:
+
+```typescript
+// src/dashboard/app/layout.tsx
+export const metadata: Metadata = {
+  title: 'Your Agency Name - BC Migration',
+  description: 'Professional WooCommerce to BigCommerce Migration',
+  // ... your branding
+};
+```
+
+**Color Scheme**:
+
+```css
+/* src/dashboard/app/globals.css */
+:root {
+  --agency-primary: #your-primary-color;
+  --agency-secondary: #your-secondary-color;
+}
+```
+
+**Custom Domain**:
+- Deploy to `migrate.youragency.com`
+- Configure DNS CNAME or A record
+- Set up SSL certificate
+
+### Environment Configuration
+
+```bash
+# .env.production (agency deployment)
+NEXT_PUBLIC_AGENCY_NAME="Your Agency Name"
+NEXT_PUBLIC_SUPPORT_EMAIL="support@youragency.com"
+NEXT_PUBLIC_SUPPORT_URL="https://youragency.com/support"
+NEXT_PUBLIC_DOCS_URL="https://docs.youragency.com"
+
+# Optional: Analytics
+NEXT_PUBLIC_GA_ID="G-XXXXXXXXXX"
+NEXT_PUBLIC_POSTHOG_KEY="phc_xxxxx"
+
+# Optional: Error tracking
+SENTRY_DSN="https://xxxxx@sentry.io/xxxxx"
+```
+
+## Service Packaging
+
+### Migration Tiers
+
+**Tier 1: Self-Service**
+- Clients use hosted tool directly
+- Agency provides credentials setup only
+- Lowest cost, best for tech-savvy clients
+- Revenue: $500-1,000 setup fee
+
+**Tier 2: Assisted Migration**
+- Agency runs migration with client oversight
+- Includes data validation and QA testing
+- Post-migration support (30 days)
+- Revenue: $2,500-5,000 per migration
+
+**Tier 3: Full-Service**
+- Complete white-glove service
+- Pre-migration audit and planning
+- Custom data mapping and transformations
+- Theme setup and customization
+- Training and 90-day support
+- Revenue: $10,000-25,000+ per migration
+
+### Pricing Calculator
+
+Factors for estimation:
+
+```typescript
+function estimateMigrationCost(assessment: AssessmentData): number {
+  const basePrice = 1500;
+
+  // Product complexity
+  const productCost = assessment.products * 0.50; // $0.50 per product
+  const variantCost = assessment.variants * 0.25; // $0.25 per variant
+
+  // Customer data
+  const customerCost = assessment.customers * 0.10;
+  const orderCost = assessment.orders * 0.05;
+
+  // Complexity multipliers
+  let complexity = 1.0;
+  if (assessment.customFields > 10) complexity += 0.3;
+  if (assessment.categories > 100) complexity += 0.2;
+  if (assessment.plugins > 20) complexity += 0.4;
+
+  const subtotal = basePrice + productCost + variantCost + customerCost + orderCost;
+  return subtotal * complexity;
+}
+```
+
+## Client Communication
+
+### Assessment Report Template
+
+```markdown
+# WooCommerce to BigCommerce Migration Assessment
+**Client**: [Client Name]
+**Date**: [Date]
+**Prepared by**: [Agency Name]
+
+## Current Store Analysis
+
+- **Products**: [X] products ([Y] variants)
+- **Categories**: [X] categories ([Y] levels deep)
+- **Customers**: [X] registered customers
+- **Orders**: [X] total orders
+- **Reviews**: [X] product reviews
+
+## Migration Scope
+
+### What Will Be Migrated
+- ✅ All products with images and variants
+- ✅ Complete category hierarchy
+- ✅ Customer accounts (password reset required)
+- ✅ Order history
+- ✅ Product reviews
+- ✅ Blog posts and pages
+
+### What Requires Manual Setup
+- ⚙️ BigCommerce theme configuration
+- ⚙️ Payment gateway setup
+- ⚙️ Shipping zone configuration
+- ⚙️ Tax rules
+- ⚙️ Email templates
+
+### Estimated Timeline
+- **Assessment & Planning**: 1-2 days
+- **Data Migration**: 3-5 days
+- **QA & Testing**: 2-3 days
+- **Go-Live Support**: 1 day
+- **Total**: 2-3 weeks
+
+### Investment
+- **Migration Service**: $[Amount]
+- **BigCommerce Platform**: Starting at $29/month
+- **Optional Add-ons**:
+  - Theme customization: $[Amount]
+  - Custom integrations: $[Amount]
+  - Training sessions: $[Amount]
+
+## Next Steps
+1. Review and approve assessment
+2. Provide API credentials
+3. Schedule migration date
+4. Begin migration process
+```
+
+### Progress Updates
+
+Send regular client updates:
+
+```markdown
+# Migration Progress Update - [Date]
+**Client**: [Client Name]
+**Phase**: [Current Phase]
+
+## Completed This Week
+- ✅ [X] products migrated
+- ✅ [X] categories created
+- ✅ [X] customer accounts transferred
+
+## In Progress
+- 🔄 Order history migration (60% complete)
+- 🔄 Product image optimization
+
+## Next Week
+- Product review migration
+- Blog content transfer
+- QA testing
+
+## Issues Identified
+- [Issue 1]: [Resolution]
+- [Issue 2]: [Status]
+
+## Timeline
+On track for [Go-Live Date]
+```
+
+## WordPress/WP Engine Integration
+
+### Headless WordPress + BigCommerce
+
+Many agencies keep WordPress for content while using BigCommerce for commerce:
+
+**Architecture**:
+- WordPress: Blog, marketing pages, content marketing
+- BigCommerce: Product catalog, checkout, cart
+- BC Bridge Plugin: Connects the two seamlessly
+
+**Benefits**:
+- Clients keep familiar WordPress CMS
+- Superior commerce platform (BigCommerce)
+- Best of both worlds
+
+### BC Bridge Setup for Clients
+
+1. **Install BC Bridge Plugin**:
+   ```bash
+   # On WordPress/WP Engine
+   wp plugin install bc-bridge
+   wp plugin activate bc-bridge
+   ```
+
+2. **Configure Connection**:
+   ```php
+   // wp-config.php
+   define('BC_STORE_HASH', 'your-store-hash');
+   define('BC_ACCESS_TOKEN', 'your-token');
+   define('BC_CLIENT_ID', 'your-client-id');
+   ```
+
+3. **Customize Templates**:
+   - Product detail pages
+   - Category pages
+   - Cart integration
+   - Checkout flow
+
+See [BC Bridge Installation Guide](/docs/guides/bc-bridge/installation) for details.
+
+## Automation and Scaling
+
+### Bulk Migration Script
+
+For agencies running multiple migrations:
+
+```typescript
+// scripts/bulk-migrate.ts
+import { MigrationOrchestrator } from '@/lib/migration/orchestrator';
+
+interface ClientConfig {
+  name: string;
+  woocommerce: { url: string; key: string; secret: string };
+  bigcommerce: { hash: string; token: string };
+}
+
+async function bulkMigrate(clients: ClientConfig[]) {
+  for (const client of clients) {
+    console.log(`Starting migration for ${client.name}...`);
+
+    const orchestrator = new MigrationOrchestrator(
+      client.woocommerce,
+      client.bigcommerce
+    );
+
+    try {
+      // Run all phases
+      await orchestrator.runPhase('foundation');
+      await orchestrator.runPhase('core-data');
+      await orchestrator.runPhase('transactions');
+      await orchestrator.runPhase('content');
+
+      console.log(`✅ ${client.name} migration complete`);
+
+      // Generate report
+      await generateReport(client.name, orchestrator.getResults());
+    } catch (error) {
+      console.error(`❌ ${client.name} migration failed:`, error);
+      // Alert agency team
+    }
+  }
+}
+```
+
+### Monitoring and Alerts
+
+Set up monitoring for production migrations:
+
+```typescript
+// lib/monitoring/alerts.ts
+import * as Sentry from '@sentry/nextjs';
+
+export function trackMigrationProgress(clientName: string, phase: string, progress: number) {
+  // Send to monitoring service
+  Sentry.addBreadcrumb({
+    category: 'migration',
+    message: `${clientName} - ${phase}: ${progress}%`,
+    level: 'info',
+  });
+
+  // Alert if stuck
+  if (progress < 10 && Date.now() - startTime > 30 * 60 * 1000) {
+    Sentry.captureMessage(`Migration stalled for ${clientName}`, 'warning');
+  }
+}
+```
+
+## Support and Documentation
+
+### Client Knowledge Base
+
+Provide clients with:
+- [Merchant Getting Started Guide](/docs/getting-started/for-merchants)
+- [Migration FAQ](/docs/troubleshooting/faq)
+- [Post-Migration Checklist](/docs/guides/post-migration/checklist)
+- Video tutorials (record screen during migration)
+
+### Agency Resources
+
+- **Internal Playbook**: Document your migration process
+- **Client Onboarding Checklist**: Standardize client intake
+- **QA Test Scripts**: Ensure consistent quality
+- **Pricing Calculator**: Quote accurately
+
+## Legal and Compliance
+
+### Service Agreement
+
+Include in your service agreement:
+- **Data Handling**: How client credentials are managed
+- **Liability**: Limitations on migration guarantees
+- **Timeline**: Estimated completion with buffer
+- **Support Period**: Post-migration support duration
+- **Cancellation**: Refund and cancellation policy
+
+### Data Protection
+
+- Store API credentials securely (never in git)
+- Use environment variables for production
+- Implement 2FA for agency dashboard access
+- Audit log client data access
+- GDPR/CCPA compliance for customer data
+
+## Next Steps
+
+- [Developer Guide](/docs/getting-started/for-developers) - Technical setup
+- [BC Bridge Guide](/docs/guides/bc-bridge/installation) - WordPress integration
+- [API Reference](/docs/reference/api/dashboard-api) - Extend functionality
+- [WP Engine Partnership](/docs/resources/strategy/appendices/B_WPENGINE_PARTNERSHIP) - Agency partnership program

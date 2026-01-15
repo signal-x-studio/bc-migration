@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BigCommerce Product Architecture Kit</title>
+    <style>
+        :root {
+            --bc-primary: #34313f;
+            --bc-accent: #5c6ac4;
+            --bc-success: #28a745;
+            --bc-warning: #f59e0b;
+            --bc-light: #f8f9fa;
+            --bc-border: #e0e0e0;
+            --sidebar-width: 260px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bc-light);
+            color: var(--bc-primary);
+            line-height: 1.6;
+        }
+
+        /* Layout */
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bc-primary);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 20px 0;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h1 {
+            font-size: 0.85rem;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        .sidebar-header .quarter {
+            font-size: 0.75rem;
+            opacity: 0.6;
+            margin-top: 4px;
+        }
+
+        .nav-section {
+            margin-bottom: 8px;
+        }
+
+        .nav-section-title {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: rgba(255,255,255,0.5);
+            padding: 12px 20px 8px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 10px 20px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.15s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-link:hover {
+            background: rgba(255,255,255,0.08);
+            color: white;
+        }
+
+        .nav-link.active {
+            background: var(--bc-accent);
+            color: white;
+            border-left-color: white;
+        }
+
+        /* Main Content */
+        .main {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 50px 60px;
+            max-width: 900px;
+        }
+
+        .main h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            color: var(--bc-primary);
+        }
+
+        .main .subtitle {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        /* Meta Box */
+        .meta-box {
+            background: var(--bc-light);
+            border: 1px solid var(--bc-border);
+            border-radius: 8px;
+            padding: 20px 25px;
+            margin-bottom: 40px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .meta-item {
+            font-size: 0.85rem;
+        }
+
+        .meta-item .label {
+            color: #888;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .meta-item .value {
+            color: var(--bc-primary);
+            font-weight: 500;
+        }
+
+        /* Section */
+        section {
+            margin-bottom: 50px;
+        }
+
+        section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--bc-primary);
+        }
+
+        section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: var(--bc-primary);
+        }
+
+        section p {
+            margin-bottom: 15px;
+            color: #444;
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid var(--bc-border);
+            border-radius: 10px;
+            padding: 20px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.2s;
+        }
+
+        .card:hover {
+            border-color: var(--bc-accent);
+            box-shadow: 0 4px 12px rgba(92, 106, 196, 0.15);
+        }
+
+        .card h4 {
+            font-size: 1rem;
+            margin-bottom: 8px;
+            color: var(--bc-primary);
+        }
+
+        .card p {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        .card .tag {
+            display: inline-block;
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .tag.immediate { background: #dbeafe; color: #1d4ed8; }
+        .tag.post-summit { background: #fef3c7; color: #92400e; }
+        .tag.alignment { background: #f3e8ff; color: #7c3aed; }
+
+        /* Callout Box */
+        .callout {
+            background: #fefce8;
+            border-left: 4px solid var(--bc-warning);
+            padding: 16px 20px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 25px;
+        }
+
+        .callout h4 {
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+            color: var(--bc-primary);
+        }
+
+        .callout p {
+            font-size: 0.9rem;
+            color: #666;
+            margin: 0;
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+            font-size: 0.9rem;
+        }
+
+        thead {
+            background: var(--bc-accent);
+            color: white;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 16px;
+            font-weight: 500;
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--bc-border);
+        }
+
+        tr:hover td {
+            background: rgba(92, 106, 196, 0.04);
+        }
+
+        /* Two Column */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .col-box {
+            background: white;
+            border: 1px solid var(--bc-border);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .col-box h4 {
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+            color: var(--bc-primary);
+        }
+
+        .col-box ul {
+            margin: 0;
+            padding-left: 18px;
+            color: #555;
+            font-size: 0.9rem;
+        }
+
+        .col-box li {
+            margin-bottom: 6px;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 8px;
+            bottom: 8px;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--bc-accent), #a78bfa, #f59e0b);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -26px;
+            top: 6px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid;
+        }
+
+        .timeline-item.phase1::before { border-color: var(--bc-accent); background: white; }
+        .timeline-item.phase2::before { border-color: #a78bfa; background: white; }
+        .timeline-item.phase3::before { border-color: #f59e0b; background: white; }
+
+        .timeline-date {
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
+        .timeline-item.phase1 .timeline-date { color: var(--bc-accent); }
+        .timeline-item.phase2 .timeline-date { color: #a78bfa; }
+        .timeline-item.phase3 .timeline-date { color: #f59e0b; }
+
+        .timeline-content {
+            background: white;
+            border: 1px solid var(--bc-border);
+            border-radius: 8px;
+            padding: 16px 20px;
+        }
+
+        .timeline-content h4 {
+            font-size: 1rem;
+            margin-bottom: 8px;
+            color: var(--bc-primary);
+        }
+
+        .timeline-content p {
+            font-size: 0.9rem;
+            color: #666;
+            margin: 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 1100px) {
+            .cards-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .sidebar {
+                width: 220px;
+            }
+            .main {
+                margin-left: 220px;
+                padding: 30px 40px;
+            }
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+            .meta-box {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 700px) {
+            .sidebar {
+                display: none;
+            }
+            .main {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>BigCommerce - Q1 2026</h1>
+                <div class="quarter">Product Architecture Kit</div>
+            </div>
+
+            <nav>
+                <div class="nav-section">
+                    <div class="nav-section-title">Overview</div>
+                    <a href="#executive-summary" class="nav-link active">Executive Summary</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">April Summit</div>
+                    <a href="april-summit-workback.html" class="nav-link">Workback Plan</a>
+                    <a href="april-summit-workback.html#phase-1" class="nav-link">Phase 1: Foundation</a>
+                    <a href="april-summit-workback.html#phase-2" class="nav-link">Phase 2: Integration</a>
+                    <a href="april-summit-workback.html#risks" class="nav-link">Risks & Resources</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Integration Diagnostic</div>
+                    <a href="integration-diagnostic.html" class="nav-link">Framework Overview</a>
+                    <a href="integration-diagnostic.html#dimension-1" class="nav-link">7 Dimensions</a>
+                    <a href="integration-diagnostic.html#assessment" class="nav-link">Assessment Template</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Merchant Success</div>
+                    <a href="ai-native-architecture.html" class="nav-link">Vision & Strategy</a>
+                    <a href="ai-native-architecture.html#the-offer" class="nav-link">The Offer</a>
+                    <a href="ai-native-architecture.html#capabilities" class="nav-link">Capabilities Roadmap</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Year One Planning</div>
+                    <a href="year-one/index.html" class="nav-link">Operating Plan</a>
+                    <a href="year-one/first-90-days.html" class="nav-link">First 90 Days</a>
+                    <a href="year-one/semantic-layer-decision.html" class="nav-link">ADR-001: Semantic Layer</a>
+                    <a href="year-one/stakeholder-map.html" class="nav-link">Stakeholder Map</a>
+                    <a href="year-one/integration-interview-guide.html" class="nav-link">Interview Guide</a>
+                    <a href="year-one/red-team-response.html" class="nav-link">Red Team Response</a>
+                    <a href="year-one/capability-pods-position.html" class="nav-link">Capability Pods</a>
+                    <a href="year-one/vendor-evaluation.html" class="nav-link">Vendor Evaluation</a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main">
+            <h1>BigCommerce Product Architecture Kit</h1>
+            <p class="subtitle">Strategic documents for the first Product Architect role</p>
+
+            <div class="meta-box" style="grid-template-columns: repeat(2, 1fr);">
+                <div class="meta-item">
+                    <div class="label">Author</div>
+                    <div class="value">Nino Chavez, Product Architect</div>
+                </div>
+                <div class="meta-item">
+                    <div class="label">Created</div>
+                    <div class="value">January 2026</div>
+                </div>
+            </div>
+
+            <!-- Context Section -->
+            <section id="context">
+                <h2>Context</h2>
+                <p>This kit contains three strategic documents designed to guide the first 12 months as BigCommerce's Product Architect:</p>
+
+                <div class="cards-grid">
+                    <a href="april-summit-workback.html" class="card">
+                        <h4>April Summit Workback</h4>
+                        <p>12-week execution plan to deliver bc-migration announcement at the April summit.</p>
+                        <span class="tag immediate">Immediate Focus</span>
+                    </a>
+
+                    <a href="integration-diagnostic.html" class="card">
+                        <h4>Integration Diagnostic</h4>
+                        <p>Framework to assess integration debt across Core, Makeswift, and Feedonomics.</p>
+                        <span class="tag post-summit">Post-Summit</span>
+                    </a>
+
+                    <a href="ai-native-architecture.html" class="card">
+                        <h4>Merchant Success Architecture</h4>
+                        <p>The Offer: what merchants get and how we deliver it. Leads with outcomes, not technology.</p>
+                        <span class="tag alignment">Executive Alignment</span>
+                    </a>
+                </div>
+
+                <h3 style="margin-top: 30px; margin-bottom: 15px;">Year One Planning</h3>
+                <div class="cards-grid">
+                    <a href="year-one/index.html" class="card">
+                        <h4>Year-One Operating Plan</h4>
+                        <p>Quarterly roadmap, success metrics, and operating rhythm for the first 12 months.</p>
+                        <span class="tag immediate">New</span>
+                    </a>
+
+                    <a href="year-one/first-90-days.html" class="card">
+                        <h4>First 90 Days</h4>
+                        <p>Week-by-week tactical plan for Month 1-3. Checkpoints and red flags.</p>
+                        <span class="tag immediate">New</span>
+                    </a>
+
+                    <a href="year-one/semantic-layer-decision.html" class="card">
+                        <h4>ADR-001: Semantic Layer</h4>
+                        <p>Buy vs Build decision with evidence. Your first major architectural call.</p>
+                        <span class="tag alignment">Decision</span>
+                    </a>
+
+                    <a href="year-one/stakeholder-map.html" class="card">
+                        <h4>Stakeholder Map</h4>
+                        <p>Track relationships with key players across BC, Makeswift, and Feedonomics.</p>
+                        <span class="tag immediate">New</span>
+                    </a>
+
+                    <a href="year-one/integration-interview-guide.html" class="card">
+                        <h4>Interview Guide</h4>
+                        <p>Structured protocol for Q2 stakeholder interviews across 7 dimensions.</p>
+                        <span class="tag immediate">New</span>
+                    </a>
+
+                    <a href="year-one/red-team-response.html" class="card">
+                        <h4>Red Team Response</h4>
+                        <p>How we're responding to Project Aion assessment findings.</p>
+                        <span class="tag alignment">Strategy</span>
+                    </a>
+
+                    <a href="year-one/capability-pods-position.html" class="card">
+                        <h4>Capability Pods Position</h4>
+                        <p>Why we're deferring org restructure to Year Two.</p>
+                        <span class="tag alignment">Position</span>
+                    </a>
+
+                    <a href="year-one/vendor-evaluation.html" class="card">
+                        <h4>Vendor Evaluation</h4>
+                        <p>Scoring rubric for semantic layer vendors.</p>
+                        <span class="tag immediate">New</span>
+                    </a>
+                </div>
+            </section>
+
+            <!-- Strategic Context Section -->
+            <section id="executive-summary">
+                <h2>Strategic Context</h2>
+                <p>BigCommerce is at an inflection point:</p>
+
+                <div class="callout">
+                    <h4>Leadership Changes</h4>
+                    <p>Travis Hess (CEO) and Daniel Lentz (CFO/COO) recruited you specifically for this initiative. The CFO/COO consolidation signals a focus on operational efficiency and margin improvement.</p>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Signal</th>
+                            <th>Implication for Product Architecture</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>CFO/COO dual role (Lentz)</td>
+                            <td>Every architectural decision must pass a financial ROI test</td>
+                        </tr>
+                        <tr>
+                            <td>WPEngine partnership</td>
+                            <td>bc-migration is customer acquisition strategy, not just tooling</td>
+                        </tr>
+                        <tr>
+                            <td>CPO's AI-native vision</td>
+                            <td>Architecture must enable AI capabilities, not just features</td>
+                        </tr>
+                        <tr>
+                            <td>Siloed acquisitions</td>
+                            <td>Integration debt is blocking Enterprise value proposition</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Operating Model Section -->
+            <section id="operating-model">
+                <h2>Your Operating Model</h2>
+                <p>You're a single-threaded owner with cohorts across the organization. Success requires:</p>
+
+                <div class="two-col">
+                    <div class="col-box">
+                        <h4>Influence Without Authority</h4>
+                        <ul>
+                            <li>Engineering cohorts execute your vision</li>
+                            <li>Partnership team drives WPEngine alignment</li>
+                            <li>Marketing owns Summit content</li>
+                            <li>Sales recruits beta merchants</li>
+                        </ul>
+                    </div>
+                    <div class="col-box">
+                        <h4>Translate Constantly</h4>
+                        <ul>
+                            <li>To Finance: margin improvement, cost reduction</li>
+                            <li>To Engineering: technical architecture, patterns</li>
+                            <li>To Sales: deal enablement, competitive positioning</li>
+                            <li>To Executives: strategic impact, risk mitigation</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- The Sequence Section -->
+            <section id="sequence">
+                <h2>The Sequence</h2>
+
+                <div class="timeline">
+                    <div class="timeline-item phase1">
+                        <div class="timeline-date">Now - April 2026</div>
+                        <div class="timeline-content">
+                            <h4>Phase 1: Deliver the Mission</h4>
+                            <p>Ship bc-migration for April Summit announcement. Establish credibility as someone who delivers.</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item phase2">
+                        <div class="timeline-date">April - September 2026</div>
+                        <div class="timeline-content">
+                            <h4>Phase 2: Expand the Pattern</h4>
+                            <p>Extend migration to Shopify. Diagnose integration debt. Prototype first AI-native capability.</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item phase3">
+                        <div class="timeline-date">September - December 2026</div>
+                        <div class="timeline-content">
+                            <h4>Phase 3: Architect the Unification</h4>
+                            <p>Propose architectural strategy for Core + Makeswift + Feedonomics. Own AI-native roadmap.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Links Section -->
+            <section id="dimensions">
+                <h2>Integration Diagnostic: 7 Dimensions</h2>
+                <p>The diagnostic framework assesses integration debt across these dimensions:</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Dimension</th>
+                            <th>Focus Area</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1. Identity & Access</td>
+                            <td>Single sign-on, permissions across products</td>
+                        </tr>
+                        <tr>
+                            <td>2. Data & Schema</td>
+                            <td>Data models, synchronization, canonical entities</td>
+                        </tr>
+                        <tr>
+                            <td>3. API & Contracts</td>
+                            <td>API consistency, versioning, developer experience</td>
+                        </tr>
+                        <tr>
+                            <td>4. Infrastructure</td>
+                            <td>Deployment, observability, shared services</td>
+                        </tr>
+                        <tr>
+                            <td>5. User Experience</td>
+                            <td>Navigation, design systems, workflows</td>
+                        </tr>
+                        <tr>
+                            <td>6. Billing & Licensing</td>
+                            <td>Packaging, metering, unified billing</td>
+                        </tr>
+                        <tr>
+                            <td>7. Organizational</td>
+                            <td>Team structure, ownership, roadmap coordination</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p><a href="integration-diagnostic.html" style="color: var(--bc-accent);">View full diagnostic framework with assessment templates &rarr;</a></p>
+            </section>
+
+            <!-- Merchant Success Section -->
+            <section id="capabilities">
+                <h2>Merchant Success Capabilities</h2>
+                <p><em>"It all comes down to the offer."</em> - Rick Watson, NRF 2026. Our capabilities are prioritized by direct merchant ROI, not technology novelty.</p>
+
+                <div class="two-col">
+                    <div class="col-box">
+                        <h4>Tier 1: Platform Foundation</h4>
+                        <ul>
+                            <li>Unified Event Stream</li>
+                            <li>Semantic Data Layer</li>
+                            <li>Unified Identity</li>
+                        </ul>
+                    </div>
+                    <div class="col-box">
+                        <h4>Tier 2: Merchant Operations (Priority)</h4>
+                        <ul>
+                            <li><strong>AI Catalog Enrichment</strong> - Better product data = better rankings</li>
+                            <li><strong>AI Feed Optimization</strong> - +15-30% GMV on marketplaces</li>
+                            <li><strong>AI Migration</strong> - WPEngine partnership growth lever</li>
+                            <li>AI Store Setup</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <p><strong>Key Insight:</strong> PIM (Product Information Management) is "the sexiest unsexy business on the planet" per NRF 2026 analysis. Catalog enrichment + feed optimization via Feedonomics is our clearest "right to win."</p>
+
+                <p><a href="ai-native-architecture.html" style="color: var(--bc-accent);">View full Merchant Success Architecture &rarr;</a></p>
+            </section>
+
+            <!-- Related Documents -->
+            <section>
+                <h2>Related Documentation</h2>
+                <p>This kit connects to the broader bc-migration documentation package:</p>
+
+                <div class="cards-grid">
+                    <a href="../index.html" class="card">
+                        <h4>BC Migration Hub</h4>
+                        <p>Full documentation package for WooCommerce to BigCommerce migration.</p>
+                        <span class="tag immediate">18 Documents</span>
+                    </a>
+
+                    <a href="../IMPLEMENTATION_BRIEF.html" class="card">
+                        <h4>Implementation Brief</h4>
+                        <p>Technical overview of the migration toolkit and architecture.</p>
+                        <span class="tag post-summit">Technical</span>
+                    </a>
+
+                    <a href="../MIGRATION_RUNBOOK.html" class="card">
+                        <h4>Migration Runbook</h4>
+                        <p>Step-by-step CLI commands for running migrations.</p>
+                        <span class="tag alignment">Operations</span>
+                    </a>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Active nav link on scroll
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

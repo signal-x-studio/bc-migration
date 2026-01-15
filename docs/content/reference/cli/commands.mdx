@@ -1,0 +1,36 @@
+---
+title: "bc-migrate"
+description: "WooCommerce to BigCommerce Migration CLI Tool"
+category: "reference"
+order: 10
+section: "cli"
+---
+
+# bc-migrate
+
+WooCommerce to BigCommerce Migration CLI Tool
+
+## Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `-u, --url <url>` | WooCommerce store URL | - |
+| `-k, --key <key>` | WooCommerce Consumer Key | - |
+| `-s, --secret <secret>` | WooCommerce Consumer Secret | - |
+| `--hash <hash>` | BigCommerce Store Hash | - |
+| `--token <token>` | BigCommerce Access Token | - |
+
+## Examples
+
+```bash
+bc-migrate assess --url https://store.com --key ck_xxx --secret cs_xxx
+```
+
+```bash
+bc-migrate migrate --type=products
+```
+
+```bash
+bc-migrate validate
+```
+

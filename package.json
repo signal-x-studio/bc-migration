@@ -13,6 +13,7 @@
     "assess": "tsx src/cli.ts assess",
     "migrate": "tsx src/cli.ts migrate",
     "validate": "tsx src/cli.ts validate",
+    "validate-target": "tsx src/cli.ts validate-target",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
@@ -30,7 +31,6 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.24.1",
     "@woocommerce/woocommerce-rest-api": "^1.0.2",
     "axios": "^1.13.2",
     "bottleneck": "^2.19.5",
@@ -46,13 +46,12 @@
   "devDependencies": {
     "@faker-js/faker": "^10.1.0",
     "@types/cli-progress": "^3.11.6",
-    "@types/marked": "^5.0.2",
     "@types/node": "^22.10.2",
     "@vitest/coverage-v8": "^2.1.8",
     "gray-matter": "^4.0.3",
-    "marked": "^17.0.1",
-    "sharp": "^0.34.5",
-    "tsx": "^4.19.2",
+    "tsx": "^4.21.0",
+    "typedoc": "^0.28.15",
+    "typedoc-plugin-markdown": "^4.9.0",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"
   }

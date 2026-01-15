@@ -1,0 +1,28 @@
+---
+title: "WCCustomer"
+description: "WCCustomer"
+category: "reference"
+order: 300
+section: "api"
+---
+
+# WCCustomer
+
+## Properties
+
+| Name | Type | Description |
+|------|------|-------------|
+| `id` | `number` | - |
+| `date_created` | `string` | - |
+| `date_modified` | `string` | - |
+| `email` | `string` | - |
+| `first_name` | `string` | - |
+| `last_name` | `string` | - |
+| `role` | `string` | - |
+| `username` | `string` | - |
+| `billing` | `WCAddress` | - |
+| `shipping` | `Omit<WCAddress, "email" | "phone">` | - |
+| `is_paying_customer` | `boolean` | - |
+| `avatar_url` | `string` | - |
+| `meta_data` | `WCMetaData[]` | - |
+

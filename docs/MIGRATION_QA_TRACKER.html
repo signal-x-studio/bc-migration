@@ -1,0 +1,2447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Migration Q&A Tracker | BC Migration</title>
+    <style>
+        :root {
+            --bc-primary: #34313f;
+            --bc-accent: #5c6ac4;
+            --bc-success: #28a745;
+            --bc-warning: #ffc107;
+            --bc-danger: #dc3545;
+            --bc-info: #17a2b8;
+            --bc-light: #f8f9fa;
+            --bc-border: #e0e0e0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bc-light);
+            color: var(--bc-primary);
+            line-height: 1.6;
+            padding-bottom: 70px;
+        }
+
+        /* Bottom Sticky Navigation */
+        .sticky-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bc-primary); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); z-index: 1000; }
+        .sticky-nav a { color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 0.85rem; transition: background 0.2s; }
+        .sticky-nav a:hover { background: rgba(255,255,255,0.15); }
+        .sticky-nav .nav-center { font-size: 0.75rem; color: rgba(255,255,255,0.7); }
+        .sticky-nav .nav-center select { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 6px 10px; border-radius: 4px; font-size: 0.8rem; margin-left: 8px; }
+        .sticky-nav .nav-center select option { background: var(--bc-primary); }
+        @media (max-width: 768px) { .sticky-nav .nav-center { display: none; } }
+
+        .header {
+            background: linear-gradient(135deg, var(--bc-primary) 0%, #4a4458 100%);
+            color: white;
+            padding: 40px;
+        }
+
+        .header-content { max-width: 1400px; margin: 0 auto; }
+        .back-link { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.9rem; display: inline-block; margin-bottom: 15px; }
+        .back-link:hover { color: white; }
+        .header h1 { font-size: 2rem; margin-bottom: 10px; }
+        .header .subtitle { color: white; font-size: 1.1rem; }
+        .header .meta { margin-top: 15px; font-size: 0.85rem; opacity: 0.7; }
+
+        /* Main Layout */
+        .main-layout {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            gap: 30px;
+            padding: 30px 40px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-layout { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+
+        .sidebar-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header {
+            background: var(--bc-primary);
+            color: white;
+            padding: 12px 16px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .category-nav {
+            padding: 8px 0;
+        }
+
+        .category-nav-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 16px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .category-nav-item:hover {
+            background: var(--bc-light);
+            border-left-color: var(--bc-accent);
+        }
+
+        .category-nav-item.active {
+            background: #eef2ff;
+            border-left-color: var(--bc-accent);
+            color: var(--bc-accent);
+            font-weight: 600;
+        }
+
+        .category-nav-item .count {
+            background: var(--bc-light);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        /* Stats Summary in Sidebar */
+        .stats-mini {
+            padding: 16px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 0.85rem;
+            border-bottom: 1px solid var(--bc-border);
+        }
+
+        .stat-row:last-child { border-bottom: none; }
+        .stat-row .label { color: #666; }
+        .stat-row .value { font-weight: 600; }
+        .stat-row .value.open { color: var(--bc-danger); }
+        .stat-row .value.pending { color: #d97706; }
+        .stat-row .value.answered { color: var(--bc-success); }
+
+        /* Main Content */
+        .main-content { min-width: 0; }
+
+        /* Filter Bar */
+        .filter-bar {
+            background: white;
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-group label {
+            font-size: 0.8rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid var(--bc-border);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            background: white;
+            cursor: pointer;
+            min-width: 140px;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--bc-accent);
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 8px 12px 8px 36px;
+            border: 1px solid var(--bc-border);
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--bc-accent);
+        }
+
+        .search-box::before {
+            content: "🔍";
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.8rem;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 4px;
+            background: var(--bc-light);
+            padding: 4px;
+            border-radius: 6px;
+        }
+
+        .view-btn {
+            padding: 6px 12px;
+            border: none;
+            background: transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .view-btn.active {
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* Results Info */
+        .results-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .clear-filters {
+            color: var(--bc-accent);
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .clear-filters:hover { text-decoration: underline; }
+
+        /* Card View Styles */
+        .questions-container.card-view .question-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border-left: 4px solid var(--bc-border);
+        }
+
+        .questions-container.card-view .question-card[data-status="open"] { border-left-color: var(--bc-danger); }
+        .questions-container.card-view .question-card[data-status="pending"] { border-left-color: var(--bc-warning); }
+        .questions-container.card-view .question-card[data-status="answered"] { border-left-color: var(--bc-success); }
+        .questions-container.card-view .question-card[data-status="deferred"] { border-left-color: var(--bc-accent); }
+
+        .question-header {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .question-id {
+            font-family: monospace;
+            font-size: 0.75rem;
+            background: var(--bc-light);
+            padding: 3px 8px;
+            border-radius: 4px;
+            color: #666;
+        }
+
+        .category-tag {
+            font-size: 0.7rem;
+            padding: 3px 10px;
+            border-radius: 10px;
+            background: #f3e8ff;
+            color: #7c3aed;
+        }
+
+        .status-badge {
+            font-size: 0.7rem;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-badge.open { background: #fee2e2; color: #dc2626; }
+        .status-badge.pending { background: #fef3c7; color: #d97706; }
+        .status-badge.answered { background: #d1fae5; color: #059669; }
+        .status-badge.deferred { background: #e0e7ff; color: #4f46e5; }
+
+        .priority-badge {
+            font-size: 0.7rem;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .priority-badge.critical { background: var(--bc-danger); color: white; }
+        .priority-badge.high { background: #f97316; color: white; }
+        .priority-badge.medium { background: var(--bc-warning); color: #000; }
+        .priority-badge.low { background: #e5e7eb; color: #374151; }
+
+        .source-badge {
+            font-size: 0.7rem;
+            padding: 3px 10px;
+            border-radius: 10px;
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .question-text {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--bc-primary);
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .question-context {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 12px;
+            padding-left: 15px;
+            border-left: 3px solid var(--bc-border);
+        }
+
+        .question-answer {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 12px;
+        }
+
+        .question-answer h4 {
+            font-size: 0.8rem;
+            color: #059669;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .question-answer p { font-size: 0.9rem; color: #166534; }
+
+        .question-notes {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 12px;
+        }
+
+        .question-notes h4 {
+            font-size: 0.8rem;
+            color: #d97706;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .question-notes p, .question-notes ul { font-size: 0.9rem; color: #92400e; }
+        .question-notes ul { margin-left: 20px; margin-top: 5px; }
+
+        .owner-tag {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .owner-tag strong { color: var(--bc-primary); }
+
+        /* Table View Styles */
+        .questions-container.table-view {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+
+        .questions-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .questions-table th {
+            background: var(--bc-primary);
+            color: white;
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .questions-table th:hover { background: #4a4458; }
+        .questions-table th .sort-icon { margin-left: 4px; opacity: 0.5; }
+        .questions-table th.sorted .sort-icon { opacity: 1; }
+
+        .questions-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--bc-border);
+            vertical-align: top;
+        }
+
+        .questions-table tr:hover td { background: #fafafa; }
+        .questions-table tr:last-child td { border-bottom: none; }
+
+        .questions-table .question-cell {
+            max-width: 400px;
+        }
+
+        .questions-table .question-cell .q-text {
+            font-weight: 600;
+            color: var(--bc-primary);
+            margin-bottom: 4px;
+            cursor: pointer;
+        }
+
+        .questions-table .question-cell .q-text:hover { color: var(--bc-accent); }
+
+        .questions-table .question-cell .q-context {
+            font-size: 0.8rem;
+            color: #888;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Category Section Headers (for card view grouping) */
+        .category-section-header {
+            background: var(--bc-primary);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin: 24px 0 12px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .category-section-header:first-child { margin-top: 0; }
+
+        .category-section-header h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .category-section-header .badge {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+
+        /* Question Hidden State */
+        .question-card.hidden,
+        .questions-table tr.hidden,
+        .category-section-header.hidden {
+            display: none !important;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .main-layout { padding: 20px; }
+            .filter-bar { flex-direction: column; align-items: stretch; }
+            .filter-group { width: 100%; }
+            .filter-select { width: 100%; }
+            .search-box { width: 100%; }
+            .view-toggle { justify-content: center; }
+            .questions-table { font-size: 0.75rem; }
+            .questions-table th, .questions-table td { padding: 8px 10px; }
+        }
+
+        /* Expandable Row Details (Table View) */
+        .row-details {
+            display: none;
+            background: #fafafa;
+        }
+
+        .row-details.expanded { display: table-row; }
+
+        .row-details td {
+            padding: 20px;
+            border-bottom: 2px solid var(--bc-border);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="index.html" class="back-link">← Back to Index</a>
+            <h1>Migration Q&A Tracker</h1>
+            <p class="subtitle">Open questions, pending clarifications, and answered items across the WooCommerce to BigCommerce migration</p>
+            <p class="meta">Last Updated: December 30, 2025 | 101 questions across 15 categories</p>
+        </div>
+    </header>
+
+    <div class="main-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-card">
+                <div class="sidebar-header">Summary</div>
+                <div class="stats-mini">
+                    <div class="stat-row">
+                        <span class="label">Open</span>
+                        <span class="value open">87</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="label">Pending</span>
+                        <span class="value pending">8</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="label">Answered</span>
+                        <span class="value answered">6</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="label">Total</span>
+                        <span class="value">101</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-card">
+                <div class="sidebar-header">Categories</div>
+                <nav class="category-nav">
+                    <div class="category-nav-item active" data-category="all">
+                        <span>All Questions</span>
+                        <span class="count">101</span>
+                    </div>
+                    <div class="category-nav-item" data-category="strategic">
+                        <span>Strategic & Partnership</span>
+                        <span class="count">6</span>
+                    </div>
+                    <div class="category-nav-item" data-category="payment">
+                        <span>Payment Gateway</span>
+                        <span class="count">5</span>
+                    </div>
+                    <div class="category-nav-item" data-category="integration">
+                        <span>Plugin & Integration</span>
+                        <span class="count">8</span>
+                    </div>
+                    <div class="category-nav-item" data-category="technical">
+                        <span>Technical Architecture</span>
+                        <span class="count">7</span>
+                    </div>
+                    <div class="category-nav-item" data-category="commercial">
+                        <span>Commercial & Business</span>
+                        <span class="count">4</span>
+                    </div>
+                    <div class="category-nav-item" data-category="merchant">
+                        <span>Merchant Experience</span>
+                        <span class="count">4</span>
+                    </div>
+                    <div class="category-nav-item" data-category="cutover">
+                        <span>Migration Cutover</span>
+                        <span class="count">18</span>
+                    </div>
+                    <div class="category-nav-item" data-category="data">
+                        <span>Data & Compliance</span>
+                        <span class="count">4</span>
+                    </div>
+                    <div class="category-nav-item" data-category="operations">
+                        <span>Operations & Scale</span>
+                        <span class="count">4</span>
+                    </div>
+                    <div class="category-nav-item" data-category="gaps">
+                        <span>Feature Gaps</span>
+                        <span class="count">8</span>
+                    </div>
+                    <div class="category-nav-item" data-category="market">
+                        <span>Competitive & Market</span>
+                        <span class="count">3</span>
+                    </div>
+                    <div class="category-nav-item" data-category="b2b">
+                        <span>B2B Migration</span>
+                        <span class="count">6</span>
+                    </div>
+                    <div class="category-nav-item" data-category="scale">
+                        <span>Store Size & Scale</span>
+                        <span class="count">5</span>
+                    </div>
+                    <div class="category-nav-item" data-category="tco">
+                        <span>TCO & Cost</span>
+                        <span class="count">5</span>
+                    </div>
+                    <div class="category-nav-item" data-category="performance">
+                        <span>Performance</span>
+                        <span class="count">5</span>
+                    </div>
+                    <div class="category-nav-item" data-category="persona">
+                        <span>Persona Selection</span>
+                        <span class="count">4</span>
+                    </div>
+                    <div class="category-nav-item" data-category="evaluation">
+                        <span>Evaluation Criteria</span>
+                        <span class="count">5</span>
+                    </div>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Filter Bar -->
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <label>Status:</label>
+                    <select class="filter-select" id="statusFilter">
+                        <option value="all">All Statuses</option>
+                        <option value="open">Open (87)</option>
+                        <option value="pending">Pending (8)</option>
+                        <option value="answered">Answered (6)</option>
+                        <option value="deferred">Deferred (2)</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Priority:</label>
+                    <select class="filter-select" id="priorityFilter">
+                        <option value="all">All Priorities</option>
+                        <option value="critical">Critical</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Source:</label>
+                    <select class="filter-select" id="sourceFilter">
+                        <option value="all">All Sources</option>
+                        <option value="wpe">Jordan Sim / WPE</option>
+                        <option value="granite">Granite Analysis</option>
+                        <option value="internal">Internal Analysis</option>
+                    </select>
+                </div>
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Search questions...">
+                </div>
+                <div class="view-toggle">
+                    <button class="view-btn active" data-view="card">Cards</button>
+                    <button class="view-btn" data-view="table">Table</button>
+                </div>
+            </div>
+
+            <!-- Results Info -->
+            <div class="results-info">
+                <span id="resultsCount">Showing 101 questions</span>
+                <span class="clear-filters" id="clearFilters" style="display: none;">Clear all filters</span>
+            </div>
+
+            <!-- Card View -->
+            <div class="questions-container card-view" id="cardView">
+                <!-- Strategic & Partnership -->
+                <div class="category-section-header" data-category="strategic">
+                    <h3>Strategic & Partnership Questions</h3>
+                    <span class="badge">6 items</span>
+                </div>
+
+                <div class="question-card" data-id="STR-001" data-category="strategic" data-status="open" data-priority="critical" data-source="wpe">
+                    <div class="question-header">
+                        <span class="question-id">STR-001</span>
+                        <span class="category-tag">Strategic</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge critical">Critical</span>
+                        <span class="source-badge">Jordan Sim / WPE</span>
+                    </div>
+                    <div class="question-text">What is "Artemis" exactly? Is it a program codename, the data migration tool name, or a broader initiative?</div>
+                    <div class="question-context">Understanding the scope of Artemis is critical for positioning our approach. If Artemis is a full migration program, we need to understand where our "Keep WordPress" approach fits.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> WP Engine / BigCommerce Partnership Team</div>
+                </div>
+
+                <div class="question-card" data-id="STR-002" data-category="strategic" data-status="open" data-priority="critical" data-source="wpe">
+                    <div class="question-header">
+                        <span class="question-id">STR-002</span>
+                        <span class="category-tag">Strategic</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge critical">Critical</span>
+                        <span class="source-badge">Jordan Sim / WPE</span>
+                    </div>
+                    <div class="question-text">Why wasn't BC4WP (BigCommerce for WordPress) recommended as a possible migration path forward?</div>
+                    <div class="question-context">This is a critical gap. BC4WP enables the "Keep WordPress" approach that preserves SEO and content investment. Understanding why it was excluded from official recommendations affects our positioning.</div>
+                    <div class="question-notes">
+                        <h4>Analysis Notes</h4>
+                        <ul>
+                            <li>BC4WP is still actively maintained (v5.1.2, December 2025)</li>
+                            <li>User reports indicate reliability issues at scale</li>
+                            <li>Our BC-Bridge approach addresses BC4WP limitations while retaining WordPress</li>
+                            <li>This gap creates opportunity for our differentiated approach</li>
+                        </ul>
+                    </div>
+                    <div class="owner-tag"><strong>Owner:</strong> Migration Architecture Team</div>
+                </div>
+
+                <div class="question-card" data-id="STR-003" data-category="strategic" data-status="pending" data-priority="high" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">STR-003</span>
+                        <span class="category-tag">Strategic</span>
+                        <span class="status-badge pending">Pending</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Analysis</span>
+                    </div>
+                    <div class="question-text">What is the official WP Engine/BigCommerce position on merchants who want to keep WordPress as their frontend?</div>
+                    <div class="question-context">The Artemis slides suggest headless Catalyst is the recommended path, but many merchants have significant WordPress investments. Clarity on supported paths is needed.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> WP Engine Partnership Team</div>
+                </div>
+
+                <div class="question-card" data-id="STR-004" data-category="strategic" data-status="open" data-priority="medium" data-source="wpe">
+                    <div class="question-header">
+                        <span class="question-id">STR-004</span>
+                        <span class="category-tag">Strategic</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Jordan Sim / WPE</span>
+                    </div>
+                    <div class="question-text">Review and validate the Shared Outcomes and Shared Success Metrics proposed for the migration partnership.</div>
+                    <div class="question-context">WPE has proposed specific outcomes (content/commerce unification, category leadership, multi-year strategy) and metrics (adoption, satisfaction, advocacy). These need stakeholder review.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Executive Sponsors</div>
+                </div>
+
+                <div class="question-card" data-id="STR-005" data-category="strategic" data-status="answered" data-priority="high" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">STR-005</span>
+                        <span class="category-tag">Strategic</span>
+                        <span class="status-badge answered">Answered</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Analysis</span>
+                    </div>
+                    <div class="question-text">How does BigCommerce Catalyst compare to our WordPress-retention approach?</div>
+                    <div class="question-answer">
+                        <h4>Answer</h4>
+                        <p>Catalyst is BigCommerce's Next.js headless framework - a complete frontend replacement. Our approach differs by retaining WordPress as the frontend, using BigCommerce purely for commerce backend. See COMPETITIVE_LANDSCAPE.html for full comparison. Both are valid paths for different merchant profiles.</p>
+                    </div>
+                    <div class="owner-tag"><strong>Owner:</strong> Architecture Team | <strong>Resolved:</strong> Dec 2025</div>
+                </div>
+
+                <div class="question-card" data-id="STR-006" data-category="strategic" data-status="open" data-priority="high" data-source="wpe">
+                    <div class="question-header">
+                        <span class="question-id">STR-006</span>
+                        <span class="category-tag">Strategic</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Jordan Sim / WPE</span>
+                    </div>
+                    <div class="question-text">Is "fine-tune the storefront" (Step 6) referring to WordPress as the UI layer or a complete headless implementation?</div>
+                    <div class="question-context">Slide 8 mentions engaging agency partners to fine-tune the storefront. Clarification needed on whether this assumes WordPress frontend or Catalyst headless.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> WP Engine Technical Team</div>
+                </div>
+
+                <!-- Payment Gateway & Transactions -->
+                <div class="category-section-header" data-category="payment">
+                    <h3>Payment Gateway & Transactions</h3>
+                    <span class="badge">5 items</span>
+                </div>
+
+                <div class="question-card" data-id="PAY-001" data-category="payment" data-status="pending" data-priority="high" data-source="wpe">
+                    <div class="question-header">
+                        <span class="question-id">PAY-001</span>
+                        <span class="category-tag">Payment</span>
+                        <span class="status-badge pending">Pending</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Jordan Sim / WPE</span>
+                    </div>
+                    <div class="question-text">What Stripe versions are WooCommerce customers using, and what is the distribution by site count, GMV, and country?</div>
+                    <div class="question-context">Need breakdown across Stripe v1, v2, UPE, and OCS versions. This data informs migration complexity and payment continuity planning.</div>
+                    <div class="question-notes">
+                        <h4>Data Request</h4>
+                        <ul>
+                            <li>Site count per version</li>
+                            <li>GMV TTM per version</li>
+                            <li>Country distribution</li>
+                        </ul>
+                    </div>
+                    <div class="owner-tag"><strong>Owner:</strong> Gretchen West, Mitch McKay (BigCommerce)</div>
+                </div>
+
+                <div class="question-card" data-id="PAY-002" data-category="payment" data-status="pending" data-priority="high" data-source="wpe">
+                    <div class="question-header">
+                        <span class="question-id">PAY-002</span>
+                        <span class="category-tag">Payment</span>
+                        <span class="status-badge pending">Pending</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Jordan Sim / WPE</span>
+                    </div>
+                    <div class="question-text">What PayPal products are WooCommerce customers connected to, with version/site/GMV/country breakdown?</div>
+                    <div class="question-context">Need data on PayPal Express Checkout, Complete Payments, Braintree usage. Critical for ensuring payment continuity during migration.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Gretchen West, Mitch McKay (BigCommerce)</div>
+                </div>
+
+                <div class="question-card" data-id="PAY-003" data-category="payment" data-status="pending" data-priority="high" data-source="wpe">
+                    <div class="question-header">
+                        <span class="question-id">PAY-003</span>
+                        <span class="category-tag">Payment</span>
+                        <span class="status-badge pending">Pending</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Jordan Sim / WPE</span>
+                    </div>
+                    <div class="question-text">What Square versions are in use, and how many merchants use Square POS (omnichannel) vs WooCommerce-only?</div>
+                    <div class="question-context">Square POS integration is a critical differentiator. Understanding omnichannel usage affects migration approach for retail merchants.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Gretchen West, Mitch McKay (BigCommerce)</div>
+                </div>
+
+                <div class="question-card" data-id="PAY-004" data-category="payment" data-status="pending" data-priority="medium" data-source="wpe">
+                    <div class="question-header">
+                        <span class="question-id">PAY-004</span>
+                        <span class="category-tag">Payment</span>
+                        <span class="status-badge pending">Pending</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Jordan Sim / WPE</span>
+                    </div>
+                    <div class="question-text">What Authorize.Net versions are in use with site count, GMV, and country distribution?</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Gretchen West, Mitch McKay (BigCommerce)</div>
+                </div>
+
+                <div class="question-card" data-id="PAY-005" data-category="payment" data-status="open" data-priority="high" data-source="wpe">
+                    <div class="question-header">
+                        <span class="question-id">PAY-005</span>
+                        <span class="category-tag">Payment</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Jordan Sim / WPE</span>
+                    </div>
+                    <div class="question-text">Does WP Engine/WooCommerce have visibility into negotiated payment processor rates? Can BigCommerce offer better rates as a migration incentive?</div>
+                    <div class="question-context">If we can access current merchant rates, BigCommerce could potentially offer competitive rates as part of migration package.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> BigCommerce Commercial Team</div>
+                </div>
+
+                <!-- Migration Cutover & Transition -->
+                <div class="category-section-header" data-category="cutover">
+                    <h3>Migration Cutover & Transition</h3>
+                    <span class="badge">18 items • Critical Operational Gap</span>
+                </div>
+
+                <div class="question-card" data-id="CUT-001" data-category="cutover" data-status="open" data-priority="critical" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">CUT-001</span>
+                        <span class="category-tag">Cutover</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge critical">Critical</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">What happens to orders that are in-flight (placed but not yet fulfilled) at the time of migration cutover?</div>
+                    <div class="question-context">Orders in WooCommerce that are processing, awaiting shipment, or partially fulfilled. Do we migrate these to BigCommerce mid-workflow? Complete fulfillment in WooCommerce first? Split responsibility?</div>
+                    <div class="question-notes">
+                        <h4>Scenarios to Address</h4>
+                        <ul>
+                            <li>Orders awaiting payment confirmation</li>
+                            <li>Orders in "processing" status</li>
+                            <li>Orders awaiting shipment</li>
+                            <li>Partially shipped orders (multi-item)</li>
+                            <li>Orders with pending refunds/disputes</li>
+                            <li>Backorders awaiting inventory</li>
+                        </ul>
+                    </div>
+                    <div class="owner-tag"><strong>Owner:</strong> Migration Architecture Team</div>
+                </div>
+
+                <div class="question-card" data-id="CUT-002" data-category="cutover" data-status="open" data-priority="critical" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">CUT-002</span>
+                        <span class="category-tag">Cutover</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge critical">Critical</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">Is there a dual/parallel commerce period where both WooCommerce and BigCommerce accept orders simultaneously?</div>
+                    <div class="question-context">Many enterprise migrations run both systems in parallel to reduce risk. If so: How long? How do we prevent inventory oversell? How do we reconcile orders? Which system is source of truth during overlap?</div>
+                    <div class="question-notes">
+                        <h4>Parallel Operation Considerations</h4>
+                        <ul>
+                            <li>Inventory synchronization between platforms</li>
+                            <li>Order routing during overlap period</li>
+                            <li>Customer account handling (which login works?)</li>
+                            <li>Payment gateway configuration (both active?)</li>
+                            <li>Reporting reconciliation post-cutover</li>
+                        </ul>
+                    </div>
+                    <div class="owner-tag"><strong>Owner:</strong> Migration Architecture Team</div>
+                </div>
+
+                <div class="question-card" data-id="CUT-003" data-category="cutover" data-status="open" data-priority="critical" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">CUT-003</span>
+                        <span class="category-tag">Cutover</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge critical">Critical</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">What is the inventory synchronization strategy during migration?</div>
+                    <div class="question-context">Inventory in WooCommerce vs BigCommerce must stay in sync until cutover. Real-time sync? Scheduled sync? Freeze period with no sales? What about inventory reserved for in-cart sessions?</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Migration Architecture Team</div>
+                </div>
+
+                <div class="question-card" data-id="CUT-004" data-category="cutover" data-status="open" data-priority="high" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">CUT-004</span>
+                        <span class="category-tag">Cutover</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">How do we handle active shopping carts at cutover time?</div>
+                    <div class="question-context">Customers with items in cart when WooCommerce is disabled. Cart data doesn't migrate. Session handling? Cart recovery emails? Customer communication strategy?</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Customer Experience Team</div>
+                </div>
+
+                <div class="question-card" data-id="CUT-005" data-category="cutover" data-status="open" data-priority="critical" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">CUT-005</span>
+                        <span class="category-tag">Cutover</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge critical">Critical</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">What is the subscription continuity strategy for recurring billing?</div>
+                    <div class="question-context">Active subscriptions (WooCommerce Subscriptions, ReCharge) need seamless continuity. Next billing dates, payment methods on file, subscription modifications in progress. How do we prevent double-billing or missed renewals?</div>
+                    <div class="question-notes">
+                        <h4>Subscription Scenarios</h4>
+                        <ul>
+                            <li>Subscriptions renewing during migration window</li>
+                            <li>Subscriptions with pending modifications</li>
+                            <li>Failed renewal retry queues</li>
+                            <li>Customers with paused subscriptions</li>
+                            <li>Subscription with upcoming cancellation date</li>
+                        </ul>
+                    </div>
+                    <div class="owner-tag"><strong>Owner:</strong> Subscriptions / Migration Architecture</div>
+                </div>
+
+                <div class="question-card" data-id="CUT-006" data-category="cutover" data-status="open" data-priority="high" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">CUT-006</span>
+                        <span class="category-tag">Cutover</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">How do we handle gift cards and store credit balances?</div>
+                    <div class="question-context">Outstanding gift card balances, store credit from returns, loyalty points. Legal liability to honor these. Migration path for balance data? Verification process?</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Migration Architecture Team</div>
+                </div>
+
+                <div class="question-card" data-id="CUT-007" data-category="cutover" data-status="open" data-priority="high" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">CUT-007</span>
+                        <span class="category-tag">Cutover</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">What is the coupon/discount code migration and expiration strategy?</div>
+                    <div class="question-context">Active coupon codes, usage limits, customer-specific discounts, expiration dates. Do codes need to work identically in both systems? How do we handle codes distributed in print/email that reference WooCommerce?</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Migration Architecture Team</div>
+                </div>
+
+                <div class="question-card" data-id="CUT-008" data-category="cutover" data-status="open" data-priority="high" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">CUT-008</span>
+                        <span class="category-tag">Cutover</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">How do we handle pending refunds and chargebacks during migration?</div>
+                    <div class="question-context">Open refund requests, pending chargebacks, disputes in process. Which system handles resolution? How do we track through to completion? Payment processor coordination?</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Finance / Migration Architecture</div>
+                </div>
+
+                <div class="question-card" data-id="CUT-009" data-category="cutover" data-status="open" data-priority="high" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">CUT-009</span>
+                        <span class="category-tag">Cutover</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">What is the delta sync strategy for data changes during migration?</div>
+                    <div class="question-context">Initial data export happens at T-0. But orders/customers/products change between export and cutover. How do we capture changes? Incremental sync? Change data capture? What's the data freeze window?</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Migration Architecture Team</div>
+                </div>
+
+                <div class="question-card" data-id="CUT-010" data-category="cutover" data-status="open" data-priority="medium" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">CUT-010</span>
+                        <span class="category-tag">Cutover</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">How do we communicate the migration to end customers?</div>
+                    <div class="question-context">Customer-facing communication plan. Password reset requirements, account access changes, order history visibility, new checkout experience. Pre-migration, during, and post-migration messaging.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Customer Communications / Marketing</div>
+                </div>
+
+                <div class="question-card" data-id="CUT-011" data-category="cutover" data-status="open" data-priority="high" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">CUT-011</span>
+                        <span class="category-tag">Cutover</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">What webhook/integration reconfiguration is required at cutover?</div>
+                    <div class="question-context">Third-party integrations (ERP, shipping, marketing) pointing to WooCommerce endpoints. Coordination with integration partners. DNS-style cutover or parallel configuration? Testing procedures?</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Integration Architecture Team</div>
+                </div>
+
+                <div class="question-card" data-id="CUT-012" data-category="cutover" data-status="open" data-priority="critical" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">CUT-012</span>
+                        <span class="category-tag">Cutover</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge critical">Critical</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">What is the payment gateway transition procedure?</div>
+                    <div class="question-context">Stripe/PayPal/etc. credentials, saved payment methods (vaulted cards), recurring billing tokens. Do tokens migrate? New customer authentication required? PCI scope during transition?</div>
+                    <div class="question-notes">
+                        <h4>Payment Considerations</h4>
+                        <ul>
+                            <li>Vaulted card token migration (if possible)</li>
+                            <li>Payment gateway account continuity</li>
+                            <li>3DS/SCA re-authentication requirements</li>
+                            <li>Subscription payment method updates</li>
+                            <li>Refund processing for pre-migration orders</li>
+                        </ul>
+                    </div>
+                    <div class="owner-tag"><strong>Owner:</strong> Payments / Security Team</div>
+                </div>
+
+                <div class="question-card" data-id="CUT-013" data-category="cutover" data-status="open" data-priority="high" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">CUT-013</span>
+                        <span class="category-tag">Cutover</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">How do we handle fulfillment partner/3PL transitions?</div>
+                    <div class="question-context">Fulfillment centers receiving orders from WooCommerce. API endpoint changes, order format changes, inventory feed updates. Coordination timeline with 3PL partners?</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Operations / Integration Team</div>
+                </div>
+
+                <div class="question-card" data-id="CUT-014" data-category="cutover" data-status="open" data-priority="medium" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">CUT-014</span>
+                        <span class="category-tag">Cutover</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">What is the email/transactional messaging cutover plan?</div>
+                    <div class="question-context">Order confirmations, shipping notifications, account emails. WooCommerce email templates vs BigCommerce. Email service provider configuration (Klaviyo, Mailchimp). Sender domain/reputation continuity?</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Marketing / Email Team</div>
+                </div>
+
+                <div class="question-card" data-id="CUT-015" data-category="cutover" data-status="open" data-priority="high" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">CUT-015</span>
+                        <span class="category-tag">Cutover</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">How do we validate data integrity post-migration?</div>
+                    <div class="question-context">Product counts, customer records, order totals, inventory levels. Reconciliation process? Acceptable variance thresholds? Automated validation vs manual spot-checks? Sign-off procedure?</div>
+                    <div class="owner-tag"><strong>Owner:</strong> QA / Migration Architecture</div>
+                </div>
+
+                <div class="question-card" data-id="CUT-016" data-category="cutover" data-status="open" data-priority="high" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">CUT-016</span>
+                        <span class="category-tag">Cutover</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">What is the go/no-go decision framework for cutover?</div>
+                    <div class="question-context">Criteria that must be met before flipping the switch. Stakeholder sign-offs required. What conditions trigger abort? Who has authority to make the call? Communication chain?</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Program Management</div>
+                </div>
+
+                <div class="question-card" data-id="CUT-017" data-category="cutover" data-status="open" data-priority="high" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">CUT-017</span>
+                        <span class="category-tag">Cutover</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">What is the post-cutover monitoring and war room plan?</div>
+                    <div class="question-context">First 24/48/72 hours after go-live. Monitoring dashboards, on-call rotation, escalation procedures. Success metrics to track. When do we declare migration "complete"?</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Operations / Support</div>
+                </div>
+
+                <div class="question-card" data-id="CUT-018" data-category="cutover" data-status="open" data-priority="medium" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">CUT-018</span>
+                        <span class="category-tag">Cutover</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">What is the staff training and readiness timeline?</div>
+                    <div class="question-context">Customer service, fulfillment, marketing teams need BigCommerce training. Training completion requirements before cutover. Parallel system access during learning period?</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Training / Customer Success</div>
+                </div>
+
+                <!-- Data & Compliance -->
+                <div class="category-section-header" data-category="data">
+                    <h3>Data & Compliance</h3>
+                    <span class="badge">4 items</span>
+                </div>
+
+                <div class="question-card" data-id="DATA-001" data-category="data" data-status="open" data-priority="high" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">DATA-001</span>
+                        <span class="category-tag">Data</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">What is the data retention policy for WooCommerce data post-migration?</div>
+                    <div class="question-context">How long do we keep WooCommerce database as fallback? When is it safe to delete? Who is responsible for the legacy data? Storage cost implications?</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Data Governance / Legal</div>
+                </div>
+
+                <div class="question-card" data-id="DATA-002" data-category="data" data-status="open" data-priority="high" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">DATA-002</span>
+                        <span class="category-tag">Data</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">How do we handle GDPR/CCPA data portability requests during migration?</div>
+                    <div class="question-context">During migration, customer data exists in both WooCommerce and BigCommerce. How do we respond to data subject requests? Which system is the source of truth?</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Legal / Compliance</div>
+                </div>
+
+                <div class="question-card" data-id="DATA-003" data-category="data" data-status="open" data-priority="critical" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">DATA-003</span>
+                        <span class="category-tag">Data</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge critical">Critical</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">What about PCI compliance during the payment transition?</div>
+                    <div class="question-context">Payment credentials, stored cards, and transaction data handling between WooCommerce payment gateways and BigCommerce. PCI DSS scope implications during dual-system operation.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Security / Compliance</div>
+                </div>
+
+                <div class="question-card" data-id="DATA-004" data-category="data" data-status="open" data-priority="high" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">DATA-004</span>
+                        <span class="category-tag">Data</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">How do we migrate customer passwords?</div>
+                    <div class="question-context">WooCommerce uses WordPress password hashing (phpass). BigCommerce uses different hashing. Options: force password reset, hash migration, SSO bridge. Customer experience implications.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Migration Architecture Team</div>
+                </div>
+
+                <!-- Plugin & Integration -->
+                <div class="category-section-header" data-category="integration">
+                    <h3>Plugin & Integration Compatibility</h3>
+                    <span class="badge">8 items</span>
+                </div>
+
+                <div class="question-card" data-id="INT-001" data-category="integration" data-status="open" data-priority="high" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">INT-001</span>
+                        <span class="category-tag">Integration</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">What is the complete list of WooCommerce plugins in active use across the merchant base?</div>
+                    <div class="question-context">Need comprehensive inventory of active plugins to assess migration complexity and identify critical functionality that needs BigCommerce alternatives.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> WP Engine Technical Team</div>
+                </div>
+
+                <div class="question-card" data-id="INT-002" data-category="integration" data-status="open" data-priority="high" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">INT-002</span>
+                        <span class="category-tag">Integration</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">Which WooCommerce plugins have direct BigCommerce app equivalents?</div>
+                    <div class="question-context">Mapping exercise needed to identify 1:1 replacements vs functionality gaps requiring custom development or workarounds.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Migration Architecture Team</div>
+                </div>
+
+                <div class="question-card" data-id="INT-003" data-category="integration" data-status="open" data-priority="high" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">INT-003</span>
+                        <span class="category-tag">Integration</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">What ERP/accounting integrations are currently in use (QuickBooks, Xero, NetSuite)?</div>
+                    <div class="question-context">Financial system integrations are critical for business continuity. Need to validate BigCommerce connector availability and data mapping compatibility.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Integration Architecture Team</div>
+                </div>
+
+                <div class="question-card" data-id="INT-004" data-category="integration" data-status="open" data-priority="medium" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">INT-004</span>
+                        <span class="category-tag">Integration</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">What marketing automation platforms are integrated (Klaviyo, Mailchimp, HubSpot)?</div>
+                    <div class="question-context">Marketing integrations affect customer segmentation, email campaigns, and automation workflows. Need migration path for existing automations.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Marketing Technology Team</div>
+                </div>
+
+                <div class="question-card" data-id="INT-005" data-category="integration" data-status="open" data-priority="high" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">INT-005</span>
+                        <span class="category-tag">Integration</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">What shipping carrier integrations exist and what's the BigCommerce equivalent setup?</div>
+                    <div class="question-context">Shipping label generation, rate shopping, tracking integration. ShipStation, Shippo, EasyPost, native carrier integrations. Rate table migration.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Operations / Integration Team</div>
+                </div>
+
+                <div class="question-card" data-id="INT-006" data-category="integration" data-status="open" data-priority="medium" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">INT-006</span>
+                        <span class="category-tag">Integration</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">What inventory management systems are in use beyond WooCommerce native?</div>
+                    <div class="question-context">TradeGecko, Cin7, DEAR, custom solutions. Multi-location inventory, warehouse management integration requirements.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Operations Team</div>
+                </div>
+
+                <div class="question-card" data-id="INT-007" data-category="integration" data-status="open" data-priority="medium" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">INT-007</span>
+                        <span class="category-tag">Integration</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">What analytics/reporting tools are integrated beyond Google Analytics?</div>
+                    <div class="question-context">Custom dashboards, BI tools (Looker, Tableau), enhanced ecommerce tracking. Data continuity across migration for reporting.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Analytics Team</div>
+                </div>
+
+                <div class="question-card" data-id="INT-008" data-category="integration" data-status="open" data-priority="high" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">INT-008</span>
+                        <span class="category-tag">Integration</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">What custom WooCommerce hooks/filters are in use that need replication in BigCommerce?</div>
+                    <div class="question-context">Custom business logic implemented via WooCommerce hooks. Need inventory of customizations and BigCommerce webhook/script equivalent approach.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Development Team</div>
+                </div>
+
+                <!-- Technical Architecture -->
+                <div class="category-section-header" data-category="technical">
+                    <h3>Technical Architecture</h3>
+                    <span class="badge">7 items</span>
+                </div>
+
+                <div class="question-card" data-id="TECH-001" data-category="technical" data-status="answered" data-priority="high" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">TECH-001</span>
+                        <span class="category-tag">Technical</span>
+                        <span class="status-badge answered">Answered</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">What is the recommended frontend architecture: BC4WP, Catalyst, or WordPress headless?</div>
+                    <div class="question-answer">
+                        <h4>Answer</h4>
+                        <p>Three paths identified: (1) BC4WP for simple integrations, (2) Catalyst for new headless builds, (3) WordPress-retained headless for SEO/content-heavy sites. See COMPETITIVE_LANDSCAPE.html and PLATFORM_DECISION_RATIONALE.html for detailed comparison.</p>
+                    </div>
+                    <div class="owner-tag"><strong>Owner:</strong> Architecture Team | <strong>Resolved:</strong> Dec 2025</div>
+                </div>
+
+                <div class="question-card" data-id="TECH-002" data-category="technical" data-status="open" data-priority="high" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">TECH-002</span>
+                        <span class="category-tag">Technical</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">What is the GraphQL Storefront API coverage vs REST API for WordPress headless implementation?</div>
+                    <div class="question-context">Need to validate all required commerce operations are available via GraphQL for WordPress frontend. Identify any REST-only operations.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Development Team</div>
+                </div>
+
+                <div class="question-card" data-id="TECH-003" data-category="technical" data-status="open" data-priority="high" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">TECH-003</span>
+                        <span class="category-tag">Technical</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">What is the authentication/SSO strategy between WordPress and BigCommerce?</div>
+                    <div class="question-context">Customer login synchronization, JWT token management, session handling across domains. Single sign-on requirements.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Security / Architecture Team</div>
+                </div>
+
+                <div class="question-card" data-id="TECH-004" data-category="technical" data-status="open" data-priority="medium" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">TECH-004</span>
+                        <span class="category-tag">Technical</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">What caching strategy is needed for BigCommerce API responses in WordPress?</div>
+                    <div class="question-context">Product catalog caching, cart session handling, inventory real-time requirements. Cache invalidation strategy.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Development Team</div>
+                </div>
+
+                <div class="question-card" data-id="TECH-005" data-category="technical" data-status="open" data-priority="medium" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">TECH-005</span>
+                        <span class="category-tag">Technical</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">What is the URL/routing strategy for commerce pages in WordPress?</div>
+                    <div class="question-context">Product URLs, category pages, cart/checkout routing. WordPress rewrite rules, SEO-friendly URL maintenance.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Development / SEO Team</div>
+                </div>
+
+                <div class="question-card" data-id="TECH-006" data-category="technical" data-status="open" data-priority="high" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">TECH-006</span>
+                        <span class="category-tag">Technical</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">What is the multi-site/multi-store architecture for merchants with multiple storefronts?</div>
+                    <div class="question-context">WordPress multisite with BigCommerce multi-storefront. Channel management, shared vs separate catalogs, unified cart.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Architecture Team</div>
+                </div>
+
+                <div class="question-card" data-id="TECH-007" data-category="technical" data-status="open" data-priority="medium" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">TECH-007</span>
+                        <span class="category-tag">Technical</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">What is the error handling and fallback strategy for BigCommerce API failures?</div>
+                    <div class="question-context">Graceful degradation when BigCommerce is unavailable. Customer-facing error messages, retry logic, monitoring alerts.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Development / SRE Team</div>
+                </div>
+
+                <!-- Commercial & Business -->
+                <div class="category-section-header" data-category="commercial">
+                    <h3>Commercial & Business</h3>
+                    <span class="badge">4 items</span>
+                </div>
+
+                <div class="question-card" data-id="COM-001" data-category="commercial" data-status="open" data-priority="high" data-source="wpe">
+                    <div class="question-header">
+                        <span class="question-id">COM-001</span>
+                        <span class="category-tag">Commercial</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Jordan Sim / WPE</span>
+                    </div>
+                    <div class="question-text">What is the BigCommerce pricing structure for migrating WooCommerce merchants?</div>
+                    <div class="question-context">Standard pricing vs migration incentives. GMV-based tiers, transaction fees, API call limits. Competitive pricing against Shopify Plus.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> BigCommerce Commercial Team</div>
+                </div>
+
+                <div class="question-card" data-id="COM-002" data-category="commercial" data-status="open" data-priority="high" data-source="wpe">
+                    <div class="question-header">
+                        <span class="question-id">COM-002</span>
+                        <span class="category-tag">Commercial</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Jordan Sim / WPE</span>
+                    </div>
+                    <div class="question-text">Are there migration credits or implementation support packages available?</div>
+                    <div class="question-context">Migration cost offset programs, professional services credits, agency partner funding for implementation work.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> BigCommerce Partnership Team</div>
+                </div>
+
+                <div class="question-card" data-id="COM-003" data-category="commercial" data-status="open" data-priority="medium" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">COM-003</span>
+                        <span class="category-tag">Commercial</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">What is the contract structure for WP Engine + BigCommerce bundled offerings?</div>
+                    <div class="question-context">Combined hosting + commerce platform pricing. Contract terms, SLAs, support escalation paths.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> WP Engine / BigCommerce Partnership</div>
+                </div>
+
+                <div class="question-card" data-id="COM-004" data-category="commercial" data-status="open" data-priority="medium" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">COM-004</span>
+                        <span class="category-tag">Commercial</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">What is the revenue share or referral structure for agency partners?</div>
+                    <div class="question-context">Agency incentives for driving migrations. Referral fees, implementation margins, ongoing support revenue share.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Partner Program Team</div>
+                </div>
+
+                <!-- Merchant Experience -->
+                <div class="category-section-header" data-category="merchant">
+                    <h3>Merchant Experience</h3>
+                    <span class="badge">4 items</span>
+                </div>
+
+                <div class="question-card" data-id="MER-001" data-category="merchant" data-status="open" data-priority="high" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">MER-001</span>
+                        <span class="category-tag">Merchant</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">What is the admin experience for merchants managing orders across WordPress + BigCommerce?</div>
+                    <div class="question-context">Order management workflow, inventory updates, customer service access. Single pane of glass vs switching between systems.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Product / UX Team</div>
+                </div>
+
+                <div class="question-card" data-id="MER-002" data-category="merchant" data-status="open" data-priority="medium" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">MER-002</span>
+                        <span class="category-tag">Merchant</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">What training and documentation is available for merchants new to BigCommerce?</div>
+                    <div class="question-context">Learning curve assessment, training materials, certification programs. Support resources during transition period.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Customer Success Team</div>
+                </div>
+
+                <div class="question-card" data-id="MER-003" data-category="merchant" data-status="open" data-priority="medium" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">MER-003</span>
+                        <span class="category-tag">Merchant</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">How do merchants handle product content management with WordPress + BigCommerce?</div>
+                    <div class="question-context">Product descriptions in BigCommerce vs WordPress. Content sync, SEO content, rich media management workflow.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Product / Content Team</div>
+                </div>
+
+                <div class="question-card" data-id="MER-004" data-category="merchant" data-status="open" data-priority="medium" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">MER-004</span>
+                        <span class="category-tag">Merchant</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">What is the reporting/analytics experience post-migration?</div>
+                    <div class="question-context">Sales reports, customer analytics, inventory reports. Comparison of WooCommerce reporting to BigCommerce. Historical data access.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Analytics Team</div>
+                </div>
+
+                <!-- Operations & Scale -->
+                <div class="category-section-header" data-category="operations">
+                    <h3>Operations & Scale</h3>
+                    <span class="badge">4 items</span>
+                </div>
+
+                <div class="question-card" data-id="OPS-001" data-category="operations" data-status="open" data-priority="high" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">OPS-001</span>
+                        <span class="category-tag">Operations</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">What is the support escalation path for WordPress + BigCommerce issues?</div>
+                    <div class="question-context">When issues span both platforms, who handles? WP Engine support, BigCommerce support, or dedicated integration support team?</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Support Operations</div>
+                </div>
+
+                <div class="question-card" data-id="OPS-002" data-category="operations" data-status="open" data-priority="medium" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">OPS-002</span>
+                        <span class="category-tag">Operations</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">What monitoring and alerting is available for the integrated platform?</div>
+                    <div class="question-context">Uptime monitoring, API health checks, error rate tracking. Unified dashboard vs separate monitoring per platform.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> SRE / DevOps Team</div>
+                </div>
+
+                <div class="question-card" data-id="OPS-003" data-category="operations" data-status="open" data-priority="medium" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">OPS-003</span>
+                        <span class="category-tag">Operations</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">What is the disaster recovery and backup strategy?</div>
+                    <div class="question-context">WordPress backups (WP Engine), BigCommerce data backups. Cross-platform recovery procedures. RTO/RPO targets.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Infrastructure Team</div>
+                </div>
+
+                <div class="question-card" data-id="OPS-004" data-category="operations" data-status="open" data-priority="high" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">OPS-004</span>
+                        <span class="category-tag">Operations</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">What is the staging/development environment strategy?</div>
+                    <div class="question-context">Dev/staging environments that mirror production WordPress + BigCommerce setup. Data sync between environments. Testing workflows.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Development Team</div>
+                </div>
+
+                <!-- Feature Gaps -->
+                <div class="category-section-header" data-category="gaps">
+                    <h3>Feature Gaps</h3>
+                    <span class="badge">8 items</span>
+                </div>
+
+                <div class="question-card" data-id="GAP-001" data-category="gaps" data-status="open" data-priority="high" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">GAP-001</span>
+                        <span class="category-tag">Feature Gap</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">What WooCommerce features have no direct BigCommerce equivalent?</div>
+                    <div class="question-context">Comprehensive gap analysis needed. Custom product types, complex discounting, specific checkout flows that exist in WooCommerce but not BigCommerce.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Product Team</div>
+                </div>
+
+                <div class="question-card" data-id="GAP-002" data-category="gaps" data-status="open" data-priority="high" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">GAP-002</span>
+                        <span class="category-tag">Feature Gap</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">How does BigCommerce handle complex product configurations (bundles, composites, personalization)?</div>
+                    <div class="question-context">WooCommerce Product Bundles, Composite Products, Personalized Products plugins. BigCommerce native capabilities vs app alternatives.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Product Team</div>
+                </div>
+
+                <div class="question-card" data-id="GAP-003" data-category="gaps" data-status="open" data-priority="high" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">GAP-003</span>
+                        <span class="category-tag">Feature Gap</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">What is the subscription commerce capability comparison?</div>
+                    <div class="question-context">WooCommerce Subscriptions feature set vs BigCommerce native subscriptions. Feature parity assessment for recurring billing merchants.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Product Team</div>
+                </div>
+
+                <div class="question-card" data-id="GAP-004" data-category="gaps" data-status="open" data-priority="medium" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">GAP-004</span>
+                        <span class="category-tag">Feature Gap</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">How does BigCommerce handle advanced discount/coupon rules?</div>
+                    <div class="question-context">BOGO, tiered discounts, cart conditions, customer group pricing. WooCommerce Smart Coupons equivalent functionality.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Product Team</div>
+                </div>
+
+                <div class="question-card" data-id="GAP-005" data-category="gaps" data-status="open" data-priority="medium" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">GAP-005</span>
+                        <span class="category-tag">Feature Gap</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">What is the bookings/appointments capability in BigCommerce?</div>
+                    <div class="question-context">WooCommerce Bookings for service-based businesses. BigCommerce native or app-based booking functionality.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Product Team</div>
+                </div>
+
+                <div class="question-card" data-id="GAP-006" data-category="gaps" data-status="open" data-priority="medium" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">GAP-006</span>
+                        <span class="category-tag">Feature Gap</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">How does BigCommerce handle multi-currency and multi-language?</div>
+                    <div class="question-context">WPML integration with WooCommerce vs BigCommerce native multi-language. Currency conversion, price list management.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Product / Internationalization Team</div>
+                </div>
+
+                <div class="question-card" data-id="GAP-007" data-category="gaps" data-status="open" data-priority="medium" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">GAP-007</span>
+                        <span class="category-tag">Feature Gap</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">What marketplace/multi-vendor capabilities exist?</div>
+                    <div class="question-context">WooCommerce Dokan, WCFM, WC Vendors. BigCommerce marketplace functionality for multi-seller scenarios.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Product Team</div>
+                </div>
+
+                <div class="question-card" data-id="GAP-008" data-category="gaps" data-status="open" data-priority="medium" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">GAP-008</span>
+                        <span class="category-tag">Feature Gap</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">How does BigCommerce handle product variations at scale?</div>
+                    <div class="question-context">WooCommerce can struggle with 100+ variations. BigCommerce variant/option limits. SKU management at scale.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Product Team</div>
+                </div>
+
+                <!-- Competitive & Market -->
+                <div class="category-section-header" data-category="market">
+                    <h3>Competitive & Market</h3>
+                    <span class="badge">3 items</span>
+                </div>
+
+                <div class="question-card" data-id="MKT-001" data-category="market" data-status="answered" data-priority="high" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">MKT-001</span>
+                        <span class="category-tag">Market</span>
+                        <span class="status-badge answered">Answered</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">How does this migration path compare to moving directly to Shopify?</div>
+                    <div class="question-answer">
+                        <h4>Answer</h4>
+                        <p>See COMPETITIVE_LANDSCAPE.html for detailed comparison. Key differentiators: BigCommerce offers headless flexibility, no transaction fees, B2B native capabilities. WordPress retention is unique to BigCommerce path. Shopify requires complete replatforming.</p>
+                    </div>
+                    <div class="owner-tag"><strong>Owner:</strong> Strategy Team | <strong>Resolved:</strong> Dec 2025</div>
+                </div>
+
+                <div class="question-card" data-id="MKT-002" data-category="market" data-status="open" data-priority="medium" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">MKT-002</span>
+                        <span class="category-tag">Market</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">What is the competitive positioning against Adobe Commerce (Magento)?</div>
+                    <div class="question-context">For enterprise merchants considering WooCommerce alternatives. Adobe Commerce vs BigCommerce feature/price comparison.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Strategy / Sales Team</div>
+                </div>
+
+                <div class="question-card" data-id="MKT-003" data-category="market" data-status="open" data-priority="medium" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">MKT-003</span>
+                        <span class="category-tag">Market</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">What success stories/case studies exist for WooCommerce to BigCommerce migrations?</div>
+                    <div class="question-context">Reference customers, documented migrations, lessons learned. Evidence to share with prospects considering migration.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Marketing / Customer Success</div>
+                </div>
+
+                <!-- B2B Migration -->
+                <div class="category-section-header" data-category="b2b">
+                    <h3>B2B Migration</h3>
+                    <span class="badge">6 items</span>
+                </div>
+
+                <div class="question-card" data-id="B2B-001" data-category="b2b" data-status="open" data-priority="high" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">B2B-001</span>
+                        <span class="category-tag">B2B</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">How do we migrate WooCommerce B2B functionality to BigCommerce B2B Edition?</div>
+                    <div class="question-context">WooCommerce B2B plugins (B2BKing, Wholesale Suite) vs BigCommerce B2B native. Company accounts, customer groups, price lists migration.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> B2B Migration Team</div>
+                </div>
+
+                <div class="question-card" data-id="B2B-002" data-category="b2b" data-status="open" data-priority="high" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">B2B-002</span>
+                        <span class="category-tag">B2B</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">What is the quote management migration path?</div>
+                    <div class="question-context">WooCommerce quote plugins vs BigCommerce native quoting. RFQ workflow, quote-to-order conversion, approval chains.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> B2B Migration Team</div>
+                </div>
+
+                <div class="question-card" data-id="B2B-003" data-category="b2b" data-status="open" data-priority="high" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">B2B-003</span>
+                        <span class="category-tag">B2B</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">How do we handle customer-specific pricing and price lists?</div>
+                    <div class="question-context">Negotiated pricing, contract pricing, volume discounts. Data structure mapping between WooCommerce and BigCommerce pricing models.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> B2B Migration Team</div>
+                </div>
+
+                <div class="question-card" data-id="B2B-004" data-category="b2b" data-status="open" data-priority="medium" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">B2B-004</span>
+                        <span class="category-tag">B2B</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">What is the purchase order and payment terms migration strategy?</div>
+                    <div class="question-context">Net 30/60/90 terms, credit limits, PO number requirements. Invoice generation and AR integration.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> B2B Migration Team</div>
+                </div>
+
+                <div class="question-card" data-id="B2B-005" data-category="b2b" data-status="open" data-priority="medium" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">B2B-005</span>
+                        <span class="category-tag">B2B</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">How do we migrate company account hierarchies and buyer roles?</div>
+                    <div class="question-context">Corporate accounts with multiple buyers, approval workflows, spending limits. Mapping WooCommerce user roles to BigCommerce buyer roles.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> B2B Migration Team</div>
+                </div>
+
+                <div class="question-card" data-id="B2B-006" data-category="b2b" data-status="open" data-priority="medium" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">B2B-006</span>
+                        <span class="category-tag">B2B</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">What is the punchout catalog / procurement integration approach?</div>
+                    <div class="question-context">cXML/OCI punchout for enterprise procurement systems (Ariba, Coupa). Current WooCommerce implementation vs BigCommerce support.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> B2B / Integration Team</div>
+                </div>
+
+                <!-- Store Size & Scale -->
+                <div class="category-section-header" data-category="scale">
+                    <h3>Store Size & Scale</h3>
+                    <span class="badge">5 items</span>
+                </div>
+
+                <div class="question-card" data-id="SCL-001" data-category="scale" data-status="open" data-priority="high" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">SCL-001</span>
+                        <span class="category-tag">Scale</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">What are the BigCommerce catalog size limits and how do they compare to WooCommerce?</div>
+                    <div class="question-context">Product count limits, variant limits, category depth. WooCommerce has no hard limits but performance degrades. BigCommerce plan-based limits.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Product / Architecture Team</div>
+                </div>
+
+                <div class="question-card" data-id="SCL-002" data-category="scale" data-status="open" data-priority="high" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">SCL-002</span>
+                        <span class="category-tag">Scale</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">What is the migration approach for stores with 100K+ products?</div>
+                    <div class="question-context">Large catalog migration challenges. Batch processing, API rate limits, data validation at scale. Timeline implications.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Migration Architecture Team</div>
+                </div>
+
+                <div class="question-card" data-id="SCL-003" data-category="scale" data-status="open" data-priority="high" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">SCL-003</span>
+                        <span class="category-tag">Scale</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">How do we handle order history migration for high-volume stores?</div>
+                    <div class="question-context">Stores with millions of historical orders. Migration vs archive strategy. Customer visibility to order history.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Migration Architecture Team</div>
+                </div>
+
+                <div class="question-card" data-id="SCL-004" data-category="scale" data-status="open" data-priority="medium" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">SCL-004</span>
+                        <span class="category-tag">Scale</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">What are the customer account migration limits?</div>
+                    <div class="question-context">Large customer bases (500K+). Batch import limits, customer data validation, duplicate handling.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Migration Architecture Team</div>
+                </div>
+
+                <div class="question-card" data-id="SCL-005" data-category="scale" data-status="open" data-priority="medium" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">SCL-005</span>
+                        <span class="category-tag">Scale</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">What is the recommended migration approach by store size tier?</div>
+                    <div class="question-context">Different approaches for small (<1K products), medium (1K-10K), large (10K-100K), enterprise (100K+). See STORE_SIZE_PLAYBOOK.html for detailed tiers.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Migration Architecture Team</div>
+                </div>
+
+                <!-- TCO & Cost -->
+                <div class="category-section-header" data-category="tco">
+                    <h3>TCO & Cost Analysis</h3>
+                    <span class="badge">5 items</span>
+                </div>
+
+                <div class="question-card" data-id="TCO-001" data-category="tco" data-status="open" data-priority="high" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">TCO-001</span>
+                        <span class="category-tag">TCO</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">What is the total cost of ownership comparison: WooCommerce vs BigCommerce?</div>
+                    <div class="question-context">Platform fees, hosting, plugins/apps, development, maintenance. 3-year TCO model. See MIGRATION_BUSINESS_CASE.html for framework.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Finance / Strategy Team</div>
+                </div>
+
+                <div class="question-card" data-id="TCO-002" data-category="tco" data-status="open" data-priority="high" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">TCO-002</span>
+                        <span class="category-tag">TCO</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">What are the migration implementation costs by store complexity?</div>
+                    <div class="question-context">Simple migration vs complex. Custom development requirements. Agency vs in-house implementation. Typical project budgets.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Professional Services Team</div>
+                </div>
+
+                <div class="question-card" data-id="TCO-003" data-category="tco" data-status="open" data-priority="medium" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">TCO-003</span>
+                        <span class="category-tag">TCO</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">What is the ongoing operational cost difference?</div>
+                    <div class="question-context">WooCommerce plugin licensing vs BigCommerce apps. Developer time for maintenance. Support costs. Security patching effort.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Finance Team</div>
+                </div>
+
+                <div class="question-card" data-id="TCO-004" data-category="tco" data-status="open" data-priority="medium" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">TCO-004</span>
+                        <span class="category-tag">TCO</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">What hidden costs should merchants anticipate during migration?</div>
+                    <div class="question-context">Unexpected integration work, data cleanup, training, productivity loss during transition. Buffer recommendations.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Project Management</div>
+                </div>
+
+                <div class="question-card" data-id="TCO-005" data-category="tco" data-status="open" data-priority="medium" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">TCO-005</span>
+                        <span class="category-tag">TCO</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">What is the ROI timeline for migration investment?</div>
+                    <div class="question-context">Break-even analysis. When do BigCommerce benefits (performance, features, reduced maintenance) offset migration costs?</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Finance / Strategy Team</div>
+                </div>
+
+                <!-- Performance -->
+                <div class="category-section-header" data-category="performance">
+                    <h3>Performance</h3>
+                    <span class="badge">5 items</span>
+                </div>
+
+                <div class="question-card" data-id="PERF-001" data-category="performance" data-status="open" data-priority="high" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">PERF-001</span>
+                        <span class="category-tag">Performance</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">What are the performance benchmarks for WordPress + BigCommerce headless vs native WooCommerce?</div>
+                    <div class="question-context">Page load times, TTFB, Core Web Vitals comparison. API latency impact on user experience.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Performance Engineering Team</div>
+                </div>
+
+                <div class="question-card" data-id="PERF-002" data-category="performance" data-status="open" data-priority="high" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">PERF-002</span>
+                        <span class="category-tag">Performance</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">How does BigCommerce handle high-traffic events (flash sales, product drops)?</div>
+                    <div class="question-context">Traffic spike handling, auto-scaling, rate limiting. Comparison to WooCommerce/WP Engine scaling capabilities.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Infrastructure Team</div>
+                </div>
+
+                <div class="question-card" data-id="PERF-003" data-category="performance" data-status="open" data-priority="medium" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">PERF-003</span>
+                        <span class="category-tag">Performance</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">What is the checkout performance comparison?</div>
+                    <div class="question-context">Checkout completion rates, payment processing speed, cart abandonment impact. BigCommerce optimized checkout vs WooCommerce.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Performance / UX Team</div>
+                </div>
+
+                <div class="question-card" data-id="PERF-004" data-category="performance" data-status="open" data-priority="medium" data-source="granite">
+                    <div class="question-header">
+                        <span class="question-id">PERF-004</span>
+                        <span class="category-tag">Performance</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Granite Analysis</span>
+                    </div>
+                    <div class="question-text">What is the API rate limit strategy for high-volume operations?</div>
+                    <div class="question-context">BigCommerce API rate limits. Handling bulk operations, real-time inventory sync, high-frequency cart updates.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Development Team</div>
+                </div>
+
+                <div class="question-card" data-id="PERF-005" data-category="performance" data-status="open" data-priority="medium" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">PERF-005</span>
+                        <span class="category-tag">Performance</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">What is the global CDN and edge caching strategy?</div>
+                    <div class="question-context">WP Engine + BigCommerce CDN configuration. Edge caching for product data, image optimization, geographic distribution.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Infrastructure Team</div>
+                </div>
+
+                <!-- Persona Selection -->
+                <div class="category-section-header" data-category="persona">
+                    <h3>Persona & Merchant Selection</h3>
+                    <span class="badge">4 items</span>
+                </div>
+
+                <div class="question-card" data-id="PER-001" data-category="persona" data-status="answered" data-priority="high" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">PER-001</span>
+                        <span class="category-tag">Persona</span>
+                        <span class="status-badge answered">Answered</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">What merchant personas are best suited for each migration path?</div>
+                    <div class="question-answer">
+                        <h4>Answer</h4>
+                        <p>See MIGRATION_PERSONAS.html for detailed persona definitions. Key personas: Content-First Retailer (WordPress retention), Pure Commerce (Catalyst), Complex B2B (BigCommerce B2B Edition), Multi-Channel (headless flexible).</p>
+                    </div>
+                    <div class="owner-tag"><strong>Owner:</strong> Strategy Team | <strong>Resolved:</strong> Dec 2025</div>
+                </div>
+
+                <div class="question-card" data-id="PER-002" data-category="persona" data-status="open" data-priority="high" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">PER-002</span>
+                        <span class="category-tag">Persona</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">What is the ideal customer profile (ICP) for proactive migration outreach?</div>
+                    <div class="question-context">Characteristics that indicate migration readiness: revenue threshold, technical debt level, growth trajectory, pain points.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Sales / Marketing Team</div>
+                </div>
+
+                <div class="question-card" data-id="PER-003" data-category="persona" data-status="open" data-priority="medium" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">PER-003</span>
+                        <span class="category-tag">Persona</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">What red flags indicate a merchant is NOT a good migration candidate?</div>
+                    <div class="question-context">Disqualifying factors: extreme customization, niche plugins without alternatives, unrealistic timelines, budget constraints.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Sales / Solution Architecture</div>
+                </div>
+
+                <div class="question-card" data-id="PER-004" data-category="persona" data-status="open" data-priority="medium" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">PER-004</span>
+                        <span class="category-tag">Persona</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">How do we segment the WP Engine WooCommerce customer base for migration targeting?</div>
+                    <div class="question-context">Data-driven segmentation criteria. Which merchants to prioritize for outreach based on migration success likelihood.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Marketing / Analytics Team</div>
+                </div>
+
+                <!-- Evaluation Criteria -->
+                <div class="category-section-header" data-category="evaluation">
+                    <h3>Evaluation Criteria</h3>
+                    <span class="badge">5 items</span>
+                </div>
+
+                <div class="question-card" data-id="EVAL-001" data-category="evaluation" data-status="open" data-priority="high" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">EVAL-001</span>
+                        <span class="category-tag">Evaluation</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">What is the migration readiness assessment framework?</div>
+                    <div class="question-context">Standardized checklist to evaluate merchant readiness. Technical, operational, and business criteria scoring.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Solution Architecture Team</div>
+                </div>
+
+                <div class="question-card" data-id="EVAL-002" data-category="evaluation" data-status="open" data-priority="high" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">EVAL-002</span>
+                        <span class="category-tag">Evaluation</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge high">High</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">What are the success metrics for completed migrations?</div>
+                    <div class="question-context">KPIs to track post-migration: performance improvement, conversion rate, operational efficiency, merchant satisfaction.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Customer Success Team</div>
+                </div>
+
+                <div class="question-card" data-id="EVAL-003" data-category="evaluation" data-status="open" data-priority="medium" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">EVAL-003</span>
+                        <span class="category-tag">Evaluation</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">How do we measure migration complexity for scoping?</div>
+                    <div class="question-context">Complexity scoring model: integrations, customizations, data volume, business logic. Feeds into timeline and cost estimates.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Project Management</div>
+                </div>
+
+                <div class="question-card" data-id="EVAL-004" data-category="evaluation" data-status="open" data-priority="medium" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">EVAL-004</span>
+                        <span class="category-tag">Evaluation</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">What is the pilot merchant selection criteria?</div>
+                    <div class="question-context">Characteristics for ideal pilot/early adopter merchants. Risk profile, relationship strength, representative use cases.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Program Management</div>
+                </div>
+
+                <div class="question-card" data-id="EVAL-005" data-category="evaluation" data-status="open" data-priority="medium" data-source="internal">
+                    <div class="question-header">
+                        <span class="question-id">EVAL-005</span>
+                        <span class="category-tag">Evaluation</span>
+                        <span class="status-badge open">Open</span>
+                        <span class="priority-badge medium">Medium</span>
+                        <span class="source-badge">Internal Analysis</span>
+                    </div>
+                    <div class="question-text">How do we gather and incorporate merchant feedback during migration?</div>
+                    <div class="question-context">Feedback loops, NPS surveys, post-migration interviews. Continuous improvement of migration process.</div>
+                    <div class="owner-tag"><strong>Owner:</strong> Customer Success Team</div>
+                </div>
+
+            </div>
+
+            <!-- Table View (hidden by default) -->
+            <div class="questions-container table-view" id="tableView" style="display: none;">
+                <table class="questions-table">
+                    <thead>
+                        <tr>
+                            <th data-sort="id">ID <span class="sort-icon">↕</span></th>
+                            <th data-sort="category">Category <span class="sort-icon">↕</span></th>
+                            <th data-sort="question">Question <span class="sort-icon">↕</span></th>
+                            <th data-sort="status">Status <span class="sort-icon">↕</span></th>
+                            <th data-sort="priority">Priority <span class="sort-icon">↕</span></th>
+                            <th data-sort="owner">Owner <span class="sort-icon">↕</span></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Table rows generated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Sources & Citations -->
+            <div style="background: white; border-radius: 10px; padding: 25px; margin-top: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                <h3 style="margin-bottom: 15px; color: var(--bc-primary);">Sources & Citations</h3>
+                <p style="font-size: 0.9rem; color: #666;"><strong>This tracker consolidates questions from:</strong></p>
+                <ul style="margin-top: 15px; line-height: 1.8; font-size: 0.9rem; color: #666; margin-left: 20px;">
+                    <li><strong>WP Engine Stakeholder Questions:</strong> Jordan Sim / WPE team inquiries from partnership discussions</li>
+                    <li><strong>Granite Comparative Analysis:</strong> Gap analysis from 243-slide deck (Slides referenced per question)</li>
+                    <li><strong>WPE Artemis Migration Analysis:</strong> Strategic questions from migration strategy deck</li>
+                    <li><strong>Internal Analysis:</strong> Questions identified during bc-migration implementation and documentation</li>
+                    <li><strong>Migration Cutover Operations:</strong> Standard commerce replatforming considerations from industry best practices</li>
+                </ul>
+            </div>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <p><strong>BC Migration Documentation Package</strong></p>
+        <p>Q&A Tracker | 101 questions across 15 categories</p>
+    </footer>
+
+    <!-- Sticky Navigation -->
+    <nav class="sticky-nav">
+        <a href="ADR-003-order-history-strategy.html">← ADR-003: Order History</a>
+        <div class="nav-center">
+            <span>14 of 18</span>
+            <select onchange="if(this.value) window.location.href=this.value">
+                <option value="">Jump to...</option>
+                <option value="IMPLEMENTATION_BRIEF.html">★ Implementation Brief</option>
+                <option value="GRANITE_COMPARATIVE_ANALYSIS.html">1. Granite Analysis</option>
+                <option value="WPE_ARTEMIS_MIGRATION_ANALYSIS.html">2. WPE Artemis</option>
+                <option value="PLATFORM_DECISION_RATIONALE.html">3. Platform Decision</option>
+                <option value="MIGRATION_BUSINESS_CASE.html">4. Business Case</option>
+                <option value="COMPETITIVE_LANDSCAPE.html">5. Competitive Landscape</option>
+                <option value="PLUGIN_COMPATIBILITY_MATRIX.html">6. Plugin Matrix</option>
+                <option value="SEO_PRESERVATION_GUIDE.html">7. SEO Guide</option>
+                <option value="MIGRATION_RUNBOOK.html">8. Migration Runbook</option>
+                <option value="INTEGRATION_ARCHITECTURE.html">9. Integration Architecture</option>
+                <option value="WORDPRESS_CATALYST_COMPONENTS.html">10. WP Catalyst Components</option>
+                <option value="ADR-001-keep-wordpress.html">11. ADR-001</option>
+                <option value="ADR-002-headless-vs-checkout-only.html">12. ADR-002</option>
+                <option value="ADR-003-order-history-strategy.html">13. ADR-003</option>
+                <option value="MIGRATION_QA_TRACKER.html" selected>14. Q&A Tracker</option>
+                <option value="B2B_MIGRATION_GUIDE.html">15. B2B Guide</option>
+                <option value="STORE_SIZE_PLAYBOOK.html">16. Store Size Playbook</option>
+                <option value="MIGRATION_PERSONAS.html">17. Migration Personas</option>
+            </select>
+        </div>
+        <a href="B2B_MIGRATION_GUIDE.html">B2B Migration Guide →</a>
+    </nav>
+
+    <script>
+        // Filter and sort functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.question-card');
+            const categoryHeaders = document.querySelectorAll('.category-section-header');
+            const statusFilter = document.getElementById('statusFilter');
+            const priorityFilter = document.getElementById('priorityFilter');
+            const sourceFilter = document.getElementById('sourceFilter');
+            const searchInput = document.getElementById('searchInput');
+            const resultsCount = document.getElementById('resultsCount');
+            const clearFilters = document.getElementById('clearFilters');
+            const categoryNavItems = document.querySelectorAll('.category-nav-item');
+            const viewBtns = document.querySelectorAll('.view-btn');
+            const cardView = document.getElementById('cardView');
+            const tableView = document.getElementById('tableView');
+
+            let activeCategory = 'all';
+
+            // Category navigation
+            categoryNavItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    categoryNavItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    activeCategory = this.dataset.category;
+                    applyFilters();
+                });
+            });
+
+            // View toggle
+            viewBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    viewBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+
+                    if (this.dataset.view === 'card') {
+                        cardView.style.display = 'block';
+                        tableView.style.display = 'none';
+                    } else {
+                        cardView.style.display = 'none';
+                        tableView.style.display = 'block';
+                        populateTable();
+                    }
+                });
+            });
+
+            // Filter change handlers
+            [statusFilter, priorityFilter, sourceFilter].forEach(filter => {
+                filter.addEventListener('change', applyFilters);
+            });
+
+            searchInput.addEventListener('input', applyFilters);
+
+            clearFilters.addEventListener('click', function() {
+                statusFilter.value = 'all';
+                priorityFilter.value = 'all';
+                sourceFilter.value = 'all';
+                searchInput.value = '';
+                activeCategory = 'all';
+                categoryNavItems.forEach(i => i.classList.remove('active'));
+                document.querySelector('[data-category="all"]').classList.add('active');
+                applyFilters();
+            });
+
+            function applyFilters() {
+                const status = statusFilter.value;
+                const priority = priorityFilter.value;
+                const source = sourceFilter.value;
+                const search = searchInput.value.toLowerCase();
+
+                let visibleCount = 0;
+                const visibleCategories = new Set();
+
+                cards.forEach(card => {
+                    const cardStatus = card.dataset.status;
+                    const cardPriority = card.dataset.priority;
+                    const cardSource = card.dataset.source;
+                    const cardCategory = card.dataset.category;
+                    const cardText = card.textContent.toLowerCase();
+
+                    const matchesStatus = status === 'all' || cardStatus === status;
+                    const matchesPriority = priority === 'all' || cardPriority === priority;
+                    const matchesSource = source === 'all' || cardSource === source;
+                    const matchesCategory = activeCategory === 'all' || cardCategory === activeCategory;
+                    const matchesSearch = search === '' || cardText.includes(search);
+
+                    if (matchesStatus && matchesPriority && matchesSource && matchesCategory && matchesSearch) {
+                        card.classList.remove('hidden');
+                        visibleCount++;
+                        visibleCategories.add(cardCategory);
+                    } else {
+                        card.classList.add('hidden');
+                    }
+                });
+
+                // Show/hide category headers
+                categoryHeaders.forEach(header => {
+                    const category = header.dataset.category;
+                    if (activeCategory === 'all' && visibleCategories.has(category)) {
+                        header.classList.remove('hidden');
+                    } else if (activeCategory !== 'all' && category === activeCategory && visibleCategories.has(category)) {
+                        header.classList.remove('hidden');
+                    } else {
+                        header.classList.add('hidden');
+                    }
+                });
+
+                resultsCount.textContent = `Showing ${visibleCount} question${visibleCount !== 1 ? 's' : ''}`;
+
+                // Show/hide clear filters button
+                const hasFilters = status !== 'all' || priority !== 'all' || source !== 'all' || search !== '' || activeCategory !== 'all';
+                clearFilters.style.display = hasFilters ? 'inline' : 'none';
+
+                // Update table if visible
+                if (tableView.style.display !== 'none') {
+                    populateTable();
+                }
+            }
+
+            function populateTable() {
+                const tbody = document.getElementById('tableBody');
+                tbody.innerHTML = '';
+
+                cards.forEach(card => {
+                    if (card.classList.contains('hidden')) return;
+
+                    const row = document.createElement('tr');
+                    row.dataset.id = card.dataset.id;
+
+                    const id = card.querySelector('.question-id').textContent;
+                    const category = card.querySelector('.category-tag').textContent;
+                    const question = card.querySelector('.question-text').textContent;
+                    const status = card.dataset.status;
+                    const priority = card.dataset.priority;
+                    const ownerEl = card.querySelector('.owner-tag');
+                    const owner = ownerEl ? ownerEl.textContent.replace('Owner:', '').trim() : '';
+
+                    row.innerHTML = `
+                        <td><span class="question-id">${id}</span></td>
+                        <td><span class="category-tag">${category}</span></td>
+                        <td class="question-cell">
+                            <div class="q-text">${question}</div>
+                        </td>
+                        <td><span class="status-badge ${status}">${status}</span></td>
+                        <td><span class="priority-badge ${priority}">${priority}</span></td>
+                        <td style="font-size: 0.8rem; color: #666;">${owner.split('|')[0]}</td>
+                    `;
+
+                    tbody.appendChild(row);
+                });
+            }
+
+            // Table sorting
+            document.querySelectorAll('.questions-table th[data-sort]').forEach(th => {
+                th.addEventListener('click', function() {
+                    const sortKey = this.dataset.sort;
+                    const tbody = document.getElementById('tableBody');
+                    const rows = Array.from(tbody.querySelectorAll('tr'));
+
+                    const isAsc = this.classList.contains('sorted-asc');
+
+                    document.querySelectorAll('.questions-table th').forEach(h => {
+                        h.classList.remove('sorted', 'sorted-asc', 'sorted-desc');
+                    });
+
+                    this.classList.add('sorted', isAsc ? 'sorted-desc' : 'sorted-asc');
+
+                    rows.sort((a, b) => {
+                        let aVal, bVal;
+                        switch(sortKey) {
+                            case 'id':
+                                aVal = a.querySelector('.question-id').textContent;
+                                bVal = b.querySelector('.question-id').textContent;
+                                break;
+                            case 'category':
+                                aVal = a.querySelector('.category-tag').textContent;
+                                bVal = b.querySelector('.category-tag').textContent;
+                                break;
+                            case 'question':
+                                aVal = a.querySelector('.q-text').textContent;
+                                bVal = b.querySelector('.q-text').textContent;
+                                break;
+                            case 'status':
+                                aVal = a.querySelector('.status-badge').textContent;
+                                bVal = b.querySelector('.status-badge').textContent;
+                                break;
+                            case 'priority':
+                                const priorityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
+                                aVal = priorityOrder[a.querySelector('.priority-badge').textContent.toLowerCase()] || 4;
+                                bVal = priorityOrder[b.querySelector('.priority-badge').textContent.toLowerCase()] || 4;
+                                return isAsc ? bVal - aVal : aVal - bVal;
+                            default:
+                                aVal = a.textContent;
+                                bVal = b.textContent;
+                        }
+
+                        if (isAsc) {
+                            return bVal.localeCompare(aVal);
+                        }
+                        return aVal.localeCompare(bVal);
+                    });
+
+                    rows.forEach(row => tbody.appendChild(row));
+                });
+            });
+
+            // Initial filter application
+            applyFilters();
+        });
+    </script>
+</body>
+</html>

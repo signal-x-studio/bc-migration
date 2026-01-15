@@ -1,0 +1,519 @@
+---
+title: Getting Started for Developers
+description: Technical setup and integration guide for developers and agencies
+category: getting-started
+section: developers
+order: 2
+---
+
+# Getting Started for Developers
+
+This guide covers technical setup, API integration, and extending the BC Migration tool for agencies and developers.
+
+## Prerequisites
+
+### Required Knowledge
+- Node.js and npm/pnpm
+- React and Next.js fundamentals
+- REST API integration
+- WooCommerce and BigCommerce API basics
+- Git version control
+
+### Development Environment
+```bash
+# Required software
+Node.js >= 18.17.0
+npm >= 9.6.7 or pnpm >= 8.0.0
+Git >= 2.40.0
+
+# Optional but recommended
+Docker (for local BC development)
+VS Code with ESLint and Prettier
+```
+
+## Installation
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/yourusername/bc-migration.git
+cd bc-migration
+```
+
+### 2. Install Dependencies
+
+```bash
+# Install root dependencies
+npm install
+
+# Install dashboard dependencies
+cd src/dashboard
+npm install
+cd ../..
+```
+
+### 3. Environment Configuration
+
+Create `.env.local` in the root:
+
+```bash
+# WooCommerce API (for testing)
+WC_URL=https://your-wc-store.com
+WC_CONSUMER_KEY=ck_xxxxx
+WC_CONSUMER_SECRET=cs_xxxxx
+
+# BigCommerce API (for testing)
+BC_STORE_HASH=abc123xyz
+BC_ACCESS_TOKEN=xxxxx
+BC_CLIENT_ID=xxxxx (optional)
+BC_CLIENT_SECRET=xxxxx (optional)
+
+# Application
+NODE_ENV=development
+NEXT_PUBLIC_API_URL=http://localhost:3000
+```
+
+### 4. Run Development Server
+
+```bash
+cd src/dashboard
+npm run dev
+```
+
+The app will be available at `http://localhost:3000`
+
+## Architecture Overview
+
+### Project Structure
+
+```
+bc-migration/
+├── src/
+│   ├── dashboard/          # Next.js frontend application
+│   │   ├── app/           # Next.js App Router pages
+│   │   ├── components/    # React components
+│   │   ├── lib/          # Utilities and helpers
+│   │   └── public/       # Static assets
+│   └── api/              # API route handlers (Next.js API routes)
+├── docs/                  # Documentation source (MDX)
+│   └── content/          # MDX documentation files
+├── scripts/              # Build and utility scripts
+└── tests/               # Test suites
+```
+
+### Key Technologies
+
+- **Frontend**: Next.js 16, React 19, TypeScript
+- **Styling**: Tailwind CSS 4
+- **Documentation**: MDX with next-mdx-remote
+- **API Clients**:
+  - `@woocommerce/woocommerce-rest-api`
+  - Custom BigCommerce client
+- **State Management**: React Context + localStorage
+
+## API Integration
+
+### WooCommerce Client
+
+```typescript
+// lib/api/woocommerce-client.ts
+import WooCommerceRestApi from '@woocommerce/woocommerce-rest-api';
+
+export function createWCClient(url: string, consumerKey: string, consumerSecret: string) {
+  return new WooCommerceRestApi({
+    url,
+    consumerKey,
+    consumerSecret,
+    version: 'wc/v3',
+    queryStringAuth: true, // Force basic auth for HTTPS
+  });
+}
+
+// Usage example
+const client = createWCClient(
+  process.env.WC_URL!,
+  process.env.WC_CONSUMER_KEY!,
+  process.env.WC_CONSUMER_SECRET!
+);
+
+// Fetch products
+const products = await client.get('products', {
+  per_page: 100,
+  page: 1,
+});
+```
+
+### BigCommerce Client
+
+```typescript
+// lib/api/bigcommerce-client.ts
+export class BigCommerceClient {
+  private baseUrl: string;
+  private headers: HeadersInit;
+
+  constructor(storeHash: string, accessToken: string) {
+    this.baseUrl = `https://api.bigcommerce.com/stores/${storeHash}/v3`;
+    this.headers = {
+      'X-Auth-Token': accessToken,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+  }
+
+  async get<T>(endpoint: string): Promise<T> {
+    const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      method: 'GET',
+      headers: this.headers,
+    });
+
+    if (!response.ok) {
+      throw new Error(`BC API error: ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async post<T>(endpoint: string, data: any): Promise<T> {
+    const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      method: 'POST',
+      headers: this.headers,
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error(`BC API error: ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+}
+
+// Usage
+const bcClient = new BigCommerceClient(
+  process.env.BC_STORE_HASH!,
+  process.env.BC_ACCESS_TOKEN!
+);
+
+const categories = await bcClient.get('/catalog/categories');
+```
+
+## Migration Endpoints
+
+### Assessment API
+
+```typescript
+// app/api/assessment/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { createWCClient } from '@/lib/api/woocommerce-client';
+
+export async function POST(request: NextRequest) {
+  const { url, consumerKey, consumerSecret } = await request.json();
+
+  const client = createWCClient(url, consumerKey, consumerSecret);
+
+  // Fetch counts
+  const [products, categories, customers, orders] = await Promise.all([
+    client.get('products', { per_page: 1 }),
+    client.get('products/categories', { per_page: 1 }),
+    client.get('customers', { per_page: 1 }),
+    client.get('orders', { per_page: 1 }),
+  ]);
+
+  return NextResponse.json({
+    products: parseInt(products.headers['x-wp-total'] || '0'),
+    categories: parseInt(categories.headers['x-wp-total'] || '0'),
+    customers: parseInt(customers.headers['x-wp-total'] || '0'),
+    orders: parseInt(orders.headers['x-wp-total'] || '0'),
+  });
+}
+```
+
+### Migration Streaming (SSE)
+
+```typescript
+// app/api/migrate/products/route.ts
+export async function POST(request: NextRequest) {
+  const { wcConfig, bcConfig, categoryId } = await request.json();
+
+  // Create readable stream for SSE
+  const stream = new ReadableStream({
+    async start(controller) {
+      const encoder = new TextEncoder();
+
+      const wcClient = createWCClient(wcConfig.url, wcConfig.consumerKey, wcConfig.consumerSecret);
+      const bcClient = new BigCommerceClient(bcConfig.storeHash, bcConfig.accessToken);
+
+      // Fetch WC products
+      const wcProducts = await wcClient.get('products', {
+        category: categoryId,
+        per_page: 100,
+      });
+
+      const total = wcProducts.data.length;
+
+      for (let i = 0; i < wcProducts.data.length; i++) {
+        const wcProduct = wcProducts.data[i];
+
+        try {
+          // Transform and create in BC
+          const bcProduct = transformProduct(wcProduct);
+          await bcClient.post('/catalog/products', bcProduct);
+
+          // Send progress update
+          const message = `data: ${JSON.stringify({
+            type: 'progress',
+            current: i + 1,
+            total,
+            product: wcProduct.name,
+          })}\n\n`;
+
+          controller.enqueue(encoder.encode(message));
+        } catch (error) {
+          // Send error update
+          const message = `data: ${JSON.stringify({
+            type: 'error',
+            product: wcProduct.name,
+            error: error.message,
+          })}\n\n`;
+
+          controller.enqueue(encoder.encode(message));
+        }
+      }
+
+      controller.close();
+    },
+  });
+
+  return new Response(stream, {
+    headers: {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+    },
+  });
+}
+```
+
+## Extending the Application
+
+### Adding Custom Migration Logic
+
+Create a custom transformer:
+
+```typescript
+// lib/transformers/custom-product-transformer.ts
+import { WCProduct, BCProduct } from '@/types';
+
+export function transformProductWithCustomFields(wcProduct: WCProduct): BCProduct {
+  const baseProduct = {
+    name: wcProduct.name,
+    sku: wcProduct.sku,
+    price: parseFloat(wcProduct.price),
+    description: wcProduct.description,
+    // ... base fields
+  };
+
+  // Add custom field mapping
+  if (wcProduct.meta_data) {
+    const customFields = wcProduct.meta_data
+      .filter(meta => meta.key.startsWith('_custom_'))
+      .map(meta => ({
+        name: meta.key.replace('_custom_', ''),
+        value: meta.value,
+      }));
+
+    baseProduct.custom_fields = customFields;
+  }
+
+  return baseProduct;
+}
+```
+
+### Creating Custom Components
+
+```typescript
+// components/migration/CustomPhaseCard.tsx
+'use client';
+
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
+
+interface CustomPhaseCardProps {
+  title: string;
+  description: string;
+  onExecute: () => Promise<void>;
+}
+
+export function CustomPhaseCard({ title, description, onExecute }: CustomPhaseCardProps) {
+  const [isRunning, setIsRunning] = useState(false);
+
+  const handleExecute = async () => {
+    setIsRunning(true);
+    try {
+      await onExecute();
+    } finally {
+      setIsRunning(false);
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm text-slate-600 mb-4">{description}</p>
+        <button
+          onClick={handleExecute}
+          disabled={isRunning}
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+        >
+          {isRunning ? 'Running...' : 'Execute Phase'}
+        </button>
+      </CardContent>
+    </Card>
+  );
+}
+```
+
+## Testing
+
+### Running Tests
+
+```bash
+# Unit tests
+npm test
+
+# E2E tests
+cd src/dashboard
+npm run test:e2e
+
+# E2E tests with UI
+npm run test:e2e:ui
+```
+
+### Writing Tests
+
+```typescript
+// tests/e2e/migration.spec.ts
+import { test, expect } from '@playwright/test';
+
+test.describe('Migration Workflow', () => {
+  test('should complete product migration', async ({ page }) => {
+    await page.goto('/migration');
+
+    // Select category
+    await page.click('[data-testid="category-select"]');
+    await page.click('[data-testid="category-option-1"]');
+
+    // Start migration
+    await page.click('[data-testid="start-migration"]');
+
+    // Wait for completion
+    await expect(page.locator('[data-testid="migration-complete"]')).toBeVisible({
+      timeout: 60000,
+    });
+  });
+});
+```
+
+## Deployment
+
+### Build for Production
+
+```bash
+cd src/dashboard
+npm run build
+npm start
+```
+
+### Environment Variables
+
+Production `.env.production`:
+
+```bash
+NODE_ENV=production
+NEXT_PUBLIC_API_URL=https://your-domain.com
+# Add other production variables
+```
+
+### Deployment Platforms
+
+**Vercel** (Recommended):
+```bash
+vercel --prod
+```
+
+**Docker**:
+```dockerfile
+FROM node:18-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci --only=production
+
+COPY . .
+RUN npm run build
+
+EXPOSE 3000
+CMD ["npm", "start"]
+```
+
+## Best Practices
+
+### Error Handling
+
+```typescript
+// Always wrap API calls in try-catch
+try {
+  const result = await bcClient.post('/catalog/products', product);
+  return { success: true, data: result };
+} catch (error) {
+  console.error('Product creation failed:', error);
+  return {
+    success: false,
+    error: error instanceof Error ? error.message : 'Unknown error'
+  };
+}
+```
+
+### Rate Limiting
+
+```typescript
+// Implement rate limiting for API calls
+import pLimit from 'p-limit';
+
+const limit = pLimit(5); // 5 concurrent requests max
+
+const results = await Promise.all(
+  products.map(product =>
+    limit(() => bcClient.post('/catalog/products', product))
+  )
+);
+```
+
+### Data Validation
+
+```typescript
+// Validate data before migration
+function validateProduct(product: any): boolean {
+  if (!product.sku || product.sku.trim() === '') {
+    console.warn('Product missing SKU:', product.name);
+    return false;
+  }
+
+  if (!product.price || parseFloat(product.price) < 0) {
+    console.warn('Product has invalid price:', product.name);
+    return false;
+  }
+
+  return true;
+}
+```
+
+## Next Steps
+
+- [API Reference](/docs/reference/api/dashboard-api)
+- [Migration Architecture](/docs/platform/architecture/MIGRATION_ARCHITECTURE)
+- [Contributing Guide](/docs/reference/contributing)
+- [BC Bridge Development](/docs/guides/bc-bridge/development)

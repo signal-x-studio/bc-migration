@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merchant Success Architecture - BigCommerce Product Architecture Kit</title>
+    <style>
+        :root {
+            --bc-primary: #34313f;
+            --bc-accent: #5c6ac4;
+            --bc-success: #22c55e;
+            --bc-warning: #f59e0b;
+            --bc-danger: #ef4444;
+            --bc-light: #f8f9fa;
+            --bc-border: #e0e0e0;
+            --sidebar-width: 260px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bc-light);
+            color: var(--bc-primary);
+            line-height: 1.6;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bc-primary);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 20px 0;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h1 {
+            font-size: 0.85rem;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        .sidebar-header .quarter {
+            font-size: 0.75rem;
+            opacity: 0.6;
+            margin-top: 4px;
+        }
+
+        .nav-section {
+            margin-bottom: 8px;
+        }
+
+        .nav-section-title {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: rgba(255,255,255,0.5);
+            padding: 12px 20px 8px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 10px 20px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.15s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-link:hover {
+            background: rgba(255,255,255,0.08);
+            color: white;
+        }
+
+        .nav-link.active {
+            background: var(--bc-accent);
+            color: white;
+            border-left-color: white;
+        }
+
+        /* Main Content */
+        .main {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 50px 60px;
+            max-width: 1000px;
+        }
+
+        .breadcrumb {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .breadcrumb a {
+            color: var(--bc-accent);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .main h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--bc-primary);
+        }
+
+        .main .subtitle {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .meta-inline {
+            display: flex;
+            gap: 30px;
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--bc-border);
+        }
+
+        .meta-inline strong {
+            color: var(--bc-primary);
+        }
+
+        /* Sections */
+        section {
+            margin-bottom: 50px;
+        }
+
+        section h2 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: var(--bc-primary);
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--bc-accent);
+        }
+
+        section h3 {
+            font-size: 1.15rem;
+            margin: 30px 0 15px;
+            color: var(--bc-primary);
+        }
+
+        section h4 {
+            font-size: 1rem;
+            margin: 20px 0 12px;
+            color: var(--bc-primary);
+        }
+
+        section p {
+            margin-bottom: 15px;
+            color: #444;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+            font-size: 0.9rem;
+        }
+
+        thead {
+            background: var(--bc-primary);
+            color: white;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 16px;
+            font-weight: 500;
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--bc-border);
+            vertical-align: top;
+        }
+
+        tr:hover td {
+            background: rgba(92, 106, 196, 0.04);
+        }
+
+        /* Diagram blocks */
+        .diagram {
+            background: var(--bc-primary);
+            color: #f8f8f2;
+            padding: 20px 25px;
+            border-radius: 8px;
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 0.75rem;
+            line-height: 1.5;
+            overflow-x: auto;
+            margin-bottom: 25px;
+            white-space: pre;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin-bottom: 20px;
+            padding-left: 25px;
+        }
+
+        li {
+            margin-bottom: 8px;
+            color: #444;
+        }
+
+        /* Callout */
+        .callout {
+            background: #eff6ff;
+            border-left: 4px solid var(--bc-accent);
+            padding: 16px 20px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 25px;
+        }
+
+        .callout.warning {
+            background: #fefce8;
+            border-left-color: var(--bc-warning);
+        }
+
+        .callout.success {
+            background: #f0fdf4;
+            border-left-color: var(--bc-success);
+        }
+
+        .callout.highlight {
+            background: linear-gradient(135deg, #eff6ff, #f3e8ff);
+            border-left-color: #7c3aed;
+        }
+
+        .callout h4 {
+            margin: 0 0 8px;
+            font-size: 0.95rem;
+        }
+
+        .callout p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        /* Era timeline */
+        .era-table {
+            margin-bottom: 30px;
+        }
+
+        .era-table td:first-child {
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .era-table tr:last-child td {
+            background: rgba(92, 106, 196, 0.1);
+        }
+
+        /* Comparison tables */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .comparison-box {
+            background: white;
+            border: 1px solid var(--bc-border);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .comparison-box h4 {
+            background: var(--bc-light);
+            margin: 0;
+            padding: 12px 16px;
+            font-size: 0.9rem;
+            border-bottom: 1px solid var(--bc-border);
+        }
+
+        .comparison-box ul {
+            margin: 0;
+            padding: 16px 16px 16px 35px;
+            list-style: disc;
+        }
+
+        .comparison-box li {
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+        }
+
+        /* Tier cards */
+        .tier-section {
+            background: white;
+            border: 1px solid var(--bc-border);
+            border-radius: 10px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .tier-header {
+            padding: 15px 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tier-header.foundation {
+            background: linear-gradient(135deg, var(--bc-accent), #7c3aed);
+            color: white;
+        }
+
+        .tier-header.operations {
+            background: linear-gradient(135deg, #059669, #34d399);
+            color: white;
+        }
+
+        .tier-header.experience {
+            background: linear-gradient(135deg, #0891b2, #22d3ee);
+            color: white;
+        }
+
+        .tier-header.intelligence {
+            background: linear-gradient(135deg, #7c3aed, #c4b5fd);
+            color: white;
+        }
+
+        .tier-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+
+        .tier-content {
+            padding: 20px;
+        }
+
+        /* Timeline */
+        .roadmap {
+            background: var(--bc-primary);
+            color: #f8f8f2;
+            padding: 25px;
+            border-radius: 8px;
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 0.7rem;
+            line-height: 1.6;
+            overflow-x: auto;
+            margin-bottom: 25px;
+            white-space: pre;
+        }
+
+        /* Build vs Buy */
+        .decision-table td:nth-child(2) {
+            font-weight: 600;
+        }
+
+        .decision-table .buy {
+            color: var(--bc-success);
+        }
+
+        .decision-table .build {
+            color: var(--bc-accent);
+        }
+
+        /* Metrics cards */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .metric-card {
+            background: white;
+            border: 1px solid var(--bc-border);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .metric-card .label {
+            font-size: 0.75rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .metric-card .target {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--bc-accent);
+        }
+
+        .metric-card .description {
+            font-size: 0.75rem;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        /* Ask box */
+        .ask-box {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border: 2px solid var(--bc-warning);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .ask-box h3 {
+            color: #92400e;
+            margin: 0 0 15px;
+        }
+
+        .ask-box ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .ask-box li {
+            color: #78350f;
+            margin-bottom: 8px;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .sidebar { width: 220px; }
+            .main { margin-left: 220px; padding: 30px 40px; }
+            .comparison-grid { grid-template-columns: 1fr; }
+            .metrics-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 700px) {
+            .sidebar { display: none; }
+            .main { margin-left: 0; padding: 20px; }
+            .meta-inline { flex-direction: column; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>BigCommerce - Q1 2026</h1>
+                <div class="quarter">Product Architecture Kit</div>
+            </div>
+
+            <nav>
+                <div class="nav-section">
+                    <div class="nav-section-title">Overview</div>
+                    <a href="index.html" class="nav-link">Executive Summary</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">April Summit</div>
+                    <a href="april-summit-workback.html" class="nav-link">Workback Plan</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Integration Diagnostic</div>
+                    <a href="integration-diagnostic.html" class="nav-link">Framework Overview</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Merchant Success</div>
+                    <a href="ai-native-architecture.html" class="nav-link active">Vision & Strategy</a>
+                    <a href="#the-offer" class="nav-link">The Offer</a>
+                    <a href="#opportunity" class="nav-link">Market Opportunity</a>
+                    <a href="#architecture-gap" class="nav-link">What's Blocking Us</a>
+                    <a href="#capabilities" class="nav-link">Capabilities Roadmap</a>
+                    <a href="#investment" class="nav-link">Investment Required</a>
+                    <a href="#metrics" class="nav-link">Success Metrics</a>
+                    <a href="#the-ask" class="nav-link">The Ask</a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main">
+            <div class="breadcrumb">
+                <a href="index.html">Kit</a> / Merchant Success Architecture
+            </div>
+
+            <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 1px solid #f59e0b; border-radius: 8px; padding: 12px 20px; margin-bottom: 25px; font-size: 0.9rem; color: #92400e;">
+                <strong>Updated January 2026:</strong> Revised based on NRF 2026 market signals and Project Aion red team assessment. Now leads with merchant outcomes, not technology framing. See <a href="year-one/red-team-response.html" style="color: #92400e; font-weight: 600;">Red Team Response</a> and <a href="year-one/semantic-layer-decision.html" style="color: #92400e; font-weight: 600;">ADR-001</a> for implementation strategy.
+            </div>
+
+            <h1>Merchant Success Architecture</h1>
+            <p class="subtitle">How BigCommerce Helps Merchants Win - Executive Alignment</p>
+
+            <div class="meta-inline">
+                <span><strong>Audience:</strong> Executive team</span>
+                <span><strong>Author:</strong> Nino Chavez</span>
+                <span><strong>Updated:</strong> January 2026</span>
+            </div>
+
+            <!-- The Offer -->
+            <section id="the-offer">
+                <h2>The Offer: What Merchants Get</h2>
+                <p><em>"It's not the protocol or technology that is the thing. It all comes down to the offer."</em> - Rick Watson, NRF 2026</p>
+
+                <div class="callout success">
+                    <h4>BigCommerce's Offer to WooCommerce Merchants</h4>
+                    <p><strong>Migrate in 48 hours. Keep your SEO rankings. Gain access to every marketplace. Pay nothing until you're live.</strong></p>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr><th>What Merchants Get</th><th>Why It Matters</th><th>How We Deliver</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Zero-downtime migration</strong></td><td>No lost sales during transition</td><td>bc-migration + WPEngine partnership</td></tr>
+                        <tr><td><strong>SEO preservation</strong></td><td>Protect existing organic traffic</td><td>URL mapping, redirect automation</td></tr>
+                        <tr><td><strong>Marketplace access</strong></td><td>Sell on Amazon, Google, Facebook instantly</td><td>Feedonomics integration included</td></tr>
+                        <tr><td><strong>Trusted partner support</strong></td><td>Not a cold migration tool</td><td>WPEngine co-branded experience</td></tr>
+                        <tr><td><strong>Better product data</strong></td><td>Richer listings = better conversion</td><td>AI catalog enrichment (Q2 2026)</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>Why "The Offer" Matters Now</h3>
+                <p>The industry is in what Rick Watson calls the "show up and throw up" phase of AI. Lots of companies have AI strategies. Few can explain the <strong>business outcome</strong> their AI strategy delivers.</p>
+                <p>BigCommerce's positioning isn't "we have AI." It's: <strong>"We help merchants sell more, across more channels, with less effort."</strong> AI is how we deliver that - not the headline.</p>
+            </section>
+
+            <!-- The Opportunity -->
+            <section id="opportunity">
+                <h2>Market Opportunity</h2>
+                <p>Commerce is undergoing its third platform shift:</p>
+
+                <table class="era-table">
+                    <thead>
+                        <tr>
+                            <th>Era</th>
+                            <th>Paradigm</th>
+                            <th>BigCommerce Position</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2000s</td>
+                            <td>Monolithic platforms</td>
+                            <td>Challenger to Magento</td>
+                        </tr>
+                        <tr>
+                            <td>2010s</td>
+                            <td>SaaS + APIs</td>
+                            <td>Peer to Shopify</td>
+                        </tr>
+                        <tr>
+                            <td>2020s</td>
+                            <td>Headless/Composable</td>
+                            <td>Invested (Catalyst, Makeswift)</td>
+                        </tr>
+                        <tr>
+                            <td>2030s</td>
+                            <td>AI-Native</td>
+                            <td><strong>Opportunity to lead</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="callout highlight">
+                    <h4>Our Right to Win</h4>
+                    <p><strong>Open + composable architecture</strong> means merchants can use our AI capabilities OR bring their own. Unlike Shopify's walled garden, we enable choice. Our Feedonomics acquisition gives us unique <strong>multi-channel distribution</strong> capabilities no competitor can match.</p>
+                </div>
+
+                <p>BigCommerce has the components (Core + Makeswift + Feedonomics) but lacks unified data, events, and identity layers to deliver AI-native experiences.</p>
+            </section>
+
+            <!-- What This Enables -->
+            <section id="what-ai-native-means">
+                <h2>What This Enables for Merchants</h2>
+                <p>The "PIM business is the sexiest unsexy business on the planet right now" - Rick Watson, NRF 2026. Product data quality directly impacts marketplace performance, search rankings, and conversion rates.</p>
+
+                <h3>Merchant Operations (Where We Win First)</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-box">
+                        <h4>Today: Manual & Tedious</h4>
+                        <ul>
+                            <li>4+ hours per product to write descriptions</li>
+                            <li>Copy/paste to each marketplace (30min per channel)</li>
+                            <li>No feed optimization - leave money on table</li>
+                            <li>Manual migration: 2-6 weeks typical</li>
+                        </ul>
+                    </div>
+                    <div class="comparison-box">
+                        <h4>BigCommerce: Automated & Optimized</h4>
+                        <ul>
+                            <li>5 minutes per catalog - AI enriches on import</li>
+                            <li>One click - channel-specific listings generated</li>
+                            <li>+15-30% GMV via self-optimizing feeds</li>
+                            <li>Automated migration in 48 hours</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>Channel Performance (Feedonomics Advantage)</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-box">
+                        <h4>Without Feedonomics</h4>
+                        <ul>
+                            <li>Manual feed creation per channel</li>
+                            <li>Generic product titles</li>
+                            <li>No performance optimization</li>
+                            <li>Separate tools per marketplace</li>
+                        </ul>
+                    </div>
+                    <div class="comparison-box">
+                        <h4>With Feedonomics</h4>
+                        <ul>
+                            <li>Single source, all channels</li>
+                            <li>Channel-optimized titles & descriptions</li>
+                            <li>Automated bid/listing optimization</li>
+                            <li>Unified dashboard for all marketplaces</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>Business Model Evolution</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-box">
+                        <h4>Today</h4>
+                        <ul>
+                            <li>Platform + tools</li>
+                            <li>Per-seat/GMV pricing</li>
+                            <li>Competing on feature count</li>
+                        </ul>
+                    </div>
+                    <div class="comparison-box">
+                        <h4>Tomorrow</h4>
+                        <ul>
+                            <li>Outcomes platform</li>
+                            <li>Value-based pricing (GMV growth)</li>
+                            <li>Competing on merchant success rate</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Architecture Gap -->
+            <section id="architecture-gap">
+                <h2>The Architecture Gap</h2>
+                <p><strong>Current State:</strong> Three products with varying integration depth</p>
+
+                <div class="diagram">                           CURRENT STATE
+
+   ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+   │  BigCommerce │    │   Makeswift  │    │ Feedonomics  │
+   │     Core     │    │              │    │              │
+   │              │    │              │    │              │
+   │  - Catalog   │<-->│  - Pages     │    │  - Feeds     │
+   │  - Checkout  │    │  - Visual    │    │  - Channels  │
+   │  - Orders    │    │    Editor    │    │  - Sync      │
+   │  - Customers │    │              │    │              │
+   └──────────────┘    └──────────────┘    └──────────────┘
+          │                   │                   │
+          └───────────────────┼───────────────────┘
+                              │
+                    [ Loose Integration ]
+                    - Separate auth
+                    - Batch data sync
+                    - No unified events</div>
+
+                <h4>Why this blocks AI-Native:</h4>
+                <ol>
+                    <li><strong>No unified data layer</strong> - AI needs holistic context (products + content + performance + channels)</li>
+                    <li><strong>No event stream</strong> - AI needs real-time signals, not batch sync</li>
+                    <li><strong>No semantic layer</strong> - AI needs meaning, not just data</li>
+                    <li><strong>No unified identity</strong> - Personalization requires knowing the merchant/shopper across touchpoints</li>
+                </ol>
+
+                <h3>Target State: The Intelligence Layer</h3>
+
+                <div class="diagram">                           TARGET STATE
+
+                  ┌─────────────────────────┐
+                  │    INTELLIGENCE LAYER    │
+                  │                          │
+                  │  - Unified Context       │
+                  │  - Semantic Understanding│
+                  │  - Real-time Events      │
+                  │  - AI Orchestration      │
+                  │  - Agent Capabilities    │
+                  └────────────┬─────────────┘
+                               │
+         ┌─────────────────────┼─────────────────────┐
+         │                     │                     │
+         v                     v                     v
+   ┌──────────┐         ┌──────────┐         ┌──────────┐
+   │ Commerce │         │  Visual  │         │  Channel │
+   │  Engine  │         │  Engine  │         │  Engine  │
+   │          │         │          │         │          │
+   │ (Core)   │         │(Makeswift│         │(Feedono- │
+   │          │         │ evolved) │         │  mics)   │
+   └──────────┘         └──────────┘         └──────────┘
+
+                  ┌─────────────────────────┐
+                  │    UNIFIED DATA LAYER    │
+                  │                          │
+                  │  - Event Stream          │
+                  │  - Canonical Entities    │
+                  │  - Vector Embeddings     │
+                  │  - Graph Relationships   │
+                  └─────────────────────────┘</div>
+            </section>
+
+            <!-- AI-Native Capabilities -->
+            <section id="capabilities">
+                <h2>AI-Native Capabilities (Prioritized)</h2>
+
+                <div class="tier-section">
+                    <div class="tier-header foundation">
+                        <span class="tier-badge">Tier 1</span>
+                        Foundation (Enables everything else)
+                    </div>
+                    <div class="tier-content">
+                        <table>
+                            <thead>
+                                <tr><th>Capability</th><th>Description</th><th>Dependency</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><strong>Unified Event Stream</strong></td><td>Real-time events across all products</td><td>Data layer unification</td></tr>
+                                <tr><td><strong>Semantic Data Layer</strong></td><td>Vector embeddings for products, content, customers</td><td>Event stream</td></tr>
+                                <tr><td><strong>Unified Identity</strong></td><td>Single merchant/shopper identity</td><td>IAM integration</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="tier-section">
+                    <div class="tier-header operations">
+                        <span class="tier-badge">Tier 2</span>
+                        Merchant Operations (Highest Priority)
+                    </div>
+                    <div class="tier-content">
+                        <div class="callout" style="margin-bottom: 20px;">
+                            <h4>Why This Tier First</h4>
+                            <p>PIM (Product Information Management) is the "unsexy" business that drives real ROI. Better product data = better marketplace rankings = more sales. This is where we have the strongest "right to win" via Feedonomics.</p>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr><th>Capability</th><th>Description</th><th>Business Impact</th><th>Priority</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><strong>AI Catalog Enrichment</strong></td><td>Auto-generate descriptions, attributes, SEO</td><td>Better marketplace rankings, higher conversion</td><td style="color: #059669; font-weight: 600;">P0 - Q2</td></tr>
+                                <tr><td><strong>AI Feed Optimization</strong></td><td>Self-optimizing marketplace listings via Feedonomics</td><td>+15-30% GMV on optimized channels</td><td style="color: #059669; font-weight: 600;">P0 - Q2</td></tr>
+                                <tr><td><strong>AI Migration</strong></td><td>Intelligent platform migration (bc-migration)</td><td>Customer acquisition via WPEngine</td><td style="color: #059669; font-weight: 600;">P0 - April</td></tr>
+                                <tr><td><strong>AI Store Setup</strong></td><td>Natural language to configured store</td><td>Reduce time-to-launch</td><td style="color: #666;">P1 - Q4</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="tier-section">
+                    <div class="tier-header experience">
+                        <span class="tier-badge">Tier 3</span>
+                        Shopper Experience (Deprioritized)
+                    </div>
+                    <div class="tier-content">
+                        <div class="callout warning" style="margin-bottom: 20px;">
+                            <h4>Why This Tier Is Lower Priority</h4>
+                            <p>Per Rick Watson's NRF analysis: "The Amazon wheel has not been broken. Fulfillment still matters." Shopper-facing AI features compete with Amazon's discovery moat. Merchant operations (Tier 2) have clearer ROI and less competitive overlap.</p>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr><th>Capability</th><th>Description</th><th>Business Impact</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><strong>AI Search</strong></td><td>Semantic product discovery</td><td>Increase AOV</td></tr>
+                                <tr><td><strong>AI Personalization</strong></td><td>Real-time, cross-channel personalization</td><td>Increase conversion</td></tr>
+                                <tr><td><strong>AI Visual Merchandising</strong></td><td>Auto-optimized page layouts</td><td>Increase conversion</td></tr>
+                                <tr><td><strong>Conversational Commerce</strong></td><td>Chat-based shopping</td><td>New channel (speculative)</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="tier-section">
+                    <div class="tier-header intelligence">
+                        <span class="tier-badge">Tier 4</span>
+                        Merchant Intelligence
+                    </div>
+                    <div class="tier-content">
+                        <table>
+                            <thead>
+                                <tr><th>Capability</th><th>Description</th><th>Business Impact</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><strong>AI Analytics</strong></td><td>Natural language business insights</td><td>Merchant retention</td></tr>
+                                <tr><td><strong>AI Forecasting</strong></td><td>Demand prediction, inventory optimization</td><td>Merchant success</td></tr>
+                                <tr><td><strong>AI Recommendations</strong></td><td>Proactive business recommendations</td><td>Merchant retention</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Strategic Sequencing -->
+            <section id="sequencing">
+                <h2>Strategic Sequencing</h2>
+
+                <div class="roadmap">         Q1 2026        Q2 2026        Q3 2026        Q4 2026        2027+
+            │              │              │              │              │
+FOUNDATION  │──────────────┼──────────────┼──────────────┤              │
+            │ Event Stream │ Semantic     │ Unified      │              │
+            │ Design       │ Layer MVP    │ Identity     │              │
+            │              │              │              │              │
+MIGRATION   │==============│              │              │              │
+            │ bc-migration │ Shopify      │ Magento      │              │
+            │ (WPEngine)   │ migration    │ migration    │              │
+            │              │              │              │              │
+OPERATIONS  │              │──────────────┼──────────────┼──────────────│
+            │              │ Catalog      │ Feed         │ Store        │
+            │              │ Enrichment   │ Optimization │ Setup        │
+            │              │              │              │              │
+EXPERIENCE  │              │              │──────────────┼──────────────│
+            │              │              │ AI Search    │ Personali-   │
+            │              │              │              │ zation       │</div>
+
+                <div class="callout highlight">
+                    <h4>Key Insight</h4>
+                    <p>bc-migration is the <strong>first AI-native capability</strong>, not a separate initiative. It demonstrates the pattern for AI-assisted commerce operations.</p>
+                </div>
+            </section>
+
+            <!-- Investment Required -->
+            <section id="investment">
+                <h2>Investment Required</h2>
+
+                <h3>Architecture (Foundation)</h3>
+                <table>
+                    <thead>
+                        <tr><th>Investment</th><th>Purpose</th><th>Estimate</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Unified Event Stream</td><td>Real-time data backbone</td><td>Engineering team (3-6 months)</td></tr>
+                        <tr><td>Semantic Data Layer</td><td>AI-ready data</td><td>Engineering team (6-9 months)</td></tr>
+                        <tr><td>IAM Unification</td><td>Single identity</td><td>Engineering + Security (3-6 months)</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>AI Infrastructure</h3>
+                <table>
+                    <thead>
+                        <tr><th>Investment</th><th>Purpose</th><th>Estimate</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Vector Database</td><td>Embeddings storage</td><td>Infrastructure + vendor</td></tr>
+                        <tr><td>LLM Integration</td><td>Model orchestration</td><td>Engineering + API costs</td></tr>
+                        <tr><td>AI Gateway</td><td>Rate limiting, caching, routing</td><td>Engineering (2-3 months)</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>Build vs. Buy Decisions</h3>
+                <table class="decision-table">
+                    <thead>
+                        <tr><th>Capability</th><th>Recommendation</th><th>Rationale</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Event Stream</td><td class="buy">Buy (Kafka/Confluent or AWS)</td><td>Commodity, not differentiator</td></tr>
+                        <tr><td>Vector DB</td><td class="buy">Buy (Pinecone, Weaviate)</td><td>Commodity, not differentiator</td></tr>
+                        <tr><td>LLMs</td><td class="buy">Buy (OpenAI, Anthropic, Bedrock)</td><td>Commodity, not differentiator</td></tr>
+                        <tr><td>Semantic Layer</td><td class="build">Build</td><td>Differentiator - commerce-specific</td></tr>
+                        <tr><td>AI Capabilities</td><td class="build">Build</td><td>Differentiator - merchant value</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Competitive Positioning -->
+            <section id="competitive">
+                <h2>Competitive Positioning</h2>
+
+                <table>
+                    <thead>
+                        <tr><th>Competitor</th><th>AI Strategy</th><th>BigCommerce Opportunity</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Shopify</strong></td><td>Magic (AI features in admin)</td><td>Deep but walled garden</td></tr>
+                        <tr><td><strong>Salesforce</strong></td><td>Einstein (CRM-centric)</td><td>Enterprise but complex</td></tr>
+                        <tr><td><strong>Adobe</strong></td><td>Sensei (content-centric)</td><td>Creative but not commerce-native</td></tr>
+                        <tr><td><strong>BigCommerce</strong></td><td><strong>Open + AI-Native</strong></td><td>Composable + intelligent</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="callout success">
+                    <h4>Our Differentiation</h4>
+                    <p>Merchants can swap AI providers, bring custom models, or use native capabilities. No lock-in.</p>
+                </div>
+            </section>
+
+            <!-- Success Metrics -->
+            <section id="metrics">
+                <h2>Success Metrics</h2>
+
+                <h3>Leading Indicators</h3>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="label">AI Feature Adoption</div>
+                        <div class="target">30%</div>
+                        <div class="description">of merchants within 6 months of launch</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="label">Time-to-Value</div>
+                        <div class="target">-50%</div>
+                        <div class="description">days from signup to first sale</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="label">Migration Conversion</div>
+                        <div class="target">80%+</div>
+                        <div class="description">of started migrations completed</div>
+                    </div>
+                </div>
+
+                <h3>Lagging Indicators</h3>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="label">Net Revenue Retention</div>
+                        <div class="target">+5pts</div>
+                        <div class="description">Expansion - Churn</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="label">Enterprise Win Rate</div>
+                        <div class="target">+10pts</div>
+                        <div class="description">% of Enterprise deals won</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="label">Gross Margin</div>
+                        <div class="target">Maintain</div>
+                        <div class="description">Revenue - COGS</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Risks -->
+            <section id="risks">
+                <h2>Risks & Mitigations</h2>
+
+                <table>
+                    <thead>
+                        <tr><th>Risk</th><th>Likelihood</th><th>Impact</th><th>Mitigation</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Integration debt blocks progress</td>
+                            <td>High</td>
+                            <td>High</td>
+                            <td>Diagnostic framework, phased approach</td>
+                        </tr>
+                        <tr>
+                            <td>AI costs exceed value</td>
+                            <td>Medium</td>
+                            <td>High</td>
+                            <td>Usage-based pricing, efficient architectures</td>
+                        </tr>
+                        <tr>
+                            <td>Competitive response (Shopify)</td>
+                            <td>High</td>
+                            <td>Medium</td>
+                            <td>Speed to market, open positioning</td>
+                        </tr>
+                        <tr>
+                            <td>Organizational resistance</td>
+                            <td>Medium</td>
+                            <td>Medium</td>
+                            <td>Executive sponsorship, quick wins</td>
+                        </tr>
+                        <tr>
+                            <td>Technical complexity</td>
+                            <td>High</td>
+                            <td>Medium</td>
+                            <td>Incremental delivery, prove patterns</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Next Steps -->
+            <section id="next-steps">
+                <h2>Immediate Next Steps</h2>
+
+                <h3>This Month (January 2026)</h3>
+                <ol>
+                    <li><strong>Align on this vision</strong> - CPO, CEO, CFO/COO buy-in</li>
+                    <li><strong>Complete bc-migration for April</strong> - First proof point</li>
+                    <li><strong>Begin integration debt diagnostic</strong> - Understand current state</li>
+                </ol>
+
+                <h3>Next Quarter (Q2 2026)</h3>
+                <ol>
+                    <li><strong>Announce bc-migration at Summit</strong> - External credibility</li>
+                    <li><strong>Complete integration debt assessment</strong> - Prioritized gap list</li>
+                    <li><strong>Design event stream architecture</strong> - Foundation for everything</li>
+                </ol>
+
+                <h3>This Year (2026)</h3>
+                <ol>
+                    <li><strong>Ship 2-3 AI-native capabilities</strong> - Catalog enrichment, feed optimization</li>
+                    <li><strong>Unify identity across products</strong> - Enabler for personalization</li>
+                    <li><strong>Establish AI infrastructure</strong> - LLM gateway, vector storage</li>
+                </ol>
+            </section>
+
+            <!-- The Ask -->
+            <section id="the-ask">
+                <div class="ask-box">
+                    <h3>The Ask</h3>
+                    <ol>
+                        <li><strong>Executive alignment</strong> on AI-native as strategic direction</li>
+                        <li><strong>Air cover</strong> to navigate cross-product organizational dynamics</li>
+                        <li><strong>Investment</strong> in foundational architecture (event stream, semantic layer)</li>
+                        <li><strong>Foundation timeline</strong> - event stream + semantic layer require 6-9 months before AI capabilities ship</li>
+                    </ol>
+                </div>
+            </section>
+
+            <!-- Appendix -->
+            <section id="appendix">
+                <h2>Appendix: bc-migration as Pattern</h2>
+                <p>The bc-migration work demonstrates the AI-native pattern:</p>
+
+                <table>
+                    <thead>
+                        <tr><th>bc-migration Component</th><th>AI-Native Pattern</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Assessment Engine</td><td>AI analyzes source, recommends actions</td></tr>
+                        <tr><td>Transformers</td><td>AI normalizes and enriches data</td></tr>
+                        <tr><td>Validation</td><td>AI verifies correctness</td></tr>
+                        <tr><td>Idempotency</td><td>AI operations are safe to retry</td></tr>
+                        <tr><td>Structured Logging</td><td>AI decisions are explainable</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="callout highlight">
+                    <p><strong>bc-migration is not just a tool - it's the template for how BigCommerce builds AI-native capabilities.</strong></p>
+                </div>
+            </section>
+
+            <div style="margin-top: 50px; padding-top: 30px; border-top: 1px solid var(--bc-border); color: #888; font-size: 0.85rem;">
+                <p><em>Last Updated: January 2026</em></p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Active nav link on scroll
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

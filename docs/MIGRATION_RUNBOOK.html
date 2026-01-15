@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Migration Runbook | BC Migration</title>
+    <style>
+        :root {
+            --bc-primary: #34313f;
+            --bc-accent: #5c6ac4;
+            --bc-success: #28a745;
+            --bc-warning: #ffc107;
+            --bc-danger: #dc3545;
+            --bc-light: #f8f9fa;
+            --bc-border: #e0e0e0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bc-light);
+            color: var(--bc-primary);
+            line-height: 1.6;
+            padding-bottom: 70px;
+        }
+
+        /* Sticky Navigation */
+        .sticky-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bc-primary); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); z-index: 1000; }
+        .sticky-nav a { color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 0.85rem; transition: background 0.2s; }
+        .sticky-nav a:hover { background: rgba(255,255,255,0.15); }
+        .sticky-nav .nav-center { font-size: 0.75rem; color: rgba(255,255,255,0.7); }
+        .sticky-nav .nav-center select { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 6px 10px; border-radius: 4px; font-size: 0.8rem; margin-left: 8px; }
+        .sticky-nav .nav-center select option { background: var(--bc-primary); }
+        @media (max-width: 768px) { .sticky-nav .nav-center { display: none; } }
+
+        .header {
+            background: linear-gradient(135deg, var(--bc-primary) 0%, #4a4458 100%);
+            color: white;
+            padding: 40px;
+        }
+
+        .header-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 30px;
+            color: var(--bc-accent);
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .source-box {
+            background: #e8f5e9;
+            border-left: 4px solid var(--bc-success);
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .source-box h3 {
+            font-size: 0.9rem;
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+
+        .source-box ul {
+            list-style: none;
+            font-size: 0.9rem;
+        }
+
+        .source-box li {
+            padding: 3px 0;
+        }
+
+        .source-box code {
+            background: rgba(0,0,0,0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.85rem;
+        }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .section h2 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--bc-border);
+        }
+
+        .section h3 {
+            font-size: 1.1rem;
+            margin: 25px 0 15px 0;
+            color: var(--bc-primary);
+        }
+
+        .section p {
+            margin-bottom: 15px;
+            color: #444;
+        }
+
+        .section ul, .section ol {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+
+        .section li {
+            margin-bottom: 8px;
+        }
+
+        .code-block {
+            background: var(--bc-primary);
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        .code-block .comment {
+            color: #6272a4;
+        }
+
+        .code-block .command {
+            color: #50fa7b;
+        }
+
+        .code-block .flag {
+            color: #8be9fd;
+        }
+
+        .phase-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .phase-number {
+            background: var(--bc-accent);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .phase-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .prereq-box {
+            background: #fff3e0;
+            border-left: 4px solid var(--bc-warning);
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .prereq-box h4 {
+            color: #ef6c00;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .prereq-box ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .output-box {
+            background: #e3f2fd;
+            border-left: 4px solid #1976d2;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .output-box h4 {
+            color: #1565c0;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--bc-border);
+        }
+
+        th {
+            background: var(--bc-light);
+            font-weight: 600;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-complete { background: #e8f5e9; color: #2e7d32; }
+        .status-implemented { background: #e8f5e9; color: #2e7d32; }
+
+        .cli-ref {
+            background: var(--bc-light);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .cli-ref h4 {
+            margin-bottom: 15px;
+            color: var(--bc-primary);
+        }
+
+        .cli-ref table {
+            margin: 0;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 25px 20px;
+            }
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            .code-block {
+                font-size: 0.75rem;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>Migration Runbook</h1>
+            <p class="subtitle">Step-by-Step Guide to WooCommerce → BigCommerce Migration</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <a href="index.html" class="back-link">&larr; Back to Documentation Hub</a>
+
+        <!-- Data Sources -->
+        <div class="source-box">
+            <h3>Implementation Source</h3>
+            <ul>
+                <li>This runbook documents the actual <code>bc-migration</code> CLI tool</li>
+                <li>Source: <code>src/cli.ts</code>, <code>src/migration/*.ts</code>, <code>src/assessment/*.ts</code></li>
+                <li>All commands shown are implemented and functional</li>
+            </ul>
+        </div>
+
+        <!-- Overview -->
+        <section class="section">
+            <h2>Migration Overview</h2>
+            <p>The bc-migration tool provides a three-phase approach to WooCommerce → BigCommerce migration:</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Phase</th>
+                        <th>Command</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Phase 1</strong></td>
+                        <td><code>assess</code></td>
+                        <td>Analyze WooCommerce store for migration suitability</td>
+                        <td><span class="status-badge status-implemented">Implemented</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Phase 2</strong></td>
+                        <td><code>migrate</code></td>
+                        <td>Perform data migration (categories, products, customers, orders)</td>
+                        <td><span class="status-badge status-implemented">Implemented</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Phase 3</strong></td>
+                        <td><code>validate</code></td>
+                        <td>Verify migration results and data integrity</td>
+                        <td><span class="status-badge status-implemented">Implemented</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Prerequisites -->
+        <section class="section">
+            <h2>Prerequisites</h2>
+
+            <h3>Required Credentials</h3>
+            <p>Create a <code>.env</code> file in the project root with the following credentials:</p>
+
+            <div class="code-block">
+<pre><span class="comment"># WooCommerce Source Store</span>
+WC_URL=https://your-store.com
+WC_CONSUMER_KEY=ck_xxxxxxxxxxxxxxxxxxxx
+WC_CONSUMER_SECRET=cs_xxxxxxxxxxxxxxxxxxxx
+
+<span class="comment"># BigCommerce Target Store</span>
+BC_STORE_HASH=xxxxxxxxxx
+BC_ACCESS_TOKEN=xxxxxxxxxxxxxxxxxxxx</pre>
+            </div>
+
+            <h3>WooCommerce API Keys</h3>
+            <ol>
+                <li>Go to WooCommerce → Settings → Advanced → REST API</li>
+                <li>Click "Add Key"</li>
+                <li>Set permissions to "Read" (or "Read/Write" if order migration needed)</li>
+                <li>Copy the Consumer Key and Consumer Secret</li>
+            </ol>
+
+            <h3>BigCommerce API Token</h3>
+            <ol>
+                <li>Go to BigCommerce Admin → Settings → API → API Accounts</li>
+                <li>Create a new API Account with the following scopes:
+                    <ul>
+                        <li>Products: Modify</li>
+                        <li>Customers: Modify</li>
+                        <li>Orders: Modify</li>
+                        <li>Content: Modify (for categories)</li>
+                    </ul>
+                </li>
+                <li>Save the Access Token and Store Hash</li>
+            </ol>
+
+            <h3>Installation</h3>
+            <div class="code-block">
+<pre><span class="command">git clone</span> &lt;repo-url&gt; bc-migration
+<span class="command">cd</span> bc-migration
+<span class="command">npm install</span>
+<span class="command">cp</span> .env.example .env   <span class="comment"># Edit with your credentials</span></pre>
+            </div>
+        </section>
+
+        <!-- Phase 1: Assessment -->
+        <section class="section">
+            <div class="phase-header">
+                <div class="phase-number">1</div>
+                <div class="phase-title">Assessment Phase</div>
+            </div>
+
+            <p>Analyze the source WooCommerce store to understand migration scope and complexity.</p>
+
+            <div class="code-block">
+<pre><span class="command">npx tsx src/cli.ts assess</span>
+
+<span class="comment"># Or with explicit credentials:</span>
+<span class="command">npx tsx src/cli.ts assess</span> <span class="flag">--url</span> https://mystore.com <span class="flag">--key</span> ck_123 <span class="flag">--secret</span> cs_456</pre>
+            </div>
+
+            <h3>What Assessment Collects</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Collector</th>
+                        <th>Data Collected</th>
+                        <th>Source File</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Scale Metrics</td>
+                        <td>Product count, order count, customer count</td>
+                        <td><code>collectors/scale.ts</code></td>
+                    </tr>
+                    <tr>
+                        <td>Complexity Analysis</td>
+                        <td>Variable products, custom attributes, variant counts</td>
+                        <td><code>collectors/complexity.ts</code></td>
+                    </tr>
+                    <tr>
+                        <td>Custom Logic</td>
+                        <td>Action/filter hooks, custom post types</td>
+                        <td><code>collectors/custom-logic.ts</code></td>
+                    </tr>
+                    <tr>
+                        <td>Plugin Mapping</td>
+                        <td>Active plugins → BigCommerce equivalents</td>
+                        <td><code>plugin-mapper.ts</code></td>
+                    </tr>
+                    <tr>
+                        <td>SEO Analysis</td>
+                        <td>URL structure, meta tags, permalink settings</td>
+                        <td><code>collectors/seo.ts</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="output-box">
+                <h4>Output</h4>
+                <ul>
+                    <li><code>./reports/assessment.md</code> - Human-readable report</li>
+                    <li><code>./reports/assessment.json</code> - Machine-readable data</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Phase 1.5: Validate Target -->
+        <section class="section">
+            <h2>Validate Target Store</h2>
+            <p>Before migrating, verify BigCommerce API connectivity:</p>
+
+            <div class="code-block">
+<pre><span class="command">npx tsx src/cli.ts validate-target</span>
+
+<span class="comment"># Or with explicit credentials:</span>
+<span class="command">npx tsx src/cli.ts validate-target</span> <span class="flag">--hash</span> abc12345 <span class="flag">--token</span> vt_xyz789</pre>
+            </div>
+
+            <p>This verifies:</p>
+            <ul>
+                <li>API credentials are valid</li>
+                <li>Store is accessible</li>
+                <li>Required permissions are granted</li>
+            </ul>
+        </section>
+
+        <!-- Phase 2: Migration -->
+        <section class="section">
+            <div class="phase-header">
+                <div class="phase-number">2</div>
+                <div class="phase-title">Migration Phase</div>
+            </div>
+
+            <div class="prereq-box">
+                <h4>Prerequisites</h4>
+                <ul>
+                    <li>Assessment phase completed (<code>assess</code> command run)</li>
+                    <li>BigCommerce API credentials validated (<code>validate-target</code> passed)</li>
+                    <li>Both WooCommerce and BigCommerce credentials in <code>.env</code></li>
+                </ul>
+            </div>
+
+            <h3>Full Migration</h3>
+            <div class="code-block">
+<pre><span class="command">npx tsx src/cli.ts migrate</span>
+
+<span class="comment"># Migrates: categories → products → customers → orders</span></pre>
+            </div>
+
+            <h3>Selective Migration</h3>
+            <div class="code-block">
+<pre><span class="comment"># Categories only</span>
+<span class="command">npx tsx src/cli.ts migrate</span> <span class="flag">--type</span> categories
+
+<span class="comment"># Products only</span>
+<span class="command">npx tsx src/cli.ts migrate</span> <span class="flag">--type</span> products
+
+<span class="comment"># Customers only</span>
+<span class="command">npx tsx src/cli.ts migrate</span> <span class="flag">--type</span> customers
+
+<span class="comment"># Orders only</span>
+<span class="command">npx tsx src/cli.ts migrate</span> <span class="flag">--type</span> orders</pre>
+            </div>
+
+            <h3>Delta Sync (Incremental)</h3>
+            <p>Only migrate items modified since the last successful run:</p>
+            <div class="code-block">
+<pre><span class="command">npx tsx src/cli.ts migrate</span> <span class="flag">--delta</span>
+
+<span class="comment"># Delta sync for specific type</span>
+<span class="command">npx tsx src/cli.ts migrate</span> <span class="flag">--type</span> products <span class="flag">--delta</span></pre>
+            </div>
+
+            <h3>Migration Order</h3>
+            <p>The CLI migrates data in dependency order:</p>
+            <ol>
+                <li><strong>Categories</strong> - Must exist before products can be assigned</li>
+                <li><strong>Products</strong> - Includes variants, images, and category assignments</li>
+                <li><strong>Customers</strong> - Customer accounts and addresses</li>
+                <li><strong>Orders</strong> - Historical order data</li>
+            </ol>
+
+            <h3>Implemented Migrators</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Migrator</th>
+                        <th>Features</th>
+                        <th>Source File</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>CategoryMigrator</td>
+                        <td>Hierarchical categories, skip existing</td>
+                        <td><code>migration/category-migrator.ts</code></td>
+                    </tr>
+                    <tr>
+                        <td>ProductMigrator</td>
+                        <td>Simple + variable products, variants, images, delta sync</td>
+                        <td><code>migration/product-migrator.ts</code></td>
+                    </tr>
+                    <tr>
+                        <td>CustomerMigrator</td>
+                        <td>Customer profiles, addresses, skip existing</td>
+                        <td><code>migration/customer-migrator.ts</code></td>
+                    </tr>
+                    <tr>
+                        <td>OrderMigrator</td>
+                        <td>Order history, line items, delta sync</td>
+                        <td><code>migration/order-migrator.ts</code></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Phase 3: Validation -->
+        <section class="section">
+            <div class="phase-header">
+                <div class="phase-number">3</div>
+                <div class="phase-title">Validation Phase</div>
+            </div>
+
+            <div class="prereq-box">
+                <h4>Prerequisites</h4>
+                <ul>
+                    <li>Migration phase completed (<code>migrate</code> command run)</li>
+                    <li>Both WooCommerce and BigCommerce credentials available</li>
+                </ul>
+            </div>
+
+            <div class="code-block">
+<pre><span class="command">npx tsx src/cli.ts validate</span>
+
+<span class="comment"># With custom sample size for spot checks:</span>
+<span class="command">npx tsx src/cli.ts validate</span> <span class="flag">--sample</span> 20</pre>
+            </div>
+
+            <h3>Validation Checks</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Check</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Count Verification</td>
+                        <td>Compare product/customer/order counts between platforms</td>
+                    </tr>
+                    <tr>
+                        <td>Sample Data Comparison</td>
+                        <td>Verify field values match for sampled items</td>
+                    </tr>
+                    <tr>
+                        <td>Image Accessibility</td>
+                        <td>Verify product images are accessible on BigCommerce</td>
+                    </tr>
+                    <tr>
+                        <td>Price Accuracy</td>
+                        <td>Verify prices match between source and target</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="output-box">
+                <h4>Output</h4>
+                <ul>
+                    <li><code>./reports/validation-report.md</code> - Human-readable validation results</li>
+                    <li><code>./reports/validation-report.json</code> - Machine-readable validation data</li>
+                    <li>Exit code: 0 (pass), 1 (fail), with warning status printed</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Dashboard -->
+        <section class="section">
+            <h2>Assessment Dashboard</h2>
+            <p>Launch a local web dashboard to visualize assessment results:</p>
+
+            <div class="code-block">
+<pre><span class="command">npx tsx src/cli.ts dashboard</span>
+
+<span class="comment"># Opens http://localhost:3000 with assessment visualization</span></pre>
+            </div>
+
+            <div class="prereq-box">
+                <h4>Prerequisite</h4>
+                <ul>
+                    <li>Assessment report must exist (<code>./reports/assessment.json</code>)</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- CLI Reference -->
+        <section class="section">
+            <h2>CLI Command Reference</h2>
+
+            <div class="cli-ref">
+                <h4>bc-migrate assess</h4>
+                <table>
+                    <tr><td><code>--url</code></td><td>WooCommerce store URL</td></tr>
+                    <tr><td><code>--key</code></td><td>WooCommerce Consumer Key</td></tr>
+                    <tr><td><code>--secret</code></td><td>WooCommerce Consumer Secret</td></tr>
+                </table>
+            </div>
+
+            <div class="cli-ref">
+                <h4>bc-migrate validate-target</h4>
+                <table>
+                    <tr><td><code>--hash</code></td><td>BigCommerce Store Hash</td></tr>
+                    <tr><td><code>--token</code></td><td>BigCommerce Access Token</td></tr>
+                </table>
+            </div>
+
+            <div class="cli-ref">
+                <h4>bc-migrate migrate</h4>
+                <table>
+                    <tr><td><code>--type</code></td><td>Migration type: categories, products, customers, orders, all (default: all)</td></tr>
+                    <tr><td><code>--delta</code></td><td>Enable incremental migration (only modified items)</td></tr>
+                    <tr><td><code>--url</code></td><td>WooCommerce store URL</td></tr>
+                    <tr><td><code>--key</code></td><td>WooCommerce Consumer Key</td></tr>
+                    <tr><td><code>--secret</code></td><td>WooCommerce Consumer Secret</td></tr>
+                    <tr><td><code>--hash</code></td><td>BigCommerce Store Hash</td></tr>
+                    <tr><td><code>--token</code></td><td>BigCommerce Access Token</td></tr>
+                </table>
+            </div>
+
+            <div class="cli-ref">
+                <h4>bc-migrate validate</h4>
+                <table>
+                    <tr><td><code>--sample</code></td><td>Number of items to sample for spot checks (default: 10)</td></tr>
+                    <tr><td><code>--url</code></td><td>WooCommerce store URL</td></tr>
+                    <tr><td><code>--key</code></td><td>WooCommerce Consumer Key</td></tr>
+                    <tr><td><code>--secret</code></td><td>WooCommerce Consumer Secret</td></tr>
+                    <tr><td><code>--hash</code></td><td>BigCommerce Store Hash</td></tr>
+                    <tr><td><code>--token</code></td><td>BigCommerce Access Token</td></tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- Sources & Citations -->
+        <section class="section">
+            <h2>Sources & Citations</h2>
+            <div style="background: var(--bc-light); border-radius: 8px; padding: 20px; font-size: 0.9rem;">
+                <p><strong>This document synthesizes content from:</strong></p>
+                <ul style="margin-top: 10px;">
+                    <li><strong>CLI Implementation:</strong> bc-migration source code (src/cli.ts)</li>
+                    <li><strong>Migration Workflow:</strong> bc-migration implementation design (our specification)</li>
+                    <li><strong>Assessment Criteria:</strong> Granite Comparative Analysis, Slides 195-199 (complexity factors)</li>
+                    <li><strong>Data Migration Patterns:</strong> BigCommerce API documentation + bc-migration implementation</li>
+                    <li><strong>Validation Approach:</strong> bc-migration implementation; not Granite-sourced</li>
+                    <li><strong>Timeline Estimates:</strong> Store Size Playbook benchmarks</li>
+                </ul>
+                <p style="margin-top: 15px; color: #666;"><em>CLI commands shown represent the bc-migration tooling interface. See Store Size Playbook for tier-specific timelines and complexity guidance.</em></p>
+            </div>
+        </section>
+
+    </div>
+
+    <footer class="footer">
+        <p><strong>BC Migration Documentation</strong></p>
+        <p>Migration Runbook</p>
+    </footer>
+
+    <!-- Sticky Navigation -->
+    <nav class="sticky-nav">
+        <a href="SEO_PRESERVATION_GUIDE.html">← SEO Guide</a>
+        <div class="nav-center">
+            <span>8 of 17</span>
+            <select onchange="if(this.value) window.location.href=this.value">
+                <option value="">Jump to...</option>
+                <option value="IMPLEMENTATION_BRIEF.html">★ Implementation Brief</option>
+                <option value="index.html">Home</option>
+                <option value="GRANITE_COMPARATIVE_ANALYSIS.html">1. Granite Analysis</option>
+                <option value="WPE_ARTEMIS_MIGRATION_ANALYSIS.html">2. WPE Artemis</option>
+                <option value="PLATFORM_DECISION_RATIONALE.html">3. Platform Decision</option>
+                <option value="MIGRATION_BUSINESS_CASE.html">4. Business Case</option>
+                <option value="COMPETITIVE_LANDSCAPE.html">5. Competitive Landscape</option>
+                <option value="PLUGIN_COMPATIBILITY_MATRIX.html">6. Plugin Matrix</option>
+                <option value="SEO_PRESERVATION_GUIDE.html">7. SEO Guide</option>
+                <option value="MIGRATION_RUNBOOK.html" selected>8. Migration Runbook</option>
+                <option value="INTEGRATION_ARCHITECTURE.html">9. Integration Architecture</option>
+                <option value="WORDPRESS_CATALYST_COMPONENTS.html">10. WP Catalyst Components</option>
+                <option value="ADR-001-keep-wordpress.html">11. ADR-001</option>
+                <option value="ADR-002-headless-vs-checkout-only.html">12. ADR-002</option>
+                <option value="ADR-003-order-history-strategy.html">13. ADR-003</option>
+                <option value="MIGRATION_QA_TRACKER.html">14. Q&A Tracker</option>
+                <option value="B2B_MIGRATION_GUIDE.html">15. B2B Guide</option>
+                <option value="STORE_SIZE_PLAYBOOK.html">16. Store Size Playbook</option>
+                <option value="MIGRATION_PERSONAS.html">17. Migration Personas</option>
+            </select>
+        </div>
+        <a href="INTEGRATION_ARCHITECTURE.html">Integration Architecture →</a>
+    </nav>
+</body>
+</html>

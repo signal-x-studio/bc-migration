@@ -1,0 +1,59 @@
+---
+title: "MigrationError"
+description: "Base class for all migration errors"
+category: "reference"
+order: 100
+section: "api"
+---
+
+# MigrationError
+
+Base class for all migration errors
+
+## Constructor
+
+```typescript
+MigrationError(message: string, code: string, retriable: boolean, context?: Record<string, unknown>): MigrationError
+```
+
+### Parameters
+
+- **`message`** (`string`): No description
+- **`code`** (`string`): No description
+- **`retriable`** (`boolean`): No description
+- **`context`** (`Record<string, unknown>`) (optional): No description
+
+### Returns
+
+`MigrationError`
+
+## Properties
+
+### `code`
+
+Type: `string`
+
+### `retriable`
+
+Type: `boolean`
+
+### `context`
+
+Type: `Record<string, unknown>`
+
+### `timestamp`
+
+Type: `string`
+
+## Methods
+
+### `toJSON()`
+
+```typescript
+toJSON(): Record<string, unknown>
+```
+
+### Returns
+
+`Record<string, unknown>`
+

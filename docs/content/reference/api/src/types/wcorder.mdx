@@ -1,0 +1,54 @@
+---
+title: "WCOrder"
+description: "WCOrder"
+category: "reference"
+order: 300
+section: "api"
+---
+
+# WCOrder
+
+## Properties
+
+| Name | Type | Description |
+|------|------|-------------|
+| `id` | `number` | - |
+| `parent_id` | `number` | - |
+| `status` | `WCOrderStatus` | - |
+| `currency` | `string` | - |
+| `version` | `string` | - |
+| `prices_include_tax` | `boolean` | - |
+| `date_created` | `string` | - |
+| `date_modified` | `string` | - |
+| `discount_total` | `string` | - |
+| `discount_tax` | `string` | - |
+| `shipping_total` | `string` | - |
+| `shipping_tax` | `string` | - |
+| `cart_tax` | `string` | - |
+| `total` | `string` | - |
+| `total_tax` | `string` | - |
+| `customer_id` | `number` | - |
+| `order_key` | `string` | - |
+| `billing` | `WCAddress` | - |
+| `shipping` | `Omit<WCAddress, "email" | "phone">` | - |
+| `payment_method` | `string` | - |
+| `payment_method_title` | `string` | - |
+| `transaction_id` | `string` | - |
+| `customer_ip_address` | `string` | - |
+| `customer_user_agent` | `string` | - |
+| `created_via` | `string` | - |
+| `customer_note` | `string` | - |
+| `date_completed` | `string | null` | - |
+| `date_paid` | `string | null` | - |
+| `cart_hash` | `string` | - |
+| `number` | `string` | - |
+| `meta_data` | `WCMetaData[]` | - |
+| `line_items` | `WCOrderLineItem[]` | - |
+| `tax_lines` | `reflection[]` | - |
+| `shipping_lines` | `WCOrderShippingLine[]` | - |
+| `fee_lines` | `WCOrderFeeLine[]` | - |
+| `coupon_lines` | `WCOrderCouponLine[]` | - |
+| `refunds` | `reflection[]` | - |
+| `payment_url` | `string` | - |
+| `currency_symbol` | `string` | - |
+

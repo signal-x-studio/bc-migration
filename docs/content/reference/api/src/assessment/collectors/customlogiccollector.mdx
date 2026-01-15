@@ -1,0 +1,39 @@
+---
+title: "CustomLogicCollector"
+description: "CustomLogicCollector analyzes the theme's functions.php (if accessible)"
+category: "reference"
+order: 100
+section: "api"
+---
+
+# CustomLogicCollector
+
+CustomLogicCollector analyzes the theme's functions.php (if accessible)
+or uses heuristic checks via WC API to identify custom business logic.
+
+## Constructor
+
+```typescript
+CustomLogicCollector(client: WCClient): CustomLogicCollector
+```
+
+### Parameters
+
+- **`client`** (`WCClient`): No description
+
+### Returns
+
+`CustomLogicCollector`
+
+## Methods
+
+### `collect()`
+
+```typescript
+collect(): Promise<CustomLogicMetrics>
+```
+
+### Returns
+
+`Promise<CustomLogicMetrics>`
+

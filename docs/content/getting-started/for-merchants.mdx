@@ -1,0 +1,202 @@
+---
+title: Getting Started for Merchants
+description: Simple guide for WooCommerce store owners migrating to BigCommerce
+category: getting-started
+section: merchants
+order: 1
+---
+
+# Getting Started for Merchants
+
+This guide will help you migrate your WooCommerce store to BigCommerce using the BC Migration tool.
+
+## What You'll Need
+
+Before starting your migration, make sure you have:
+
+- **WooCommerce Store**: Admin access to your WooCommerce store
+- **WooCommerce API Keys**: Consumer Key and Secret from WooCommerce → Settings → Advanced → REST API
+- **BigCommerce Store**: An active BigCommerce store (trial or paid)
+- **BigCommerce API Credentials**: Store Hash and Access Token from BigCommerce → Settings → API → Store-level API accounts
+- **Time**: Plan for 2-4 hours for a small store (under 1,000 products)
+
+## Migration Overview
+
+The migration happens in four phases:
+
+### Phase 1: Foundation
+Connect your stores and run an assessment to understand what will be migrated.
+
+### Phase 2: Core Data
+Migrate categories, products, and their attributes. This is typically the longest phase.
+
+### Phase 3: Transactions
+Migrate customer data, orders, and coupon codes.
+
+### Phase 4: Content
+Migrate blog posts, pages, and product reviews.
+
+## Step-by-Step Process
+
+### 1. Connect Your WooCommerce Store
+
+1. Navigate to the **Dashboard**
+2. Click **Configure WooCommerce Connection**
+3. Enter your store information:
+   - **Store URL**: Your WooCommerce site (e.g., `https://mystore.com`)
+   - **Consumer Key**: From WooCommerce REST API settings
+   - **Consumer Secret**: From WooCommerce REST API settings
+4. Click **Save Connection**
+
+The system will test the connection automatically.
+
+### 2. Connect Your BigCommerce Store
+
+1. Click **Configure BigCommerce Connection**
+2. Enter your store credentials:
+   - **Store Hash**: Found in your BigCommerce API settings (format: `abc123xyz`)
+   - **Access Token**: Generated from BigCommerce store-level API accounts
+   - **Client ID**: From your API account (optional for migration, required for BC Bridge)
+3. Click **Save Connection**
+
+### 3. Run Assessment
+
+Before migrating, run an assessment to see what can be transferred:
+
+1. Click **Run Assessment**
+2. Wait 2-5 minutes while the tool scans your WooCommerce store
+3. Review the assessment report:
+   - **Products**: How many products and variants
+   - **Categories**: Category structure and depth
+   - **Customers**: Customer accounts and order history
+   - **Orders**: Total orders and statuses
+   - **Issues**: Any potential problems detected
+
+The assessment helps identify issues before migration starts.
+
+### 4. Start Migration
+
+Once you're ready:
+
+1. Navigate to the **Migration Wizard**
+2. The wizard will guide you through all four phases
+3. Each phase shows:
+   - **What will be migrated**
+   - **Estimated time**
+   - **Progress indicator**
+4. Click **Start Phase** for each section
+
+**Important**: You can pause and resume migration at any time. Progress is saved automatically.
+
+### 5. Monitor Progress
+
+Watch the real-time progress bars for:
+- Categories being created
+- Products being migrated
+- Customers being transferred
+- Orders being imported
+
+If errors occur, they're logged and you can retry failed items.
+
+### 6. Verify Migration
+
+After each phase completes:
+
+1. **Check BigCommerce**: Log in to your BigCommerce admin
+2. **Verify Data**:
+   - Products have correct prices and images
+   - Categories are properly nested
+   - Customer accounts are accessible
+3. **Test Checkout**: Place a test order to ensure everything works
+4. **Review Redirects**: Export URL redirects to avoid broken links
+
+## What Gets Migrated
+
+### ✅ Migrated Automatically
+
+- **Products**: Titles, descriptions, SKUs, prices, images, variants
+- **Categories**: Names, descriptions, hierarchies, images
+- **Customers**: Names, emails, addresses (passwords reset required)
+- **Orders**: Order history, statuses, line items, totals
+- **Coupons**: Discount codes and rules (where compatible)
+- **Reviews**: Product reviews and ratings
+- **Pages**: WordPress pages as BigCommerce web pages
+- **Blog**: WordPress posts to BigCommerce blog
+
+### ⚠️ Requires Manual Setup
+
+- **Theme/Design**: BigCommerce uses different themes (consider Catalyst or Stencil)
+- **Custom Fields**: WooCommerce custom fields need manual mapping
+- **Plugins**: WooCommerce plugins don't transfer (find BigCommerce alternatives)
+- **Payment Gateways**: Reconfigure in BigCommerce settings
+- **Shipping**: Set up shipping zones and rates in BigCommerce
+
+### ❌ Not Migrated
+
+- **User passwords**: Customers need to reset passwords
+- **Plugin data**: Third-party plugin data structures
+- **Draft products**: Only published products migrate
+- **Internal notes**: Private order notes don't transfer
+
+## After Migration
+
+### 1. Post-Migration Checklist
+
+- [ ] Test all product pages for correct pricing and images
+- [ ] Verify category navigation works
+- [ ] Check customer accounts can log in (after password reset)
+- [ ] Test checkout process end-to-end
+- [ ] Configure shipping zones and rates
+- [ ] Set up payment gateways
+- [ ] Configure tax settings
+- [ ] Set up email notifications
+- [ ] Test on mobile devices
+
+### 2. URL Redirects
+
+Export and implement redirects to maintain SEO:
+
+1. Download the redirect CSV from **Assessment → Export Redirects**
+2. Implement in:
+   - **BigCommerce**: Settings → Redirects (manually)
+   - **CDN**: Cloudflare/Fastly rules (bulk)
+   - **Server**: nginx/Apache rules (via .htaccess)
+
+### 3. Go Live
+
+When ready to switch:
+
+1. **Backup**: Create full backup of WooCommerce store
+2. **Final Migration**: Run migration one last time to capture recent orders
+3. **DNS**: Update DNS to point to BigCommerce
+4. **Monitor**: Watch for errors in first 24-48 hours
+5. **Support**: Have support resources ready for customer questions
+
+## Common Issues
+
+### "Connection Failed"
+- **WooCommerce**: Check API keys have read/write permissions
+- **BigCommerce**: Verify Access Token hasn't expired
+- **Network**: Ensure firewall allows API connections
+
+### "Product Import Failed"
+- **SKU Conflicts**: BigCommerce requires unique SKUs
+- **Invalid Prices**: Check for non-numeric price values
+- **Missing Images**: Verify image URLs are accessible
+
+### "Customer Import Skipped"
+- **Duplicate Emails**: BigCommerce requires unique customer emails
+- **Invalid Data**: Check for malformed email addresses
+
+## Getting Help
+
+- **Dashboard**: Check the built-in help panel (? icon)
+- **Troubleshooting**: See [Troubleshooting Guide](/docs/troubleshooting/common-issues)
+- **Support**: Contact your agency or migration partner
+- **Community**: BigCommerce community forums
+
+## Next Steps
+
+- [WooCommerce to BigCommerce Differences](/docs/guides/platform-differences)
+- [Setting Up BC Bridge Plugin](/docs/guides/bc-bridge/installation)
+- [Optimizing Your BigCommerce Store](/docs/guides/post-migration/optimization)

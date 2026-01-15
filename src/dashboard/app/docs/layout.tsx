@@ -1,10 +1,9 @@
-import { DocsLayout } from '@/components/docs/DocsLayout';
-
+// Layout wrapper - don't wrap in DocsLayout here, it's done in individual pages
 export default function DocsLayoutWrapper({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <DocsLayout>{children}</DocsLayout>;
+  return <>{children}</>;
 }
 

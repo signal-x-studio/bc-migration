@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Competitive Landscape | BC Migration</title>
+    <style>
+        :root {
+            --bc-primary: #34313f;
+            --bc-accent: #5c6ac4;
+            --bc-success: #28a745;
+            --bc-warning: #ffc107;
+            --bc-danger: #dc3545;
+            --bc-light: #f8f9fa;
+            --bc-border: #e0e0e0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bc-light);
+            color: var(--bc-primary);
+            line-height: 1.6;
+            padding-bottom: 70px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--bc-primary) 0%, #4a4458 100%);
+            color: white;
+            padding: 40px;
+        }
+
+        .header-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 30px;
+            color: var(--bc-accent);
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .section h2 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--bc-border);
+        }
+
+        .section h3 {
+            font-size: 1.1rem;
+            margin: 25px 0 15px 0;
+            color: var(--bc-primary);
+        }
+
+        .section p {
+            margin-bottom: 15px;
+            color: #444;
+        }
+
+        .section ul, .section ol {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+
+        .section li {
+            margin-bottom: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--bc-border);
+        }
+
+        th {
+            background: var(--bc-light);
+            font-weight: 600;
+        }
+
+        .key-insight {
+            background: #fff3e0;
+            border-left: 4px solid var(--bc-warning);
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .key-insight h4 {
+            font-size: 0.9rem;
+            color: #ef6c00;
+            margin-bottom: 8px;
+        }
+
+        .danger-box {
+            background: #ffebee;
+            border-left: 4px solid var(--bc-danger);
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .danger-box h4 {
+            font-size: 0.9rem;
+            color: #c62828;
+            margin-bottom: 8px;
+        }
+
+        .success-box {
+            background: #e8f5e9;
+            border-left: 4px solid var(--bc-success);
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .success-box h4 {
+            font-size: 0.9rem;
+            color: #2e7d32;
+            margin-bottom: 8px;
+        }
+
+        .competitor-card {
+            background: var(--bc-light);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid var(--bc-border);
+        }
+
+        .competitor-card h4 {
+            color: var(--bc-primary);
+            margin-bottom: 10px;
+        }
+
+        .competitor-card.legacy {
+            border-left-color: var(--bc-warning);
+        }
+
+        .competitor-card.replatform {
+            border-left-color: var(--bc-danger);
+        }
+
+        .competitor-card.our-approach {
+            border-left-color: var(--bc-success);
+            background: #e8f5e9;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .comparison-item {
+            background: var(--bc-light);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .comparison-item h5 {
+            margin-bottom: 8px;
+            color: var(--bc-primary);
+        }
+
+        .comparison-item .status {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .comparison-item p {
+            font-size: 0.85rem;
+            color: #666;
+            margin: 0;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        /* Sticky Navigation */
+        .sticky-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bc-primary);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+            z-index: 1000;
+        }
+
+        .sticky-nav a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sticky-nav a:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .sticky-nav a.disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .sticky-nav .nav-center {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .sticky-nav .nav-center select {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-left: 8px;
+            cursor: pointer;
+        }
+
+        .sticky-nav .nav-center select option {
+            background: var(--bc-primary);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 25px 20px;
+            }
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            .sticky-nav .nav-center {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>Competitive Landscape</h1>
+            <p class="subtitle">Market positioning and differentiation for the BC Migration approach</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <a href="index.html" class="back-link">&larr; Back to Documentation Hub</a>
+
+        <!-- Executive Summary -->
+        <section class="section">
+            <h2>Executive Summary</h2>
+            <p>The WooCommerce-to-BigCommerce migration market has three categories of solutions, each with distinct limitations. Our "Keep WordPress" approach occupies a unique position that addresses gaps left by existing options.</p>
+
+            <div class="comparison-grid">
+                <div class="comparison-item">
+                    <div class="status">🔄</div>
+                    <h5>Data Migration Tools</h5>
+                    <p>LitExtension, Cart2Cart</p>
+                    <p style="color: var(--bc-danger); margin-top: 5px;">Full replatform required</p>
+                </div>
+                <div class="comparison-item">
+                    <div class="status">⚠️</div>
+                    <h5>BC4WP Plugin</h5>
+                    <p>BigCommerce's WordPress plugin</p>
+                    <p style="color: var(--bc-warning); margin-top: 5px;">Legacy, reliability issues</p>
+                </div>
+                <div class="comparison-item">
+                    <div class="status">🚀</div>
+                    <h5>Catalyst Headless</h5>
+                    <p>BigCommerce's new framework</p>
+                    <p style="color: var(--bc-accent); margin-top: 5px;">No WordPress integration</p>
+                </div>
+                <div class="comparison-item" style="background: #e8f5e9;">
+                    <div class="status">✅</div>
+                    <h5>Our Approach</h5>
+                    <p>BC Bridge + WP Catalyst</p>
+                    <p style="color: var(--bc-success); margin-top: 5px;">Keep WordPress, modern arch</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Data Migration Tools -->
+        <section class="section">
+            <h2>Category 1: Data Migration Services</h2>
+
+            <div class="competitor-card replatform">
+                <h4>LitExtension</h4>
+                <p><strong>What it does:</strong> Automated data migration from WooCommerce to BigCommerce. Transfers products, customers, orders, categories, and reviews.</p>
+                <p><strong>Pricing:</strong> Starting at $69, scales with data volume. Additional fees for SEO URL redirects, order IDs preservation.</p>
+                <p><strong>Website:</strong> <a href="https://litextension.com/bigcommerce-migration/woocommerce-to-bigcommerce-migration.html" target="_blank">litextension.com</a></p>
+            </div>
+
+            <div class="competitor-card replatform">
+                <h4>Cart2Cart</h4>
+                <p><strong>What it does:</strong> Similar automated data migration with 24/7 support. Claims 100% uptime during migration.</p>
+                <p><strong>Pricing:</strong> Pay-per-entity model. Typical migration $100-500+ depending on catalog size.</p>
+                <p><strong>Website:</strong> <a href="https://www.shopping-cart-migration.com/" target="_blank">shopping-cart-migration.com</a></p>
+            </div>
+
+            <div class="danger-box">
+                <h4>Critical Limitation: Full Replatform Required</h4>
+                <p>Both services assume you're abandoning WordPress entirely. They migrate commerce data only—you lose:</p>
+                <ul style="margin: 10px 0 0 20px;">
+                    <li>WordPress site, blog, and content</li>
+                    <li>SEO equity (URL structure changes)</li>
+                    <li>Marketing team's WordPress expertise</li>
+                    <li>All non-commerce plugins (Yoast, Elementor, forms, etc.)</li>
+                    <li>Theme investment and customizations</li>
+                </ul>
+            </div>
+
+            <h3>When They Make Sense</h3>
+            <ul>
+                <li>New businesses with minimal WordPress content investment</li>
+                <li>Sites where WordPress is purely an e-commerce shell</li>
+                <li>Merchants who want BigCommerce's native storefront</li>
+            </ul>
+        </section>
+
+        <!-- BC4WP Plugin -->
+        <section class="section">
+            <h2>Category 2: BigCommerce for WordPress (BC4WP)</h2>
+
+            <div class="competitor-card legacy">
+                <h4>BC4WP - Official BigCommerce Plugin</h4>
+                <p><strong>What it does:</strong> Syncs BigCommerce products to WordPress as custom post types. Embedded checkout via iframe.</p>
+                <p><strong>Current Version:</strong> 5.1.2 (December 2025)</p>
+                <p><strong>Status:</strong> Actively maintained but in "maintenance mode"—bug fixes, not new features</p>
+                <p><strong>Repository:</strong> <a href="https://github.com/bigcommerce/bigcommerce-for-wordpress" target="_blank">github.com/bigcommerce/bigcommerce-for-wordpress</a></p>
+            </div>
+
+            <div class="key-insight">
+                <h4>Architecture Concerns</h4>
+                <p><strong>Sync-based approach:</strong> BC4WP copies product data into WordPress database as custom post types. This creates:</p>
+                <ul style="margin: 10px 0 0 20px;">
+                    <li>Database bloat as catalog scales</li>
+                    <li>Sync delays between BC and WordPress</li>
+                    <li>Potential data inconsistency (prices, inventory)</li>
+                    <li>Performance degradation with large catalogs</li>
+                </ul>
+            </div>
+
+            <div class="danger-box">
+                <h4>Reliability Issues (User Reports)</h4>
+                <p>WordPress.org support forum and GitHub issues reveal:</p>
+                <ul style="margin: 10px 0 0 20px;">
+                    <li>"Plugin no longer working and crashes all my WordPress sites" (Feb 2025)</li>
+                    <li>"Plugin ultimately failed after an update... my client's site was unusable" (Oct 2025)</li>
+                    <li>"Very slow communication... going back and forth for over a month"</li>
+                    <li>Multiple reports of product import failures</li>
+                </ul>
+                <p style="margin-top: 10px;"><strong>Source:</strong> <a href="https://wordpress.org/support/plugin/bigcommerce/" target="_blank">WordPress.org Support Forum</a></p>
+            </div>
+
+            <h3>BC4WP vs. Our BC Bridge Approach</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>BC4WP</th>
+                        <th>BC Bridge (Ours)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Data architecture</td>
+                        <td>Sync to WP database</td>
+                        <td>API-first, real-time</td>
+                    </tr>
+                    <tr>
+                        <td>Database impact</td>
+                        <td>Custom post types (bloat)</td>
+                        <td>Minimal (cache only)</td>
+                    </tr>
+                    <tr>
+                        <td>Price/inventory freshness</td>
+                        <td>Delayed (sync interval)</td>
+                        <td>Real-time via API</td>
+                    </tr>
+                    <tr>
+                        <td>Catalog size limits</td>
+                        <td>Performance degrades</td>
+                        <td>No limit (on-demand fetch)</td>
+                    </tr>
+                    <tr>
+                        <td>Maintenance status</td>
+                        <td>Legacy (bug fixes only)</td>
+                        <td>Modern, actively developed</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Catalyst -->
+        <section class="section">
+            <h2>Category 3: BigCommerce Catalyst (Headless)</h2>
+
+            <div class="competitor-card">
+                <h4>Catalyst - BigCommerce's Headless Framework</h4>
+                <p><strong>What it does:</strong> Next.js-based composable storefront framework. GraphQL API, React components, Vercel-optimized deployment.</p>
+                <p><strong>Status:</strong> BigCommerce's strategic direction for headless commerce (launched 2024, current as of 2025)</p>
+                <p><strong>Website:</strong> <a href="https://www.bigcommerce.com/product/catalyst/" target="_blank">bigcommerce.com/product/catalyst</a></p>
+            </div>
+
+            <div class="key-insight">
+                <h4>Strategic Alignment Opportunity</h4>
+                <p>Catalyst represents BigCommerce's investment in headless/composable commerce. Our WordPress Catalyst Components are designed to integrate WordPress content into Catalyst storefronts—aligning with BC's strategic direction.</p>
+            </div>
+
+            <h3>Catalyst Alone vs. Our Approach</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Capability</th>
+                        <th>Catalyst Alone</th>
+                        <th>Our Approach</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>WordPress content</td>
+                        <td>Manual integration required</td>
+                        <td>WP Catalyst Components included</td>
+                    </tr>
+                    <tr>
+                        <td>Blog/content management</td>
+                        <td>Need external CMS</td>
+                        <td>WordPress (existing investment)</td>
+                    </tr>
+                    <tr>
+                        <td>WooCommerce migration path</td>
+                        <td>Full replatform</td>
+                        <td>Incremental (keep WordPress)</td>
+                    </tr>
+                    <tr>
+                        <td>Marketing team impact</td>
+                        <td>New CMS training needed</td>
+                        <td>WordPress familiarity retained</td>
+                    </tr>
+                    <tr>
+                        <td>SEO equity</td>
+                        <td>URL migration required</td>
+                        <td>Preserved (same WordPress URLs)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Our Positioning -->
+        <section class="section">
+            <h2>Our Competitive Position</h2>
+
+            <div class="success-box">
+                <h4>The "Keep WordPress" Advantage</h4>
+                <p>We occupy the only position in the market that enables WooCommerce merchants to:</p>
+                <ul style="margin: 10px 0 0 20px;">
+                    <li><strong>Keep WordPress</strong> as the presentation layer (blog, content, SEO)</li>
+                    <li><strong>Upgrade to BigCommerce</strong> for commerce (checkout, payments, inventory)</li>
+                    <li><strong>Avoid full replatform</strong> risk and cost</li>
+                    <li><strong>Preserve team expertise</strong> in WordPress</li>
+                    <li><strong>Align with BC's future</strong> via Catalyst integration</li>
+                </ul>
+            </div>
+
+            <h3>Competitive Matrix</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Requirement</th>
+                        <th>LitExtension</th>
+                        <th>BC4WP</th>
+                        <th>Catalyst</th>
+                        <th>Our Approach</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Keep WordPress</td>
+                        <td style="color: var(--bc-danger);">No</td>
+                        <td style="color: var(--bc-success);">Yes</td>
+                        <td style="color: var(--bc-danger);">No</td>
+                        <td style="color: var(--bc-success);">Yes</td>
+                    </tr>
+                    <tr>
+                        <td>Modern architecture</td>
+                        <td>N/A</td>
+                        <td style="color: var(--bc-danger);">No (sync)</td>
+                        <td style="color: var(--bc-success);">Yes</td>
+                        <td style="color: var(--bc-success);">Yes (API)</td>
+                    </tr>
+                    <tr>
+                        <td>Preserve SEO</td>
+                        <td style="color: var(--bc-danger);">No</td>
+                        <td style="color: var(--bc-success);">Yes</td>
+                        <td style="color: var(--bc-danger);">No</td>
+                        <td style="color: var(--bc-success);">Yes</td>
+                    </tr>
+                    <tr>
+                        <td>Data migration</td>
+                        <td style="color: var(--bc-success);">Yes</td>
+                        <td style="color: var(--bc-danger);">No</td>
+                        <td style="color: var(--bc-danger);">No</td>
+                        <td style="color: var(--bc-success);">Yes</td>
+                    </tr>
+                    <tr>
+                        <td>Reliable/supported</td>
+                        <td style="color: var(--bc-success);">Yes</td>
+                        <td style="color: var(--bc-warning);">Issues</td>
+                        <td style="color: var(--bc-success);">Yes</td>
+                        <td style="color: var(--bc-success);">Yes</td>
+                    </tr>
+                    <tr>
+                        <td>Headless-ready</td>
+                        <td>N/A</td>
+                        <td style="color: var(--bc-danger);">No</td>
+                        <td style="color: var(--bc-success);">Yes</td>
+                        <td style="color: var(--bc-success);">Yes</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Market Opportunity -->
+        <section class="section">
+            <h2>Market Opportunity</h2>
+
+            <p>The competitive landscape reveals a clear gap:</p>
+
+            <ul>
+                <li><strong>Data migration tools</strong> serve merchants willing to abandon WordPress entirely</li>
+                <li><strong>BC4WP</strong> is aging with reliability concerns and sync-based architecture</li>
+                <li><strong>Catalyst</strong> is BigCommerce's future but doesn't address WordPress migration</li>
+            </ul>
+
+            <div class="key-insight">
+                <h4>Target Customer Profile</h4>
+                <p>WooCommerce merchants who:</p>
+                <ul style="margin: 10px 0 0 20px;">
+                    <li>Have significant WordPress content investment (blog, SEO, pages)</li>
+                    <li>Need to upgrade commerce capabilities (checkout, payments, B2B)</li>
+                    <li>Cannot afford full replatform risk/cost</li>
+                    <li>Have marketing teams proficient in WordPress</li>
+                    <li>Want modern architecture without legacy plugin issues</li>
+                </ul>
+            </div>
+
+            <div class="success-box">
+                <h4>WP Engine Partnership Value</h4>
+                <p>WP Engine hosts 8,000+ WooCommerce stores. Our approach gives them a migration path that:</p>
+                <ul style="margin: 10px 0 0 20px;">
+                    <li>Keeps customers on WP Engine (WordPress remains)</li>
+                    <li>Addresses WooCommerce limitations</li>
+                    <li>Provides competitive differentiation vs. Shopify</li>
+                    <li>Enables partnership revenue with BigCommerce</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Sources & Citations -->
+        <section class="section">
+            <h2>Sources & Citations</h2>
+            <div style="background: var(--bc-light); border-radius: 8px; padding: 20px; font-size: 0.9rem;">
+                <p><strong>This document synthesizes content from:</strong></p>
+                <ul style="margin-top: 10px;">
+                    <li><strong>Platform Market Share:</strong> Granite Comparative Analysis, Slides 5-9</li>
+                    <li><strong>Migration Tool Comparison:</strong> Granite Comparative Analysis, Slides 200-210</li>
+                    <li><strong>Shopify Feature Analysis:</strong> Granite Slides 33-45, 100-115</li>
+                    <li><strong>BigCommerce vs Shopify:</strong> Granite Slides 116-135</li>
+                    <li><strong>Agency/Partner Comparison:</strong> Granite Slides 210-220</li>
+                    <li><strong>BC Bridge Advantage:</strong> bc-migration implementation design (our specification)</li>
+                    <li><strong>Pricing/Feature Tables:</strong> Platform documentation as of December 2025</li>
+                </ul>
+                <p style="margin-top: 15px; color: #666;"><em>Competitive analysis based on public information. Market conditions and pricing may change. See Platform Decision Rationale for selection criteria.</em></p>
+            </div>
+        </section>
+
+    </div>
+
+    <footer class="footer">
+        <p><strong>BC Migration Documentation</strong></p>
+        <p>Competitive Landscape</p>
+    </footer>
+
+    <!-- Sticky Navigation -->
+    <nav class="sticky-nav">
+        <a href="MIGRATION_BUSINESS_CASE.html">← Business Case</a>
+        <div class="nav-center">
+            <span>5 of 17</span>
+            <select onchange="if(this.value) window.location.href=this.value">
+                <option value="">Jump to...</option>
+                <option value="IMPLEMENTATION_BRIEF.html">★ Implementation Brief</option>
+                <option value="index.html">Home</option>
+                <option value="GRANITE_COMPARATIVE_ANALYSIS.html">1. Granite Analysis</option>
+                <option value="WPE_ARTEMIS_MIGRATION_ANALYSIS.html">2. WPE Artemis</option>
+                <option value="PLATFORM_DECISION_RATIONALE.html">3. Platform Decision</option>
+                <option value="MIGRATION_BUSINESS_CASE.html">4. Business Case</option>
+                <option value="COMPETITIVE_LANDSCAPE.html" selected>5. Competitive Landscape</option>
+                <option value="PLUGIN_COMPATIBILITY_MATRIX.html">6. Plugin Matrix</option>
+                <option value="SEO_PRESERVATION_GUIDE.html">7. SEO Guide</option>
+                <option value="MIGRATION_RUNBOOK.html">8. Migration Runbook</option>
+                <option value="INTEGRATION_ARCHITECTURE.html">9. Integration Architecture</option>
+                <option value="WORDPRESS_CATALYST_COMPONENTS.html">10. WP Catalyst Components</option>
+                <option value="ADR-001-keep-wordpress.html">11. ADR-001</option>
+                <option value="ADR-002-headless-vs-checkout-only.html">12. ADR-002</option>
+                <option value="ADR-003-order-history-strategy.html">13. ADR-003</option>
+                <option value="MIGRATION_QA_TRACKER.html">14. Q&A Tracker</option>
+                <option value="B2B_MIGRATION_GUIDE.html">15. B2B Guide</option>
+                <option value="STORE_SIZE_PLAYBOOK.html">16. Store Size Playbook</option>
+                <option value="MIGRATION_PERSONAS.html">17. Migration Personas</option>
+            </select>
+        </div>
+        <a href="PLUGIN_COMPATIBILITY_MATRIX.html">Plugin Matrix →</a>
+    </nav>
+</body>
+</html>

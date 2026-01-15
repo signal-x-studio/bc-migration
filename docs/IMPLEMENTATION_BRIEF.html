@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BC Migration: Implementation Brief</title>
+    <style>
+        :root {
+            --bc-primary: #34313f;
+            --bc-accent: #5c6ac4;
+            --bc-success: #28a745;
+            --bc-warning: #ffc107;
+            --bc-danger: #dc3545;
+            --bc-info: #17a2b8;
+            --bc-light: #f8f9fa;
+            --bc-border: #e0e0e0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bc-light);
+            color: var(--bc-primary);
+            line-height: 1.7;
+            padding-bottom: 70px;
+        }
+
+        /* Sticky Navigation */
+        .sticky-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bc-primary); padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); z-index: 1000; }
+        .sticky-nav a { color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 0.85rem; transition: background 0.2s; }
+        .sticky-nav a:hover { background: rgba(255,255,255,0.15); }
+        .sticky-nav .nav-center { font-size: 0.75rem; color: rgba(255,255,255,0.7); }
+
+        .header {
+            background: linear-gradient(135deg, var(--bc-primary) 0%, #4a4458 100%);
+            color: white;
+            padding: 40px;
+        }
+
+        .header-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .back-link {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .back-link:hover { color: white; }
+
+        .doc-type {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.8;
+            margin-bottom: 8px;
+            background: var(--bc-accent);
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header-subtitle {
+            font-size: 1.05rem;
+            color: white;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .content {
+            background: white;
+            border-radius: 12px;
+            padding: 35px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        /* TL;DR Box */
+        .tldr-box {
+            background: linear-gradient(135deg, #e8eaf6 0%, #f3e5f5 100%);
+            border-left: 5px solid var(--bc-accent);
+            padding: 25px;
+            border-radius: 0 12px 12px 0;
+            margin-bottom: 30px;
+        }
+
+        .tldr-box h2 {
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--bc-accent);
+            margin-bottom: 12px;
+        }
+
+        .tldr-box p {
+            font-size: 1.05rem;
+            margin: 0;
+            color: var(--bc-primary);
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            color: var(--bc-primary);
+            margin-top: 30px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--bc-accent);
+        }
+
+        h2:first-of-type { margin-top: 0; }
+
+        p { margin-bottom: 12px; color: #444; }
+
+        /* Architecture Diagram */
+        .arch-diagram {
+            background: var(--bc-primary);
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        /* Differentiators Grid */
+        .diff-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 700px) {
+            .diff-grid { grid-template-columns: 1fr; }
+        }
+
+        .diff-item {
+            background: var(--bc-light);
+            border-radius: 8px;
+            padding: 18px;
+            border-top: 3px solid var(--bc-accent);
+        }
+
+        .diff-item h4 {
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+            color: var(--bc-primary);
+        }
+
+        .diff-item p {
+            font-size: 0.85rem;
+            margin: 0;
+            color: #666;
+        }
+
+        /* CLI Box */
+        .cli-box {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.85rem;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+
+        .cli-box .comment { color: #6a9955; }
+        .cli-box .command { color: #dcdcaa; }
+
+        /* Pipeline */
+        .pipeline {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 25px 0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .pipeline-step {
+            background: white;
+            border: 2px solid var(--bc-border);
+            border-radius: 8px;
+            padding: 15px 20px;
+            text-align: center;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .pipeline-step.active {
+            border-color: var(--bc-accent);
+            background: #f5f3ff;
+        }
+
+        .pipeline-step h4 {
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+        }
+
+        .pipeline-step p {
+            font-size: 0.75rem;
+            margin: 0;
+            color: #666;
+        }
+
+        .pipeline-arrow {
+            font-size: 1.5rem;
+            color: var(--bc-accent);
+        }
+
+        /* Quick Links */
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .quick-links { grid-template-columns: 1fr; }
+        }
+
+        .quick-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 15px;
+            background: var(--bc-light);
+            border-radius: 6px;
+            text-decoration: none;
+            color: var(--bc-primary);
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+
+        .quick-link:hover {
+            background: #e8eaf6;
+        }
+
+        .quick-link .arrow {
+            color: var(--bc-accent);
+            font-weight: bold;
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 0.85rem;
+        }
+
+        th, td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--bc-border);
+        }
+
+        th {
+            background: var(--bc-primary);
+            color: white;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        tr:hover { background: #f8f9fa; }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge.small { background: #e8f5e9; color: #2e7d32; }
+        .badge.medium { background: #fff3e0; color: #ef6c00; }
+        .badge.large { background: #fce4ec; color: #c2185b; }
+
+        .footer {
+            text-align: center;
+            padding: 25px;
+            color: #888;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="index.html" class="back-link">&larr; Back to Documentation</a>
+            <div class="doc-type">Start Here</div>
+            <h1>BC Migration: Implementation Brief</h1>
+            <p class="header-subtitle">For technical stakeholders who've read Granite/Artemis and want to understand the implementation approach</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="content">
+            <div class="tldr-box">
+                <h2>The Approach in One Sentence</h2>
+                <p><strong>Keep WordPress as your content layer, move only the commerce engine to BigCommerce.</strong> Our toolkit assesses WooCommerce stores, migrates commerce data via API, and connects the platforms through the BC Bridge plugin—preserving SEO, content, and team workflows.</p>
+            </div>
+
+            <h2>Architecture at a Glance</h2>
+            <div class="arch-diagram">
+<pre>BEFORE                              AFTER
+┌─────────────────────┐            ┌─────────────────────┐
+│      WordPress      │            │      WordPress      │
+│  ┌───────────────┐  │            │  ┌───────────────┐  │
+│  │  WooCommerce  │  │            │  │   BC Bridge   │  │
+│  │  (products,   │  │     →      │  │    Plugin     │  │
+│  │   checkout)   │  │            │  └───────┬───────┘  │
+│  └───────────────┘  │            │          │          │
+└─────────────────────┘            └──────────┼──────────┘
+                                              │ REST API
+                                   ┌──────────▼──────────┐
+                                   │    BigCommerce      │
+                                   │  (products, orders, │
+                                   │  checkout, payments)│
+                                   └─────────────────────┘</pre>
+            </div>
+
+            <h2>What the Toolkit Does</h2>
+            <div class="pipeline">
+                <div class="pipeline-step active">
+                    <h4>Assess</h4>
+                    <p>Analyze store complexity</p>
+                </div>
+                <span class="pipeline-arrow">→</span>
+                <div class="pipeline-step active">
+                    <h4>Migrate</h4>
+                    <p>Move commerce data</p>
+                </div>
+                <span class="pipeline-arrow">→</span>
+                <div class="pipeline-step active">
+                    <h4>Validate</h4>
+                    <p>Verify accuracy</p>
+                </div>
+                <span class="pipeline-arrow">→</span>
+                <div class="pipeline-step">
+                    <h4>Connect</h4>
+                    <p>BC Bridge setup</p>
+                </div>
+            </div>
+
+            <p>The CLI tool handles products, categories, customers, and orders. It doesn't touch WordPress content—that stays exactly where it is.</p>
+
+            <h2>Key Differentiators</h2>
+            <div class="diff-grid">
+                <div class="diff-item">
+                    <h4>No Content Migration</h4>
+                    <p>Blog posts, pages, media, themes—all stay in WordPress. Only commerce data moves.</p>
+                </div>
+                <div class="diff-item">
+                    <h4>SEO Preserved</h4>
+                    <p>WordPress URLs unchanged. WooCommerce's 92% SEO score stays intact.</p>
+                </div>
+                <div class="diff-item">
+                    <h4>Team Continuity</h4>
+                    <p>Marketing keeps WordPress. Only commerce ops learns BigCommerce admin.</p>
+                </div>
+            </div>
+
+            <h2>Getting Started</h2>
+            <div class="cli-box">
+<span class="comment"># Clone and configure</span>
+git clone &lt;repo&gt; && cd bc-migration
+npm install
+cp .env.example .env  <span class="comment"># Add WooCommerce + BigCommerce API keys</span>
+
+<span class="comment"># Run assessment (non-destructive)</span>
+<span class="command">npm run assess</span>
+
+<span class="comment"># Review readiness report, then migrate</span>
+<span class="command">npm run migrate</span>
+
+<span class="comment"># Validate results</span>
+<span class="command">npm run validate</span>
+            </div>
+
+            <p>The assessment is read-only and generates a readiness report with complexity scoring, plugin analysis, and migration recommendations.</p>
+
+            <h2>Which Playbook Applies?</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Store Size</th>
+                        <th>Timeline</th>
+                        <th>Approach</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="badge small">≤800 products</span></td>
+                        <td>2-4 weeks</td>
+                        <td>Self-service / Light touch</td>
+                        <td><a href="STORE_SIZE_PLAYBOOK.html#small">Small Store Playbook</a></td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge medium">800-25K products</span></td>
+                        <td>4-8 weeks</td>
+                        <td>Guided migration</td>
+                        <td><a href="STORE_SIZE_PLAYBOOK.html#medium">Medium Store Playbook</a></td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge large">25K+ products</span></td>
+                        <td>8-16 weeks</td>
+                        <td>Full-service / Managed</td>
+                        <td><a href="STORE_SIZE_PLAYBOOK.html#large">Large Store Playbook</a></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p>B2B stores with price lists, customer groups, or quoting? See the <a href="B2B_MIGRATION_GUIDE.html">B2B Migration Guide</a>.</p>
+
+            <h2>What About WordPress Catalyst?</h2>
+            <p>If you're building a headless BigCommerce storefront (Catalyst, Stencil, or Makeswift) but want to pull WordPress content into it, we have React components for that. The <a href="WORDPRESS_CATALYST_COMPONENTS.html">WordPress Catalyst Components</a> render blog posts, pages, and navigation from the WordPress REST API with theme-aware styling.</p>
+
+            <p>This is the inverse of BC Bridge—instead of putting BigCommerce inside WordPress, you're putting WordPress content inside a BigCommerce-powered frontend.</p>
+
+            <h2>Deep Dive Documents</h2>
+            <div class="quick-links">
+                <a href="MIGRATION_RUNBOOK.html" class="quick-link">
+                    <span class="arrow">→</span>
+                    <span>Migration Runbook (CLI commands)</span>
+                </a>
+                <a href="INTEGRATION_ARCHITECTURE.html" class="quick-link">
+                    <span class="arrow">→</span>
+                    <span>BC Bridge Architecture</span>
+                </a>
+                <a href="PLUGIN_COMPATIBILITY_MATRIX.html" class="quick-link">
+                    <span class="arrow">→</span>
+                    <span>Plugin Compatibility Matrix</span>
+                </a>
+                <a href="MIGRATION_PERSONAS.html" class="quick-link">
+                    <span class="arrow">→</span>
+                    <span>Migration Personas</span>
+                </a>
+                <a href="SEO_PRESERVATION_GUIDE.html" class="quick-link">
+                    <span class="arrow">→</span>
+                    <span>SEO Preservation Guide</span>
+                </a>
+                <a href="MIGRATION_QA_TRACKER.html" class="quick-link">
+                    <span class="arrow">→</span>
+                    <span>Open Questions Tracker</span>
+                </a>
+            </div>
+
+            <h2>Key Decisions Already Made</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Decision</th>
+                        <th>Choice</th>
+                        <th>Rationale</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Keep WordPress?</td>
+                        <td><strong>Yes</strong></td>
+                        <td>Preserves SEO, content, team skills (<a href="ADR-001-keep-wordpress.html">ADR-001</a>)</td>
+                    </tr>
+                    <tr>
+                        <td>Integration depth?</td>
+                        <td><strong>Full headless</strong></td>
+                        <td>BC is source of truth for all commerce (<a href="ADR-002-headless-vs-checkout-only.html">ADR-002</a>)</td>
+                    </tr>
+                    <tr>
+                        <td>Order history?</td>
+                        <td><strong>Tiered</strong></td>
+                        <td>Recent → BC, Historical → Archive (<a href="ADR-003-order-history-strategy.html">ADR-003</a>)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>Sources & Citations</h2>
+            <div style="background: var(--bc-light); border-radius: 8px; padding: 20px; font-size: 0.9rem; border: 1px solid var(--bc-border);">
+                <p><strong>This document synthesizes content from:</strong></p>
+                <ul style="margin-top: 10px;">
+                    <li><strong>"Keep WordPress" Architecture:</strong> Granite Comparative Analysis, Slides 10-15 (platform comparison)</li>
+                    <li><strong>Migration Toolkit Approach:</strong> bc-migration implementation (our tooling)</li>
+                    <li><strong>BC Bridge Integration:</strong> bc-migration/WordPress Catalyst component design</li>
+                    <li><strong>Store Size Tiers:</strong> Granite Comparative Analysis, Slides 80-83</li>
+                    <li><strong>ADR Decisions:</strong> Synthesized from Granite analysis + bc-migration architecture</li>
+                </ul>
+                <p style="margin-top: 15px; color: #666;"><em>This brief serves as an entry point for stakeholders already familiar with the Granite and Artemis analyses. For raw source material, see the full Granite and Artemis documents in this package.</em></p>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>BC Migration Documentation Package | Implementation Brief</p>
+    </footer>
+
+    <!-- Sticky Navigation -->
+    <nav class="sticky-nav">
+        <a href="index.html">← Documentation Hub</a>
+        <div class="nav-center">
+            <span>Start Here → Then explore by need</span>
+        </div>
+        <a href="MIGRATION_RUNBOOK.html">Migration Runbook →</a>
+    </nav>
+</body>
+</html>

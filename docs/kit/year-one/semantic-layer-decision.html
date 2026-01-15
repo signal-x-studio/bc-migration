@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADR-001: Semantic Layer - BigCommerce Product Architect</title>
+    <style>
+        :root {
+            --bc-primary: #34313f;
+            --bc-accent: #5c6ac4;
+            --bc-success: #22c55e;
+            --bc-warning: #f59e0b;
+            --bc-danger: #ef4444;
+            --bc-light: #f8f9fa;
+            --bc-border: #e0e0e0;
+            --sidebar-width: 260px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bc-light);
+            color: var(--bc-primary);
+            line-height: 1.6;
+        }
+
+        .layout { display: flex; min-height: 100vh; }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bc-primary);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 20px 0;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h1 { font-size: 0.85rem; font-weight: 500; opacity: 0.9; }
+        .sidebar-header .quarter { font-size: 0.75rem; opacity: 0.6; margin-top: 4px; }
+
+        .nav-section { margin-bottom: 8px; }
+        .nav-section-title {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: rgba(255,255,255,0.5);
+            padding: 12px 20px 8px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 10px 20px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.15s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-link:hover { background: rgba(255,255,255,0.08); color: white; }
+        .nav-link.active { background: var(--bc-accent); color: white; border-left-color: white; }
+
+        .main {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 50px 60px;
+            max-width: 1000px;
+        }
+
+        .breadcrumb { font-size: 0.85rem; color: #666; margin-bottom: 20px; }
+        .breadcrumb a { color: var(--bc-accent); text-decoration: none; }
+
+        .main h1 { font-size: 2rem; margin-bottom: 10px; color: var(--bc-primary); }
+        .main .subtitle { font-size: 1rem; color: #666; margin-bottom: 30px; }
+
+        .meta-inline {
+            display: flex;
+            gap: 30px;
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--bc-border);
+        }
+
+        .meta-inline strong { color: var(--bc-primary); }
+
+        .status-badge {
+            display: inline-block;
+            background: var(--bc-warning);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        section { margin-bottom: 50px; }
+
+        section h2 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: var(--bc-primary);
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--bc-accent);
+        }
+
+        section h3 { font-size: 1.15rem; margin: 30px 0 15px; color: var(--bc-primary); }
+        section h4 { font-size: 1rem; margin: 20px 0 10px; color: var(--bc-primary); }
+        section p { margin-bottom: 15px; color: #444; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+            font-size: 0.9rem;
+        }
+
+        thead { background: var(--bc-primary); color: white; }
+        th { text-align: left; padding: 12px 16px; font-weight: 500; }
+        td { padding: 12px 16px; border-bottom: 1px solid var(--bc-border); vertical-align: top; }
+        tr:hover td { background: rgba(92, 106, 196, 0.04); }
+
+        ul, ol { margin-bottom: 20px; padding-left: 25px; }
+        li { margin-bottom: 8px; color: #444; }
+
+        .callout {
+            background: #eff6ff;
+            border-left: 4px solid var(--bc-accent);
+            padding: 16px 20px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 25px;
+        }
+
+        .callout.warning { background: #fefce8; border-left-color: var(--bc-warning); }
+        .callout.success { background: #f0fdf4; border-left-color: var(--bc-success); }
+        .callout.danger { background: #fef2f2; border-left-color: var(--bc-danger); }
+
+        .callout h4 { margin: 0 0 8px; font-size: 0.95rem; }
+        .callout p { margin: 0; font-size: 0.9rem; }
+
+        .decision-box {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border: 2px solid var(--bc-success);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .decision-box h3 {
+            color: #166534;
+            margin: 0 0 15px;
+            font-size: 1.2rem;
+        }
+
+        .decision-box p {
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        .option-card {
+            background: white;
+            border: 1px solid var(--bc-border);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .option-header {
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bc-light);
+            border-bottom: 1px solid var(--bc-border);
+        }
+
+        .option-header h4 { margin: 0; font-size: 1rem; }
+
+        .option-header .verdict {
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 4px;
+        }
+
+        .verdict.rejected { background: #fef2f2; color: #991b1b; }
+        .verdict.partial { background: #fefce8; color: #92400e; }
+        .verdict.recommended { background: #f0fdf4; color: #166534; }
+
+        .option-content { padding: 20px; }
+
+        .quote-block {
+            background: var(--bc-primary);
+            color: white;
+            padding: 20px 25px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            font-style: italic;
+        }
+
+        .quote-block .attribution {
+            font-style: normal;
+            font-size: 0.85rem;
+            margin-top: 10px;
+            opacity: 0.8;
+        }
+
+        .ask-box {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border: 2px solid var(--bc-warning);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .ask-box h3 { color: #92400e; margin: 0 0 15px; }
+        .ask-box ol { margin: 0; padding-left: 20px; }
+        .ask-box li { color: #78350f; margin-bottom: 8px; }
+
+        @media (max-width: 900px) {
+            .sidebar { width: 220px; }
+            .main { margin-left: 220px; padding: 30px 40px; }
+        }
+
+        @media (max-width: 700px) {
+            .sidebar { display: none; }
+            .main { margin-left: 0; padding: 20px; }
+            .meta-inline { flex-direction: column; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>Product Architect</h1>
+                <div class="quarter">Year One Planning</div>
+            </div>
+
+            <nav>
+                <div class="nav-section">
+                    <div class="nav-section-title">Year One</div>
+                    <a href="index.html" class="nav-link">Operating Plan</a>
+                    <a href="first-90-days.html" class="nav-link">First 90 Days</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Decisions</div>
+                    <a href="semantic-layer-decision.html" class="nav-link active">ADR-001: Semantic Layer</a>
+                    <a href="#context" class="nav-link">Context</a>
+                    <a href="#options" class="nav-link">Options</a>
+                    <a href="#recommendation" class="nav-link">Recommendation</a>
+                    <a href="#costs" class="nav-link">Cost Comparison</a>
+                    <a href="#ask" class="nav-link">The Ask</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Reference</div>
+                    <a href="stakeholder-map.html" class="nav-link">Stakeholder Map</a>
+                    <a href="../index.html" class="nav-link">Back to Kit</a>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="main">
+            <div class="breadcrumb">
+                <a href="../index.html">Kit</a> / <a href="index.html">Year One</a> / ADR-001
+            </div>
+
+            <h1>ADR-001: Semantic Layer Approach</h1>
+            <p class="subtitle">Architecture Decision Record: Buy vs Build</p>
+
+            <div class="meta-inline">
+                <span><span class="status-badge">PROPOSED</span></span>
+                <span><strong>Author:</strong> Nino Chavez</span>
+                <span><strong>Date:</strong> January 2026</span>
+            </div>
+
+            <!-- Decision -->
+            <div class="decision-box">
+                <h3>Decision</h3>
+                <p><strong>BUY</strong> the infrastructure plumbing (vector database, embedding pipeline, event stream).<br>
+                <strong>BUILD</strong> the semantic definitions (commerce-specific models, business logic, domain mappings).</p>
+            </div>
+
+            <!-- Context -->
+            <section id="context">
+                <h2>Context</h2>
+                <p>BigCommerce's AI-native strategy requires a Semantic Layer - the infrastructure that converts operational data into AI-readable context (vector embeddings, knowledge graphs, real-time signals). This layer is foundational; without it, AI capabilities cannot be built.</p>
+                <p>The original architectural proposal suggested building this infrastructure in-house within a 6-month window. This ADR recommends against that approach.</p>
+            </section>
+
+            <!-- Options -->
+            <section id="options">
+                <h2>Options Considered</h2>
+
+                <div class="option-card">
+                    <div class="option-header">
+                        <h4>Option A: Build Everything In-House</h4>
+                        <span class="verdict rejected">NOT RECOMMENDED</span>
+                    </div>
+                    <div class="option-content">
+                        <table>
+                            <tbody>
+                                <tr><td><strong>Timeline</strong></td><td>6 months proposed, 16-23 months realistic</td></tr>
+                                <tr><td><strong>Control</strong></td><td>Maximum control over all components</td></tr>
+                                <tr><td><strong>Risk</strong></td><td>Very high - data freshness, CDC complexity, compliance</td></tr>
+                            </tbody>
+                        </table>
+
+                        <h4>Why This Fails</h4>
+
+                        <p><strong>1. The Staleness Gap Problem</strong></p>
+                        <ul>
+                            <li>When operational data changes (inventory hits zero, customer tier changes), vector embeddings must update immediately</li>
+                            <li>Building a system that tracks this lineage is exponentially difficult</li>
+                            <li>Race conditions in CDC streams cause AI to hallucinate stale data</li>
+                        </ul>
+
+                        <p><strong>2. The Frankenstein Architecture</strong></p>
+                        <ul>
+                            <li>Internal builds become fragile stacks: CDC connectors + message queues + stream processors + caching</li>
+                            <li>Managing race conditions across distributed commerce events is non-trivial</li>
+                            <li>Observability gets deprioritized; system fails silently</li>
+                        </ul>
+
+                        <p><strong>3. Timeline Reality</strong></p>
+                        <table>
+                            <thead><tr><th>Phase</th><th>Proposed</th><th>Realistic</th></tr></thead>
+                            <tbody>
+                                <tr><td>Ingestion & Embedding</td><td>2 months</td><td>3-5 months</td></tr>
+                                <tr><td>Vector Indexing & Search</td><td>2 months</td><td>4-6 months</td></tr>
+                                <tr><td>Security & Compliance</td><td>1 month</td><td>3-6 months</td></tr>
+                                <tr><td>Hardening & Scale</td><td>0</td><td>6+ months</td></tr>
+                                <tr><td><strong>Total</strong></td><td><strong>6 months</strong></td><td><strong>16-23 months</strong></td></tr>
+                            </tbody>
+                        </table>
+
+                        <p><strong>4. Regulatory Exposure</strong></p>
+                        <ul>
+                            <li>EU AI Act (enforceable mid-2025) requires audit trails, reproducibility, runtime visibility</li>
+                            <li>In-house build assumes 100% compliance liability</li>
+                            <li>Failing standards could make platform illegal in major markets</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="option-card">
+                    <div class="option-header">
+                        <h4>Option B: Buy Everything</h4>
+                        <span class="verdict partial">PARTIAL</span>
+                    </div>
+                    <div class="option-content">
+                        <table>
+                            <tbody>
+                                <tr><td><strong>Timeline</strong></td><td>2-3 months to integrate</td></tr>
+                                <tr><td><strong>Control</strong></td><td>Limited - constrained by vendor capabilities</td></tr>
+                                <tr><td><strong>Risk</strong></td><td>Low infrastructure risk, high vendor dependency</td></tr>
+                            </tbody>
+                        </table>
+
+                        <p><strong>Why This Isn't Quite Right:</strong></p>
+                        <ul>
+                            <li>Loses differentiation on commerce-specific semantics</li>
+                            <li>Vendor lock-in on critical path</li>
+                            <li>May not fit BigCommerce's specific data models</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="option-card">
+                    <div class="option-header">
+                        <h4>Option C: Buy Infrastructure, Build Semantics</h4>
+                        <span class="verdict recommended">RECOMMENDED</span>
+                    </div>
+                    <div class="option-content">
+                        <table>
+                            <tbody>
+                                <tr><td><strong>Timeline</strong></td><td>3-6 months for infrastructure, ongoing for semantics</td></tr>
+                                <tr><td><strong>Control</strong></td><td>Control where it matters (domain logic), commodity where it doesn't</td></tr>
+                                <tr><td><strong>Risk</strong></td><td>Moderate - vendor selection matters, but bounded</td></tr>
+                            </tbody>
+                        </table>
+
+                        <p><strong>Why This Works:</strong></p>
+                        <ol>
+                            <li><strong>Focus Engineering on Differentiation</strong> - Engineers build commerce-specific semantic models, not debugging Kafka consumer lag at 2am</li>
+                            <li><strong>Compliance as a Service</strong> - Managed platforms updating for EU AI Act; audit logging included</li>
+                            <li><strong>Proven at Scale</strong> - Pinecone, Weaviate, Materialize run billions of vectors</li>
+                            <li><strong>Faster Time to Value</strong> - Infrastructure ready in weeks, not months</li>
+                        </ol>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recommendation -->
+            <section id="recommendation">
+                <h2>What We Build Internally</h2>
+                <p>The differentiation - what makes BigCommerce's AI-native capabilities unique - is the semantic definitions:</p>
+
+                <h4>Commerce Semantic Models</h4>
+                <ul>
+                    <li>Product taxonomy and relationships</li>
+                    <li>Customer lifecycle stages</li>
+                    <li>Order state machines</li>
+                    <li>Inventory availability rules</li>
+                    <li>Pricing and promotion logic</li>
+                </ul>
+
+                <h4>Cross-Product Mappings</h4>
+                <ul>
+                    <li>How BC Core entities map to Makeswift content</li>
+                    <li>How Feedonomics channels relate to BC catalog</li>
+                    <li>Unified customer identity across products</li>
+                </ul>
+
+                <div class="callout success">
+                    <h4>The Moat</h4>
+                    <p>This is where the 10-year domain expertise matters. Infrastructure is commodity. Commerce knowledge is the moat.</p>
+                </div>
+
+                <h3>Recommended Vendor Evaluation</h3>
+
+                <table>
+                    <thead><tr><th>Category</th><th>Options</th><th>Recommendation</th></tr></thead>
+                    <tbody>
+                        <tr><td>Vector Database</td><td>Pinecone, Weaviate, Qdrant</td><td>Evaluate Pinecone and Weaviate by end of Q1</td></tr>
+                        <tr><td>Event Stream</td><td>Confluent (Kafka), AWS Kinesis, Redpanda</td><td>If AWS-heavy, evaluate Kinesis; otherwise Confluent</td></tr>
+                        <tr><td>Semantic Layer</td><td>Materialize, AtScale, Cube</td><td>Evaluate Materialize for real-time correctness</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Costs -->
+            <section id="costs">
+                <h2>Cost Comparison</h2>
+
+                <h3>Option A: Build In-House</h3>
+                <table>
+                    <thead><tr><th>Item</th><th>Year 1</th><th>Ongoing</th></tr></thead>
+                    <tbody>
+                        <tr><td>Engineering (4-6 FTEs)</td><td>$800K - $1.2M</td><td>$600K - $900K</td></tr>
+                        <tr><td>Infrastructure (self-hosted)</td><td>$200K - $300K</td><td>$150K - $250K</td></tr>
+                        <tr><td>Opportunity cost</td><td>High</td><td>Ongoing</td></tr>
+                        <tr><td><strong>Total</strong></td><td><strong>$1M - $1.5M</strong></td><td><strong>$750K - $1.15M</strong></td></tr>
+                    </tbody>
+                </table>
+
+                <h3>Option C: Buy + Build (Recommended)</h3>
+                <table>
+                    <thead><tr><th>Item</th><th>Year 1</th><th>Ongoing</th></tr></thead>
+                    <tbody>
+                        <tr><td>Vendor fees</td><td>$100K - $200K</td><td>$150K - $300K</td></tr>
+                        <tr><td>Integration engineering (2 FTEs)</td><td>$400K - $500K</td><td>$300K - $400K</td></tr>
+                        <tr><td>Semantic layer development (2 FTEs)</td><td>$400K - $500K</td><td>$400K - $500K</td></tr>
+                        <tr><td><strong>Total</strong></td><td><strong>$900K - $1.2M</strong></td><td><strong>$850K - $1.2M</strong></td></tr>
+                    </tbody>
+                </table>
+
+                <div class="callout">
+                    <h4>Net Assessment</h4>
+                    <p>Similar cost, dramatically lower risk, faster time to value.</p>
+                </div>
+            </section>
+
+            <!-- External Validation -->
+            <section id="validation">
+                <h2>External Validation</h2>
+
+                <div class="quote-block">
+                    "The risks of building the Semantic Layer in-house outweigh the benefits of control. The technical complexity of maintaining real-time correctness, coupled with the regulatory burden and the stark timeline discrepancy, makes this a likely point of failure."
+                    <div class="attribution">— Project Aion Red Team Assessment (Gemini Deep Research)</div>
+                </div>
+
+                <div class="quote-block">
+                    "Procure a managed Semantic Layer and Vector Database. Do not build this infrastructure. Focus engineering resources on the domain model and migration logic."
+                    <div class="attribution">— Red Team Recommendation #1</div>
+                </div>
+            </section>
+
+            <!-- The Ask -->
+            <section id="ask">
+                <div class="ask-box">
+                    <h3>What I'm Asking For</h3>
+                    <ol>
+                        <li><strong>Alignment</strong> on the Buy + Build approach</li>
+                        <li><strong>Budget</strong> for vendor evaluation and procurement</li>
+                        <li><strong>Engineering capacity</strong> for integration (2 FTEs)</li>
+                        <li><strong>Air cover</strong> to make this call without re-litigation</li>
+                    </ol>
+                </div>
+            </section>
+
+            <!-- Implementation -->
+            <section id="implementation">
+                <h2>Implementation Phases</h2>
+
+                <table>
+                    <thead><tr><th>Phase</th><th>Timeline</th><th>Activities</th></tr></thead>
+                    <tbody>
+                        <tr><td>1. Evaluation</td><td>Q1 2026</td><td>Evaluate vendors, POC with bc-migration data, selection</td></tr>
+                        <tr><td>2. Foundation</td><td>Q2 2026</td><td>Implement vector DB + event stream, begin semantic models</td></tr>
+                        <tr><td>3. Scale</td><td>Q3-Q4 2026</td><td>Expand models across products, production AI capabilities</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <div style="margin-top: 50px; padding-top: 30px; border-top: 1px solid var(--bc-border); color: #888; font-size: 0.85rem;">
+                <p><em>Status: PROPOSED - Pending CPO Review</em></p>
+                <p><em>Next Step: Schedule decision meeting</em></p>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

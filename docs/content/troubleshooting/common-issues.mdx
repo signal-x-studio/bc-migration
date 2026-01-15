@@ -1,0 +1,466 @@
+---
+title: Common Issues & Solutions
+description: Troubleshooting guide for frequently encountered migration problems
+category: troubleshooting
+order: 1
+---
+
+# Common Issues & Solutions
+
+This guide covers the most common issues encountered during WooCommerce to BigCommerce migrations and their solutions.
+
+## Connection Issues
+
+### WooCommerce Connection Failed
+
+**Symptoms**:
+- "Connection test failed" error
+- "Invalid consumer key" message
+- Timeout errors
+
+**Solutions**:
+
+1. **Verify API Credentials**:
+   ```bash
+   # Check WooCommerce → Settings → Advanced → REST API
+   # Ensure permissions are set to "Read/Write"
+   ```
+
+2. **Check URL Format**:
+   ```
+   ✅ Correct: https://yourstore.com
+   ❌ Wrong: https://yourstore.com/
+   ❌ Wrong: https://yourstore.com/wp-admin
+   ```
+
+3. **HTTPS Requirement**:
+   - WooCommerce REST API requires HTTPS
+   - If using HTTP, enable `queryStringAuth` in settings
+
+4. **Firewall/Security Plugins**:
+   ```php
+   // Temporarily disable security plugins
+   // WordFence, Sucuri, iThemes Security
+   // Or whitelist migration IP address
+   ```
+
+5. **Test Manually**:
+   ```bash
+   curl -u "consumer_key:consumer_secret" \
+     https://yourstore.com/wp-json/wc/v3/products
+   ```
+
+### BigCommerce Connection Failed
+
+**Symptoms**:
+- "Invalid access token" error
+- "Store not found" message
+- 401 Unauthorized errors
+
+**Solutions**:
+
+1. **Verify Store Hash**:
+   ```
+   Format: abc123xyz (not full URL)
+   Find in: BigCommerce → Settings → API → Store Hash
+   ```
+
+2. **Check Access Token Expiration**:
+   - Tokens can expire after 90 days (depending on settings)
+   - Regenerate token if expired
+   - Save new token in BC Migration settings
+
+3. **Verify Token Permissions**:
+   Required scopes:
+   - Products: Read & Write
+   - Categories: Read & Write
+   - Customers: Read & Write
+   - Orders: Read & Write
+   - Content: Read & Write (for pages/blog)
+
+4. **Test API Access**:
+   ```bash
+   curl -H "X-Auth-Token: your-access-token" \
+     https://api.bigcommerce.com/stores/{store_hash}/v3/catalog/products
+   ```
+
+## Data Migration Issues
+
+### Products Not Importing
+
+**Issue: "SKU already exists"**
+
+**Cause**: BigCommerce requires unique SKUs across all products and variants.
+
+**Solutions**:
+```javascript
+// Option 1: Append variant ID to SKU
+Old SKU: SHIRT-001
+New SKU: SHIRT-001-V1, SHIRT-001-V2
+
+// Option 2: Use product ID prefix
+Old SKU: SHIRT-001
+New SKU: WC-123-SHIRT-001
+```
+
+**Issue: "Invalid price format"**
+
+**Cause**: Non-numeric characters in price fields.
+
+**Solutions**:
+- Remove currency symbols: `$99.99` → `99.99`
+- Remove commas from large numbers: `1,299.99` → `1299.99`
+- Ensure decimal separator is a period: `99,99` → `99.99`
+
+**Issue: "Product images not loading"**
+
+**Causes & Solutions**:
+
+1. **Image URLs Not Accessible**:
+   ```bash
+   # Test image URL accessibility
+   curl -I https://yourstore.com/wp-content/uploads/image.jpg
+
+   # Should return: HTTP/1.1 200 OK
+   ```
+
+2. **Hotlink Protection Enabled**:
+   ```apache
+   # Temporarily disable in .htaccess
+   # Or whitelist BigCommerce domains
+   ```
+
+3. **Large Image Files**:
+   - BigCommerce has file size limits
+   - Optimize images before migration
+   - Max recommended: 2MB per image
+
+### Categories Not Creating
+
+**Issue: "Category tree too deep"**
+
+**Cause**: BigCommerce supports max 7 levels of category nesting.
+
+**Solution**:
+```javascript
+// Flatten deep categories
+Before: Root → Cat1 → Cat2 → Cat3 → Cat4 → Cat5 → Cat6 → Cat7 → Cat8 (9 levels)
+After: Root → Cat1 → Cat2-Cat3 → Cat4-Cat5 → Cat6-Cat7-Cat8 (5 levels)
+```
+
+**Issue: "Duplicate category name"**
+
+**Cause**: BigCommerce requires unique category names at the same level.
+
+**Solution**:
+```javascript
+Before:
+  - Clothing → Men → Shirts
+  - Clothing → Women → Shirts
+
+After:
+  - Clothing → Men → Men's Shirts
+  - Clothing → Women → Women's Shirts
+```
+
+### Customer Migration Issues
+
+**Issue: "Duplicate email address"**
+
+**Cause**: BigCommerce requires unique email addresses per customer.
+
+**Solutions**:
+
+1. **Identify Duplicates**:
+   ```sql
+   SELECT email, COUNT(*) as count
+   FROM wp_users
+   GROUP BY email
+   HAVING count > 1;
+   ```
+
+2. **Merge Accounts**:
+   - Combine order histories
+   - Keep most recent account
+   - Email customers about account consolidation
+
+3. **Create Guest Orders**:
+   - For duplicate secondary accounts
+   - Import orders as guest orders
+   - Preserve order history without account
+
+**Issue: "Customer passwords don't work"**
+
+**Cause**: Password hashes are incompatible between WooCommerce and BigCommerce.
+
+**Solution**:
+- Send password reset emails post-migration
+- Use BigCommerce password reset flow
+- Consider temporary password for VIP customers
+
+### Order Migration Issues
+
+**Issue: "Order status not recognized"**
+
+**Cause**: WooCommerce and BigCommerce use different status names.
+
+**Mapping**:
+```javascript
+WooCommerce → BigCommerce
+pending → pending
+processing → awaiting_fulfillment
+on-hold → awaiting_payment
+completed → completed
+cancelled → cancelled
+refunded → refunded
+failed → cancelled
+```
+
+**Issue: "Order total mismatch"**
+
+**Causes**:
+- Tax calculation differences
+- Shipping cost variations
+- Discount rounding errors
+
+**Solution**:
+- Import as historical record (not recalculated)
+- Use "manual order" feature in BigCommerce
+- Document discrepancies in order notes
+
+## Performance Issues
+
+### Migration Running Slow
+
+**Issue: Stuck at X%**
+
+**Solutions**:
+
+1. **Check Network Connection**:
+   - Ensure stable internet
+   - Avoid Wi-Fi; use ethernet if possible
+   - Check for bandwidth throttling
+
+2. **API Rate Limits**:
+   ```javascript
+   // BigCommerce: 20,000 requests/hour
+   // WooCommerce: Usually unlimited (but can be limited by host)
+
+   // Solution: Migration tool auto-throttles
+   // Wait for rate limit reset (shown in UI)
+   ```
+
+3. **Large Product Catalog**:
+   - Migrate in batches (category by category)
+   - Run during off-peak hours
+   - Consider increasing timeout limits
+
+4. **Server Timeouts**:
+   ```php
+   // Increase PHP limits on WooCommerce server
+   max_execution_time = 300
+   memory_limit = 512M
+   ```
+
+### Browser Tab Closed/Crashed
+
+**Issue: Migration interrupted**
+
+**Solution**:
+- Migration state is saved automatically
+- Reopen migration wizard
+- Resume from last completed phase
+- Failed items are logged and can be retried
+
+## Data Quality Issues
+
+### Product Descriptions Broken
+
+**Issue: HTML rendering incorrectly**
+
+**Cause**: Character encoding or HTML entity issues.
+
+**Solutions**:
+
+1. **HTML Entities**:
+   ```javascript
+   // Before: &amp;lt;strong&amp;gt;Text&amp;lt;/strong&amp;gt;
+   // After: <strong>Text</strong>
+
+   // Tool auto-decodes HTML entities
+   ```
+
+2. **Shortcodes Not Rendering**:
+   ```javascript
+   // WooCommerce shortcode: [product id="123"]
+   // BigCommerce: Not supported
+
+   // Solution: Remove shortcodes before migration
+   // Or manually replace with actual content
+   ```
+
+3. **Special Characters**:
+   - Ensure UTF-8 encoding
+   - Test with: é, ñ, ü, €, £
+   - Verify in BigCommerce after import
+
+### Images Not Displaying
+
+**Issue: Broken image links**
+
+**Solutions**:
+
+1. **Relative URLs**:
+   ```javascript
+   // Before: /wp-content/uploads/image.jpg
+   // After: https://yourstore.com/wp-content/uploads/image.jpg
+   ```
+
+2. **Image CDN**:
+   - BigCommerce uses its own CDN
+   - Images are re-hosted automatically
+   - Original URLs may stop working after migration
+
+3. **Missing Alt Text**:
+   - BigCommerce requires alt text for accessibility
+   - Tool copies from WooCommerce
+   - Falls back to product name if missing
+
+## BC Bridge Issues
+
+### Products Not Displaying on WordPress
+
+**Issue: Shortcode shows nothing**
+
+**Solutions**:
+
+1. **Check Product ID**:
+   ```php
+   // Get BigCommerce product ID (not WooCommerce ID)
+   [bc_product id="456"] // BC ID, not WC ID
+   ```
+
+2. **Clear Cache**:
+   ```bash
+   wp cache flush
+   wp transient delete bc_product_456
+   ```
+
+3. **Test API Connection**:
+   ```bash
+   wp bc-bridge test-connection
+   ```
+
+**Issue: Add to Cart not working**
+
+**Solutions**:
+
+1. **JavaScript Errors**:
+   - Check browser console for errors
+   - Ensure BC Bridge JS is loaded
+   - Check for jQuery conflicts
+
+2. **CORS Issues**:
+   ```javascript
+   // Verify BigCommerce CORS settings
+   // Settings → API → CORS
+   // Add WordPress domain
+   ```
+
+3. **Checkout URL**:
+   ```php
+   // Verify checkout redirect works
+   define('BC_CHECKOUT_URL', 'https://store-hash.mybigcommerce.com/checkout');
+   ```
+
+## Error Messages Reference
+
+### "Insufficient permissions"
+- **WC**: API key needs Read/Write access
+- **BC**: Access token missing required scopes
+
+### "Rate limit exceeded"
+- **BC**: Wait 1 hour or until rate limit resets
+- **WC**: Contact hosting provider
+
+### "Product variant limit exceeded"
+- **BC**: Max 250 variants per product
+- **Solution**: Split into multiple products
+
+### "Image upload failed"
+- Check image URL accessibility
+- Verify file size < 2MB
+- Ensure format: JPG, PNG, GIF, WEBP
+
+### "Category not found"
+- Categories must be created before products
+- Run Foundation phase first
+- Check category ID mapping
+
+## Getting Additional Help
+
+### Before Contacting Support
+
+Gather this information:
+
+1. **Error Details**:
+   - Full error message
+   - Screenshot of issue
+   - Browser console logs (F12 → Console)
+
+2. **Environment**:
+   - WooCommerce version
+   - BigCommerce plan tier
+   - Number of products
+   - Migration phase where error occurred
+
+3. **What You've Tried**:
+   - List troubleshooting steps already attempted
+   - Changes made to configuration
+
+### Support Channels
+
+- **Documentation**: Search this knowledge base first
+- **Dashboard Help**: Click ? icon in migration dashboard
+- **Agency Support**: Contact your migration partner
+- **Community**: BigCommerce/WooCommerce forums
+
+### Escalation Path
+
+1. **Check Documentation**: Search troubleshooting guides
+2. **Test Connection**: Verify API credentials
+3. **Review Logs**: Check migration logs for detailed errors
+4. **Contact Support**: Provide gathered information above
+5. **Emergency**: For production issues, use priority support
+
+## Prevention Best Practices
+
+### Before Migration
+
+- [ ] Run full assessment
+- [ ] Review assessment report for warnings
+- [ ] Backup WooCommerce database
+- [ ] Test API connections manually
+- [ ] Verify all credentials are current
+
+### During Migration
+
+- [ ] Monitor progress actively
+- [ ] Don't close browser tab
+- [ ] Check for errors after each phase
+- [ ] Verify sample data in BigCommerce
+- [ ] Keep stable internet connection
+
+### After Migration
+
+- [ ] Full QA testing checklist
+- [ ] Verify all product data
+- [ ] Test checkout flow
+- [ ] Monitor for 48 hours
+- [ ] Keep WooCommerce backup for 30 days
+
+## Next Steps
+
+- [Migration FAQ](/docs/troubleshooting/faq)
+- [Data Validation Guide](/docs/guides/post-migration/validation)
+- [Rollback Procedures](/docs/troubleshooting/rollback)

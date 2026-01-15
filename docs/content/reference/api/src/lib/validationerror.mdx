@@ -1,0 +1,67 @@
+---
+title: "ValidationError"
+description: "Validation error for data transformation issues"
+category: "reference"
+order: 100
+section: "api"
+---
+
+# ValidationError
+
+Validation error for data transformation issues
+
+## Constructor
+
+```typescript
+ValidationError(message: string, field?: string, value?: unknown, context?: Record<string, unknown>): ValidationError
+```
+
+### Parameters
+
+- **`message`** (`string`): No description
+- **`field`** (`string`) (optional): No description
+- **`value`** (`unknown`) (optional): No description
+- **`context`** (`Record<string, unknown>`) (optional): No description
+
+### Returns
+
+`ValidationError`
+
+## Properties
+
+### `code`
+
+Type: `string`
+
+### `retriable`
+
+Type: `boolean`
+
+### `context`
+
+Type: `Record<string, unknown>`
+
+### `timestamp`
+
+Type: `string`
+
+### `field`
+
+Type: `string`
+
+### `value`
+
+Type: `unknown`
+
+## Methods
+
+### `toJSON()`
+
+```typescript
+toJSON(): Record<string, unknown>
+```
+
+### Returns
+
+`Record<string, unknown>`
+

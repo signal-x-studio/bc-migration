@@ -1,0 +1,195 @@
+---
+title: Quick Start Guide
+description: 5-minute guide to start your first migration
+category: reference
+order: 1
+---
+
+# Quick Start Guide
+
+Get your WooCommerce to BigCommerce migration started in 5 minutes.
+
+## Prerequisites Checklist
+
+Before you begin, ensure you have:
+
+- [ ] WooCommerce store URL
+- [ ] WooCommerce API Consumer Key
+- [ ] WooCommerce API Consumer Secret
+- [ ] BigCommerce Store Hash
+- [ ] BigCommerce Access Token
+- [ ] 30 minutes of uninterrupted time
+
+## Step 1: Get WooCommerce API Keys (2 minutes)
+
+1. Log into WordPress admin
+2. Navigate to **WooCommerce → Settings → Advanced → REST API**
+3. Click **Add Key**
+4. Set:
+   - **Description**: "BC Migration"
+   - **User**: Your admin user
+   - **Permissions**: **Read/Write**
+5. Click **Generate API Key**
+6. **Copy and save**:
+   - Consumer Key
+   - Consumer Secret
+
+⚠️ **Save these now** - Consumer Secret only shows once!
+
+## Step 2: Get BigCommerce API Token (2 minutes)
+
+1. Log into BigCommerce admin
+2. Navigate to **Settings → API → Store-level API Accounts**
+3. Click **Create API Account**
+4. Set:
+   - **Name**: "Migration Tool"
+   - **OAuth Scopes**:
+     - Products: **Modify**
+     - Categories: **Modify**
+     - Customers: **Modify**
+     - Orders: **Modify**
+     - Content: **Modify**
+5. Click **Save**
+6. **Copy and save**:
+   - Store Hash
+   - Access Token
+
+⚠️ **Save these now** - Access Token only shows once!
+
+## Step 3: Connect Stores (1 minute)
+
+1. Open BC Migration dashboard at `https://yourdomain.com`
+2. Click **Configure WooCommerce**:
+   - **Store URL**: `https://your-woo-store.com`
+   - **Consumer Key**: Paste from Step 1
+   - **Consumer Secret**: Paste from Step 1
+   - Click **Save & Test**
+
+3. Click **Configure BigCommerce**:
+   - **Store Hash**: Paste from Step 2 (e.g., `abc123xyz`)
+   - **Access Token**: Paste from Step 2
+   - Click **Save & Test**
+
+✅ Both connections should show **Connected** status.
+
+## Step 4: Run Assessment (3-5 minutes)
+
+1. Click **Run Assessment**
+2. Wait while the tool scans your store:
+   - Products count
+   - Categories structure
+   - Customer data
+   - Order history
+3. Review the **Assessment Report**:
+   - Check for any warnings
+   - Note estimated migration time
+   - Identify potential issues
+4. Click **Export Report** to save a copy
+
+## Step 5: Start Migration (15-120 minutes)
+
+1. Navigate to **Migration Wizard**
+2. Complete each phase in order:
+
+### Phase 1: Foundation (5-10 min)
+   - Creates category structure
+   - Sets up basic product taxonomy
+   - Click **Start Foundation Phase**
+   - Wait for completion
+
+### Phase 2: Core Data (30-90 min)
+   - Migrates products category by category
+   - Transfers product images and variants
+   - Click **Start Core Data Phase**
+   - Monitor progress bar
+
+### Phase 3: Transactions (20-40 min)
+   - Migrates customer accounts
+   - Transfers order history
+   - Imports coupon codes
+   - Click **Start Transactions Phase**
+
+### Phase 4: Content (10-20 min)
+   - Migrates blog posts
+   - Transfers pages
+   - Imports product reviews
+   - Click **Start Content Phase**
+
+## That's It!
+
+Your WooCommerce data is now in BigCommerce.
+
+### Immediate Next Steps
+
+1. **Verify in BigCommerce**:
+   - Log into BC admin
+   - Check products are correct
+   - Verify categories are nested properly
+
+2. **Test Checkout**:
+   - Place a test order
+   - Ensure checkout works
+
+3. **Configure Settings**:
+   - Payment gateways
+   - Shipping zones
+   - Tax rules
+
+### Within 24 Hours
+
+- [ ] Full QA testing (see checklist)
+- [ ] Set up redirects from old URLs
+- [ ] Configure email templates
+- [ ] Test on mobile devices
+
+### Within 1 Week
+
+- [ ] Theme customization
+- [ ] Customer communication plan
+- [ ] Training for staff
+- [ ] Go-live checklist
+
+## Common Quick Fixes
+
+### "Connection Failed"
+- Double-check API credentials
+- Verify HTTPS is enabled
+- Check firewall isn't blocking requests
+
+### "Migration Stuck"
+- Check internet connection
+- Wait for rate limits to reset
+- Try migrating smaller batches
+
+### "Products Missing Images"
+- Verify image URLs are accessible
+- Check file sizes < 2MB
+- Ensure hotlink protection allows BC
+
+## Get Help
+
+- **In-App Help**: Click ? icon in dashboard
+- **Documentation**: [Full guides](/docs/getting-started/for-merchants)
+- **Troubleshooting**: [Common issues](/docs/troubleshooting/common-issues)
+- **Support**: Contact your agency or migration partner
+
+## Time Estimates by Store Size
+
+| Store Size | Products | Estimated Time |
+|------------|----------|----------------|
+| Small | < 500 | 1-2 hours |
+| Medium | 500-2,000 | 3-6 hours |
+| Large | 2,000-10,000 | 8-16 hours |
+| Enterprise | 10,000+ | 24-48 hours |
+
+*Times are estimates and depend on product complexity, variants, and internet speed.*
+
+## Pro Tips
+
+1. **Migrate During Off-Peak Hours**: Less stress on your current store
+2. **Test First**: Use BigCommerce trial to test migration
+3. **Backup Everything**: Full database backup before starting
+4. **Keep Browser Open**: Don't close tab during migration
+5. **Monitor Actively**: Watch for errors and address immediately
+
+Ready to start? Head to the [Dashboard](/) and begin your migration!

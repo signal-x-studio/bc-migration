@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>April Summit Workback Plan - BigCommerce Product Architecture Kit</title>
+    <style>
+        :root {
+            --bc-primary: #34313f;
+            --bc-accent: #5c6ac4;
+            --bc-success: #22c55e;
+            --bc-warning: #f59e0b;
+            --bc-danger: #ef4444;
+            --bc-light: #f8f9fa;
+            --bc-border: #e0e0e0;
+            --sidebar-width: 260px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bc-light);
+            color: var(--bc-primary);
+            line-height: 1.6;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bc-primary);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 20px 0;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h1 {
+            font-size: 0.85rem;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        .sidebar-header .quarter {
+            font-size: 0.75rem;
+            opacity: 0.6;
+            margin-top: 4px;
+        }
+
+        .nav-section {
+            margin-bottom: 8px;
+        }
+
+        .nav-section-title {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: rgba(255,255,255,0.5);
+            padding: 12px 20px 8px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 10px 20px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.15s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-link:hover {
+            background: rgba(255,255,255,0.08);
+            color: white;
+        }
+
+        .nav-link.active {
+            background: var(--bc-accent);
+            color: white;
+            border-left-color: white;
+        }
+
+        /* Main Content */
+        .main {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 50px 60px;
+            max-width: 1000px;
+        }
+
+        .breadcrumb {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .breadcrumb a {
+            color: var(--bc-accent);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .main h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--bc-primary);
+        }
+
+        .main .subtitle {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .meta-inline {
+            display: flex;
+            gap: 30px;
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--bc-border);
+        }
+
+        .meta-inline strong {
+            color: var(--bc-primary);
+        }
+
+        /* Sections */
+        section {
+            margin-bottom: 50px;
+        }
+
+        section h2 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: var(--bc-primary);
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--bc-accent);
+        }
+
+        section h3 {
+            font-size: 1.15rem;
+            margin: 30px 0 15px;
+            color: var(--bc-primary);
+        }
+
+        section h4 {
+            font-size: 1rem;
+            margin: 20px 0 12px;
+            color: var(--bc-primary);
+        }
+
+        section p {
+            margin-bottom: 15px;
+            color: #444;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+            font-size: 0.9rem;
+        }
+
+        thead {
+            background: var(--bc-primary);
+            color: white;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 16px;
+            font-weight: 500;
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--bc-border);
+            vertical-align: top;
+        }
+
+        tr:hover td {
+            background: rgba(92, 106, 196, 0.04);
+        }
+
+        /* Status indicators */
+        .status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status.complete { background: #dcfce7; color: #166534; }
+        .status.in-progress { background: #fef3c7; color: #92400e; }
+        .status.not-started { background: #fee2e2; color: #991b1b; }
+
+        /* Code/Diagram blocks */
+        .diagram {
+            background: var(--bc-primary);
+            color: #f8f8f2;
+            padding: 20px 25px;
+            border-radius: 8px;
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            overflow-x: auto;
+            margin-bottom: 25px;
+            white-space: pre;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin-bottom: 20px;
+            padding-left: 25px;
+        }
+
+        li {
+            margin-bottom: 8px;
+            color: #444;
+        }
+
+        /* Callout */
+        .callout {
+            background: #eff6ff;
+            border-left: 4px solid var(--bc-accent);
+            padding: 16px 20px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 25px;
+        }
+
+        .callout.warning {
+            background: #fefce8;
+            border-left-color: var(--bc-warning);
+        }
+
+        .callout h4 {
+            margin: 0 0 8px;
+            font-size: 0.95rem;
+        }
+
+        .callout p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        /* Phase boxes */
+        .phase-header {
+            background: linear-gradient(135deg, var(--bc-accent), #7c3aed);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px 8px 0 0;
+            margin-top: 30px;
+        }
+
+        .phase-header h3 {
+            color: white;
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .phase-content {
+            background: white;
+            border: 1px solid var(--bc-border);
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .week-block {
+            background: var(--bc-light);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .week-block h4 {
+            margin-top: 0;
+            color: var(--bc-accent);
+        }
+
+        .deliverable {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 6px;
+            padding: 12px 16px;
+            font-size: 0.9rem;
+            margin-top: 15px;
+        }
+
+        .deliverable strong {
+            color: #166534;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .sidebar { width: 220px; }
+            .main { margin-left: 220px; padding: 30px 40px; }
+        }
+
+        @media (max-width: 700px) {
+            .sidebar { display: none; }
+            .main { margin-left: 0; padding: 20px; }
+            .meta-inline { flex-direction: column; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>BigCommerce - Q1 2026</h1>
+                <div class="quarter">Product Architecture Kit</div>
+            </div>
+
+            <nav>
+                <div class="nav-section">
+                    <div class="nav-section-title">Overview</div>
+                    <a href="index.html" class="nav-link">Executive Summary</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">April Summit</div>
+                    <a href="april-summit-workback.html" class="nav-link active">Workback Plan</a>
+                    <a href="#phase-1" class="nav-link">Phase 1: Foundation</a>
+                    <a href="#phase-2" class="nav-link">Phase 2: Integration</a>
+                    <a href="#phase-3" class="nav-link">Phase 3: Polish</a>
+                    <a href="#risks" class="nav-link">Risks & Resources</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Integration Diagnostic</div>
+                    <a href="integration-diagnostic.html" class="nav-link">Framework Overview</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Merchant Success</div>
+                    <a href="ai-native-architecture.html" class="nav-link">Vision & Strategy</a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main">
+            <div class="breadcrumb">
+                <a href="index.html">Kit</a> / April Summit Workback
+            </div>
+
+            <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 1px solid #f59e0b; border-radius: 8px; padding: 12px 20px; margin-bottom: 25px; font-size: 0.9rem; color: #92400e;">
+                <strong>Updated January 2026:</strong> Now includes "Offer Definition" success criteria per NRF 2026 insights. <em>"It all comes down to the offer"</em> - Rick Watson. See <a href="year-one/index.html" style="color: #92400e; font-weight: 600;">Year One Operating Plan</a> for full context.
+            </div>
+
+            <h1>BC-Migration: April Summit Workback Plan</h1>
+            <p class="subtitle">12-week execution plan to deliver bc-migration announcement at the April summit</p>
+
+            <div class="meta-inline">
+                <span><strong>Target:</strong> April 2026 Summit</span>
+                <span><strong>Owner:</strong> Nino Chavez</span>
+            </div>
+
+            <!-- The Offer -->
+            <section id="the-offer">
+                <h2>The Offer: What We're Announcing</h2>
+                <div class="callout" style="background: #f0fdf4; border-left-color: #22c55e;">
+                    <h4>BigCommerce's Offer to WooCommerce Merchants</h4>
+                    <p><strong>"Migrate in 48 hours. Keep your SEO rankings. Gain access to every marketplace. Pay nothing until you're live."</strong></p>
+                </div>
+                <p>Per Rick Watson's NRF 2026 analysis: "It's not the protocol or technology that is the thing. It all comes down to the offer." Our Summit messaging must lead with <strong>merchant outcomes</strong>, not technical capabilities.</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>What Merchants Get</th>
+                            <th>Why It Matters</th>
+                            <th>How We Deliver</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Zero-downtime migration</strong></td>
+                            <td>No lost sales during transition</td>
+                            <td>bc-migration + WPEngine partnership</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SEO preservation</strong></td>
+                            <td>Protect existing organic traffic</td>
+                            <td>URL mapping, redirect automation</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Marketplace access</strong></td>
+                            <td>Sell on Amazon, Google, Facebook instantly</td>
+                            <td>Feedonomics integration included</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Trusted partner support</strong></td>
+                            <td>Not a cold migration tool</td>
+                            <td>WPEngine co-branded experience</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Success Criteria -->
+            <section id="success-criteria">
+                <h2>Success Criteria for "Announceable"</h2>
+                <p>The April announcement requires more than working code. It requires:</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Criteria</th>
+                            <th>Definition</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Offer Definition</strong></td>
+                            <td>Clear, compelling offer merchants can understand in 10 seconds</td>
+                            <td><span class="status complete">Defined above</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Technical Readiness</strong></td>
+                            <td>End-to-end migration flow works reliably</td>
+                            <td><span class="status complete">Core complete (87 tests)</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Integration Readiness</strong></td>
+                            <td>Connects to BigCommerce provisioning/onboarding</td>
+                            <td><span class="status not-started">Not started</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Partner Alignment</strong></td>
+                            <td>WPEngine co-marketing narrative locked</td>
+                            <td><span class="status not-started">Not started</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Customer Proof Point</strong></td>
+                            <td>At least 1 merchant successfully migrated</td>
+                            <td><span class="status not-started">Not started</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Demo Quality</strong></td>
+                            <td>Polished demo that shows the OFFER, not the tech</td>
+                            <td><span class="status not-started">Not started</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Sales Enablement</strong></td>
+                            <td>Sales team can articulate the OFFER to prospects</td>
+                            <td><span class="status not-started">Not started</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Support Readiness</strong></td>
+                            <td>Support team trained on migration issues</td>
+                            <td><span class="status not-started">Not started</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Critical Path -->
+            <section id="critical-path">
+                <h2>Critical Path Dependencies</h2>
+
+                <div class="diagram">CRITICAL PATH
+
+  [WPEngine Alignment] ────────────────────────────────────────────┐
+         │                                                          │
+         v                                                          │
+  [Joint Narrative] ───> [Marketing Assets] ───> [Announcement]    │
+         │                       │                                  │
+         │                       v                                  │
+         │              [Sales Enablement]                          │
+         │                                                          │
+  [BC Integration] ──> [Beta Merchant] ──> [Demo Polish] ──────────┘
+         │                    │
+         v                    v
+  [Support Training]   [Case Study]</div>
+
+                <p><strong>Parallel Workstreams:</strong></p>
+                <ol>
+                    <li>Technical Integration (you + Engineering cohorts)</li>
+                    <li>Partner Alignment (you + Partnerships)</li>
+                    <li>GTM Preparation (Marketing + Sales + Support)</li>
+                </ol>
+            </section>
+
+            <!-- Phase 1 -->
+            <section id="phase-1">
+                <div class="phase-header">
+                    <h3>Phase 1: Foundation (Weeks 1-4) - January 2026</h3>
+                </div>
+                <div class="phase-content">
+                    <div class="week-block">
+                        <h4>Week 1 (Jan 6-10): Stakeholder Alignment</h4>
+                        <table>
+                            <thead>
+                                <tr><th>Day</th><th>Activity</th><th>Owner</th><th>Output</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Mon</td><td>Kickoff with CPO - confirm scope, resources, risks</td><td>Nino</td><td>Alignment doc</td></tr>
+                                <tr><td>Tue</td><td>Meet WPEngine partnership lead - intro, understand their timeline</td><td>Nino + Partnerships</td><td>Contact established</td></tr>
+                                <tr><td>Wed</td><td>Identify Engineering cohort - who owns provisioning/onboarding APIs?</td><td>Nino</td><td>Engineering contact</td></tr>
+                                <tr><td>Thu</td><td>Identify Marketing cohort - who owns Summit content?</td><td>Nino</td><td>Marketing contact</td></tr>
+                                <tr><td>Fri</td><td>Draft initiative brief for cross-functional alignment</td><td>Nino</td><td>1-pager circulated</td></tr>
+                            </tbody>
+                        </table>
+                        <div class="deliverable"><strong>Week 1 Deliverable:</strong> Cross-functional team identified, initiative brief circulated</div>
+                    </div>
+
+                    <div class="week-block">
+                        <h4>Week 2 (Jan 13-17): Technical Discovery</h4>
+                        <table>
+                            <thead>
+                                <tr><th>Day</th><th>Activity</th><th>Owner</th><th>Output</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Mon</td><td>Deep-dive on BigCommerce store provisioning API</td><td>Nino + Eng</td><td>API documentation</td></tr>
+                                <tr><td>Tue</td><td>Map bc-migration outputs to BC onboarding inputs</td><td>Nino</td><td>Integration spec draft</td></tr>
+                                <tr><td>Wed</td><td>Identify gaps in current bc-migration for BC integration</td><td>Nino</td><td>Gap analysis</td></tr>
+                                <tr><td>Thu</td><td>WPEngine technical call - understand their migration triggers</td><td>Nino + WPE</td><td>Technical requirements</td></tr>
+                                <tr><td>Fri</td><td>Draft integration architecture</td><td>Nino</td><td>Architecture doc</td></tr>
+                            </tbody>
+                        </table>
+                        <div class="deliverable"><strong>Week 2 Deliverable:</strong> Integration architecture document, gap analysis</div>
+                    </div>
+
+                    <div class="week-block">
+                        <h4>Week 3 (Jan 20-24): Partner Narrative Development</h4>
+                        <table>
+                            <thead>
+                                <tr><th>Day</th><th>Activity</th><th>Owner</th><th>Output</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Mon</td><td>WPEngine partnership strategy session</td><td>Nino + Partnerships</td><td>Joint value prop draft</td></tr>
+                                <tr><td>Tue</td><td>Competitive positioning - why BC over Shopify for WC refugees?</td><td>Nino + Product Marketing</td><td>Positioning doc</td></tr>
+                                <tr><td>Wed</td><td>Draft joint announcement narrative</td><td>Nino + Marketing</td><td>Narrative v1</td></tr>
+                                <tr><td>Thu</td><td>WPEngine review of narrative</td><td>Partnerships</td><td>Feedback incorporated</td></tr>
+                                <tr><td>Fri</td><td>Finalize narrative for internal review</td><td>Nino</td><td>Narrative v2</td></tr>
+                            </tbody>
+                        </table>
+                        <div class="deliverable"><strong>Week 3 Deliverable:</strong> Joint narrative document (v2)</div>
+                    </div>
+
+                    <div class="week-block">
+                        <h4>Week 4 (Jan 27-31): Integration Development Kickoff</h4>
+                        <table>
+                            <thead>
+                                <tr><th>Day</th><th>Activity</th><th>Owner</th><th>Output</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Mon</td><td>Begin BC provisioning API integration</td><td>Nino</td><td>Code started</td></tr>
+                                <tr><td>Tue</td><td>Continue integration development</td><td>Nino</td><td>-</td></tr>
+                                <tr><td>Wed</td><td>Sync with Engineering on blockers</td><td>Nino + Eng</td><td>Blockers identified</td></tr>
+                                <tr><td>Thu</td><td>WPEngine technical sync - migration trigger mechanism</td><td>Nino + WPE</td><td>Trigger spec</td></tr>
+                                <tr><td>Fri</td><td>Phase 1 retrospective + Phase 2 planning</td><td>All</td><td>Retro notes</td></tr>
+                            </tbody>
+                        </table>
+                        <div class="deliverable"><strong>Week 4 Deliverable:</strong> Integration development in progress, WPEngine trigger spec</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Phase 2 -->
+            <section id="phase-2">
+                <div class="phase-header" style="background: linear-gradient(135deg, #7c3aed, #a78bfa);">
+                    <h3>Phase 2: Integration & Beta (Weeks 5-8) - February 2026</h3>
+                </div>
+                <div class="phase-content">
+                    <div class="week-block">
+                        <h4>Week 5 (Feb 3-7): Core Integration</h4>
+                        <table>
+                            <thead>
+                                <tr><th>Day</th><th>Activity</th><th>Owner</th><th>Output</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Mon</td><td>Complete BC provisioning integration</td><td>Nino</td><td>Integration complete</td></tr>
+                                <tr><td>Tue</td><td>Begin BC onboarding flow integration</td><td>Nino</td><td>Code started</td></tr>
+                                <tr><td>Wed</td><td>Internal end-to-end test</td><td>Nino</td><td>Test results</td></tr>
+                                <tr><td>Thu</td><td>Fix critical issues from testing</td><td>Nino</td><td>Issues resolved</td></tr>
+                                <tr><td>Fri</td><td>Demo to CPO - checkpoint</td><td>Nino</td><td>CPO feedback</td></tr>
+                            </tbody>
+                        </table>
+                        <div class="deliverable"><strong>Week 5 Deliverable:</strong> Working integration (internal testing)</div>
+                    </div>
+
+                    <div class="week-block">
+                        <h4>Week 6 (Feb 10-14): Beta Merchant Recruitment</h4>
+                        <table>
+                            <thead>
+                                <tr><th>Day</th><th>Activity</th><th>Owner</th><th>Output</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Mon</td><td>Identify beta merchant candidates (via WPEngine or BC sales)</td><td>Nino + Sales</td><td>Candidate list</td></tr>
+                                <tr><td>Tue</td><td>Outreach to top 3 candidates</td><td>Sales</td><td>Conversations started</td></tr>
+                                <tr><td>Wed</td><td>Beta merchant selected</td><td>Nino + Sales</td><td>Beta commitment</td></tr>
+                                <tr><td>Thu</td><td>Beta merchant kickoff call</td><td>Nino</td><td>Expectations set</td></tr>
+                                <tr><td>Fri</td><td>Prepare beta environment</td><td>Nino</td><td>Environment ready</td></tr>
+                            </tbody>
+                        </table>
+                        <div class="deliverable"><strong>Week 6 Deliverable:</strong> Beta merchant committed, environment ready</div>
+                    </div>
+
+                    <div class="week-block">
+                        <h4>Week 7 (Feb 17-21): Beta Migration Execution</h4>
+                        <table>
+                            <thead>
+                                <tr><th>Day</th><th>Activity</th><th>Owner</th><th>Output</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Mon</td><td>Run assessment on beta merchant's WC store</td><td>Nino</td><td>Assessment report</td></tr>
+                                <tr><td>Tue</td><td>Execute migration (with merchant on call)</td><td>Nino</td><td>Migration complete</td></tr>
+                                <tr><td>Wed</td><td>Merchant validation of migrated data</td><td>Beta merchant</td><td>Validation feedback</td></tr>
+                                <tr><td>Thu</td><td>Fix any data issues</td><td>Nino</td><td>Issues resolved</td></tr>
+                                <tr><td>Fri</td><td>Merchant sign-off</td><td>Beta merchant</td><td>Sign-off received</td></tr>
+                            </tbody>
+                        </table>
+                        <div class="deliverable"><strong>Week 7 Deliverable:</strong> Successful beta migration with merchant sign-off</div>
+                    </div>
+
+                    <div class="week-block">
+                        <h4>Week 8 (Feb 24-28): Beta Learnings & Case Study</h4>
+                        <table>
+                            <thead>
+                                <tr><th>Day</th><th>Activity</th><th>Owner</th><th>Output</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Mon</td><td>Document beta learnings</td><td>Nino</td><td>Learnings doc</td></tr>
+                                <tr><td>Tue</td><td>Incorporate fixes into bc-migration</td><td>Nino</td><td>Code updated</td></tr>
+                                <tr><td>Wed</td><td>Case study interview with beta merchant</td><td>Marketing</td><td>Interview recorded</td></tr>
+                                <tr><td>Thu</td><td>Draft case study</td><td>Marketing</td><td>Case study v1</td></tr>
+                                <tr><td>Fri</td><td>Phase 2 retrospective</td><td>All</td><td>Retro notes</td></tr>
+                            </tbody>
+                        </table>
+                        <div class="deliverable"><strong>Week 8 Deliverable:</strong> Beta learnings incorporated, case study drafted</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Phase 3 -->
+            <section id="phase-3">
+                <div class="phase-header" style="background: linear-gradient(135deg, #f59e0b, #fbbf24);">
+                    <h3>Phase 3: Polish & Enablement (Weeks 9-12) - March 2026</h3>
+                </div>
+                <div class="phase-content">
+                    <div class="week-block">
+                        <h4>Week 9 (Mar 2-6): Demo Development</h4>
+                        <table>
+                            <thead>
+                                <tr><th>Day</th><th>Activity</th><th>Owner</th><th>Output</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Mon</td><td>Define demo script - what story are we telling?</td><td>Nino + Marketing</td><td>Demo script v1</td></tr>
+                                <tr><td>Tue</td><td>Build demo environment (sanitized merchant data)</td><td>Nino</td><td>Demo env ready</td></tr>
+                                <tr><td>Wed</td><td>Record demo walkthrough (internal)</td><td>Nino</td><td>Demo video v1</td></tr>
+                                <tr><td>Thu</td><td>Feedback from CPO + Marketing</td><td>CPO, Marketing</td><td>Feedback</td></tr>
+                                <tr><td>Fri</td><td>Iterate on demo</td><td>Nino</td><td>Demo video v2</td></tr>
+                            </tbody>
+                        </table>
+                        <div class="deliverable"><strong>Week 9 Deliverable:</strong> Demo video v2 ready for review</div>
+                    </div>
+
+                    <div class="week-block">
+                        <h4>Week 10 (Mar 9-13): Sales & Support Enablement</h4>
+                        <table>
+                            <thead>
+                                <tr><th>Day</th><th>Activity</th><th>Owner</th><th>Output</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Mon</td><td>Sales enablement session - product overview</td><td>Nino + Sales</td><td>Session complete</td></tr>
+                                <tr><td>Tue</td><td>Create sales battlecard</td><td>Nino + Product Marketing</td><td>Battlecard v1</td></tr>
+                                <tr><td>Wed</td><td>Support training session - common issues, escalation path</td><td>Nino + Support</td><td>Session complete</td></tr>
+                                <tr><td>Thu</td><td>Create support runbook</td><td>Nino</td><td>Runbook v1</td></tr>
+                                <tr><td>Fri</td><td>Q&A office hours for Sales + Support</td><td>Nino</td><td>Questions answered</td></tr>
+                            </tbody>
+                        </table>
+                        <div class="deliverable"><strong>Week 10 Deliverable:</strong> Sales battlecard, support runbook</div>
+                    </div>
+
+                    <div class="week-block">
+                        <h4>Week 11 (Mar 16-20): Final Polish</h4>
+                        <table>
+                            <thead>
+                                <tr><th>Day</th><th>Activity</th><th>Owner</th><th>Output</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Mon</td><td>Final demo polish</td><td>Nino</td><td>Demo final</td></tr>
+                                <tr><td>Tue</td><td>Marketing asset review (landing page, blog post)</td><td>Marketing</td><td>Assets reviewed</td></tr>
+                                <tr><td>Wed</td><td>Legal review of partnership announcement</td><td>Legal</td><td>Legal sign-off</td></tr>
+                                <tr><td>Thu</td><td>Executive dry run (Travis, Dan, CPO)</td><td>Nino</td><td>Exec feedback</td></tr>
+                                <tr><td>Fri</td><td>Incorporate exec feedback</td><td>Nino</td><td>Final adjustments</td></tr>
+                            </tbody>
+                        </table>
+                        <div class="deliverable"><strong>Week 11 Deliverable:</strong> Executive sign-off on announcement</div>
+                    </div>
+
+                    <div class="week-block">
+                        <h4>Week 12 (Mar 23-27): Pre-Summit Prep</h4>
+                        <table>
+                            <thead>
+                                <tr><th>Day</th><th>Activity</th><th>Owner</th><th>Output</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Mon</td><td>Final WPEngine alignment call</td><td>Nino + Partnerships</td><td>Partner aligned</td></tr>
+                                <tr><td>Tue</td><td>Presentation deck finalized</td><td>Nino + Marketing</td><td>Deck final</td></tr>
+                                <tr><td>Wed</td><td>Rehearsal for Summit session</td><td>Nino</td><td>Rehearsal complete</td></tr>
+                                <tr><td>Thu</td><td>Contingency planning - what if demo fails?</td><td>Nino</td><td>Backup plan</td></tr>
+                                <tr><td>Fri</td><td>Final go/no-go decision</td><td>CPO</td><td>Go decision</td></tr>
+                            </tbody>
+                        </table>
+                        <div class="deliverable"><strong>Week 12 Deliverable:</strong> Summit-ready</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Phase 4: Summit -->
+            <section id="summit-week">
+                <h2>Phase 4: Summit Week (Week 13) - Late March/Early April</h2>
+                <table>
+                    <thead>
+                        <tr><th>Day</th><th>Activity</th><th>Owner</th><th>Output</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Pre-Summit</td><td>Travel, setup, final prep</td><td>Nino</td><td>On-site</td></tr>
+                        <tr><td>Day 1</td><td>Attend keynote, network with WPEngine team</td><td>Nino</td><td>Relationships</td></tr>
+                        <tr><td>Day 2</td><td><strong>Announcement</strong> - keynote mention or breakout session</td><td>Nino</td><td>Announced</td></tr>
+                        <tr><td>Day 2</td><td>Partner booth presence (if applicable)</td><td>Nino + WPE</td><td>Visibility</td></tr>
+                        <tr><td>Day 3</td><td>Follow-up conversations, collect feedback</td><td>Nino</td><td>Feedback</td></tr>
+                        <tr><td>Post-Summit</td><td>Debrief with CPO</td><td>Nino</td><td>Learnings</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Risks -->
+            <section id="risks">
+                <h2>Risk Register</h2>
+                <table>
+                    <thead>
+                        <tr><th>Risk</th><th>Likelihood</th><th>Impact</th><th>Mitigation</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>WPEngine partnership delays</td>
+                            <td>Medium</td>
+                            <td>High</td>
+                            <td>Early alignment (Week 1), escalation path to execs</td>
+                        </tr>
+                        <tr>
+                            <td>No beta merchant available</td>
+                            <td>Medium</td>
+                            <td>High</td>
+                            <td>Start recruitment Week 5, have backup candidates</td>
+                        </tr>
+                        <tr>
+                            <td>BC integration APIs not ready</td>
+                            <td>Low</td>
+                            <td>High</td>
+                            <td>Identify API owners Week 2, escalate blockers early</td>
+                        </tr>
+                        <tr>
+                            <td>Demo fails at Summit</td>
+                            <td>Low</td>
+                            <td>High</td>
+                            <td>Pre-recorded backup, tested offline demo</td>
+                        </tr>
+                        <tr>
+                            <td>Legal blocks partnership announcement</td>
+                            <td>Low</td>
+                            <td>Medium</td>
+                            <td>Engage legal Week 10, no surprises</td>
+                        </tr>
+                        <tr>
+                            <td>Engineering cohort pulled to other priorities</td>
+                            <td>Medium</td>
+                            <td>Medium</td>
+                            <td>CPO air cover, documented commitments</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Resources -->
+            <section id="resources">
+                <h2>Resource Requirements</h2>
+                <table>
+                    <thead>
+                        <tr><th>Resource</th><th>Need</th><th>Status</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Engineering cohort (BC provisioning)</td>
+                            <td>10-20 hours over 12 weeks</td>
+                            <td><span class="status not-started">To be identified</span></td>
+                        </tr>
+                        <tr>
+                            <td>Partnerships lead (WPEngine)</td>
+                            <td>Ongoing coordination</td>
+                            <td><span class="status not-started">To be identified</span></td>
+                        </tr>
+                        <tr>
+                            <td>Marketing lead (Summit content)</td>
+                            <td>Weeks 3, 8-12</td>
+                            <td><span class="status not-started">To be identified</span></td>
+                        </tr>
+                        <tr>
+                            <td>Sales lead (beta recruitment, enablement)</td>
+                            <td>Weeks 6, 10</td>
+                            <td><span class="status not-started">To be identified</span></td>
+                        </tr>
+                        <tr>
+                            <td>Support lead (training)</td>
+                            <td>Week 10</td>
+                            <td><span class="status not-started">To be identified</span></td>
+                        </tr>
+                        <tr>
+                            <td>Legal (partnership review)</td>
+                            <td>Week 11</td>
+                            <td><span class="status not-started">To be identified</span></td>
+                        </tr>
+                        <tr>
+                            <td>Beta merchant</td>
+                            <td>Weeks 6-8</td>
+                            <td><span class="status not-started">To be recruited</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Communication -->
+            <section id="communication">
+                <h2>Communication Cadence</h2>
+                <table>
+                    <thead>
+                        <tr><th>Meeting</th><th>Frequency</th><th>Attendees</th><th>Purpose</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>CPO 1:1</td>
+                            <td>Weekly</td>
+                            <td>Nino, CPO</td>
+                            <td>Status, blockers, decisions</td>
+                        </tr>
+                        <tr>
+                            <td>Cross-functional sync</td>
+                            <td>Bi-weekly</td>
+                            <td>All cohorts</td>
+                            <td>Coordination</td>
+                        </tr>
+                        <tr>
+                            <td>WPEngine sync</td>
+                            <td>Bi-weekly</td>
+                            <td>Nino, WPE lead</td>
+                            <td>Partner alignment</td>
+                        </tr>
+                        <tr>
+                            <td>Executive update</td>
+                            <td>Monthly</td>
+                            <td>Nino, Travis, Dan, CPO</td>
+                            <td>Strategic alignment</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Current State -->
+            <section id="current-state">
+                <h2>Appendix: bc-migration Current State</h2>
+
+                <h3>Completed</h3>
+                <ul>
+                    <li>Infrastructure setup (vitest, bottleneck, pino, zod)</li>
+                    <li>Type safety (WC/BC/migration types)</li>
+                    <li>Rate limiting & retry logic</li>
+                    <li>Batch operations (max 10 items per request)</li>
+                    <li>Error handling & structured logging</li>
+                    <li>Product variants (600 limit per product)</li>
+                    <li>Idempotency (skip existing items)</li>
+                    <li>Validation command (data comparison)</li>
+                    <li>Schema validation (Zod)</li>
+                    <li>Testing (87 tests across 5 files)</li>
+                </ul>
+
+                <h3>Remaining for Summit</h3>
+                <ul>
+                    <li>BigCommerce provisioning API integration</li>
+                    <li>BigCommerce onboarding flow integration</li>
+                    <li>WPEngine trigger mechanism</li>
+                    <li>Demo polish</li>
+                    <li>Documentation for Sales/Support</li>
+                </ul>
+            </section>
+
+            <div style="margin-top: 50px; padding-top: 30px; border-top: 1px solid var(--bc-border); color: #888; font-size: 0.85rem;">
+                <p><em>Last Updated: January 2026</em></p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Active nav link on scroll
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

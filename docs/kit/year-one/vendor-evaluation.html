@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendor Evaluation Criteria - BigCommerce Product Architect</title>
+    <style>
+        :root {
+            --bc-primary: #34313f;
+            --bc-accent: #5c6ac4;
+            --bc-success: #22c55e;
+            --bc-warning: #f59e0b;
+            --bc-danger: #ef4444;
+            --bc-light: #f8f9fa;
+            --bc-border: #e0e0e0;
+            --sidebar-width: 260px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bc-light);
+            color: var(--bc-primary);
+            line-height: 1.6;
+        }
+
+        .layout { display: flex; min-height: 100vh; }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bc-primary);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 20px 0;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h1 { font-size: 0.85rem; font-weight: 500; opacity: 0.9; }
+        .sidebar-header .quarter { font-size: 0.75rem; opacity: 0.6; margin-top: 4px; }
+
+        .nav-section { margin-bottom: 8px; }
+        .nav-section-title {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: rgba(255,255,255,0.5);
+            padding: 12px 20px 8px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 10px 20px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.15s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-link:hover { background: rgba(255,255,255,0.08); color: white; }
+        .nav-link.active { background: var(--bc-accent); color: white; border-left-color: white; }
+
+        .main {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 50px 60px;
+            max-width: 1100px;
+        }
+
+        .breadcrumb { font-size: 0.85rem; color: #666; margin-bottom: 20px; }
+        .breadcrumb a { color: var(--bc-accent); text-decoration: none; }
+
+        .main h1 { font-size: 2rem; margin-bottom: 10px; color: var(--bc-primary); }
+        .main .subtitle { font-size: 1rem; color: #666; margin-bottom: 30px; }
+
+        .meta-inline {
+            display: flex;
+            gap: 30px;
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--bc-border);
+        }
+
+        .meta-inline strong { color: var(--bc-primary); }
+
+        section { margin-bottom: 50px; }
+
+        section h2 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--bc-accent);
+            color: var(--bc-primary);
+        }
+
+        section h3 {
+            font-size: 1.1rem;
+            margin: 25px 0 15px;
+            color: var(--bc-primary);
+        }
+
+        p { margin-bottom: 15px; color: #444; }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .category-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            border-top: 4px solid var(--bc-accent);
+        }
+
+        .category-card h4 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: var(--bc-primary);
+        }
+
+        .category-card p {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .vendor-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .vendor-tag {
+            background: #e0e7ff;
+            color: var(--bc-accent);
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .scoring-legend {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+
+        .scoring-legend h4 {
+            margin-bottom: 12px;
+            color: var(--bc-primary);
+        }
+
+        .score-items {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+
+        .score-item {
+            text-align: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .score-item .number {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--bc-accent);
+        }
+
+        .score-item .label {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .evaluation-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border: 1px solid var(--bc-border);
+        }
+
+        .evaluation-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .eval-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .eval-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--bc-primary);
+        }
+
+        .candidates-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 0.9rem;
+        }
+
+        .candidates-table th {
+            background: #f8f9fa;
+            padding: 10px 14px;
+            text-align: left;
+            font-weight: 500;
+            color: #666;
+        }
+
+        .candidates-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .type-badge {
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .type-managed { background: #dcfce7; color: #166534; }
+        .type-hybrid { background: #fef3c7; color: #92400e; }
+        .type-oss { background: #e0e7ff; color: #4f46e5; }
+
+        .criteria-section {
+            margin: 25px 0;
+        }
+
+        .criteria-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .criteria-title {
+            font-weight: 600;
+            color: var(--bc-primary);
+        }
+
+        .weight-badge {
+            background: var(--bc-accent);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .criteria-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .criteria-table th {
+            background: var(--bc-primary);
+            color: white;
+            padding: 10px 14px;
+            text-align: left;
+            font-weight: 500;
+        }
+
+        .criteria-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .criteria-table tr:hover { background: #f8f9fa; }
+
+        .weight-cell {
+            font-weight: 500;
+            color: var(--bc-accent);
+        }
+
+        .scoring-note {
+            background: #fef3c7;
+            border-radius: 6px;
+            padding: 12px 15px;
+            margin: 15px 0;
+            font-size: 0.85rem;
+            color: #92400e;
+        }
+
+        .poc-card {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid var(--bc-success);
+        }
+
+        .poc-card h4 {
+            color: #166534;
+            margin-bottom: 12px;
+        }
+
+        .poc-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .poc-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: #166534;
+        }
+
+        .poc-item::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            background: var(--bc-success);
+            border-radius: 50%;
+            margin-top: 6px;
+            flex-shrink: 0;
+        }
+
+        .success-criteria {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+
+        .success-criteria h5 {
+            font-size: 0.85rem;
+            color: var(--bc-primary);
+            margin-bottom: 10px;
+        }
+
+        .success-criteria ul {
+            margin: 0;
+            padding-left: 20px;
+            font-size: 0.85rem;
+            color: #555;
+        }
+
+        .comparison-matrix {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            font-size: 0.85rem;
+        }
+
+        .comparison-matrix th {
+            background: var(--bc-primary);
+            color: white;
+            padding: 10px 12px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .comparison-matrix th:first-child {
+            text-align: left;
+        }
+
+        .comparison-matrix td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #f0f0f0;
+            text-align: center;
+        }
+
+        .comparison-matrix td:first-child {
+            text-align: left;
+            font-weight: 500;
+        }
+
+        .comparison-matrix tr:last-child td {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .must-have-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .must-have-item {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            border-left: 3px solid var(--bc-danger);
+        }
+
+        .must-have-item strong {
+            display: block;
+            color: var(--bc-danger);
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .must-have-item span {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .timeline-steps {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .timeline-step {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            position: relative;
+        }
+
+        .timeline-step::after {
+            content: "";
+            position: absolute;
+            right: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-left: 8px solid #ddd;
+        }
+
+        .timeline-step:last-child::after {
+            display: none;
+        }
+
+        .timeline-step .week {
+            background: var(--bc-accent);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+
+        .timeline-step .activity {
+            font-size: 0.85rem;
+            color: var(--bc-primary);
+        }
+
+        .scorecard-template {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.8rem;
+            line-height: 1.6;
+            color: #444;
+            overflow-x: auto;
+        }
+
+        .scorecard-template .header {
+            color: var(--bc-accent);
+            font-weight: 600;
+        }
+
+        .scorecard-template .field {
+            color: #888;
+        }
+
+        @media print {
+            .sidebar { display: none; }
+            .main { margin-left: 0; max-width: 100%; }
+            .evaluation-card { break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1>Product Architect Kit</h1>
+                <div class="quarter">Year One Planning</div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Year One</div>
+                <a href="index.html" class="nav-link">Operating Plan</a>
+                <a href="first-90-days.html" class="nav-link">First 90 Days</a>
+                <a href="stakeholder-map.html" class="nav-link">Stakeholder Map</a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Decisions</div>
+                <a href="semantic-layer-decision.html" class="nav-link">ADR-001: Semantic Layer</a>
+                <a href="red-team-response.html" class="nav-link">Red Team Response</a>
+                <a href="capability-pods-position.html" class="nav-link">Capability Pods Position</a>
+                <a href="vendor-evaluation.html" class="nav-link active">Vendor Evaluation</a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Reference</div>
+                <a href="integration-interview-guide.html" class="nav-link">Interview Guide</a>
+                <a href="../index.html" class="nav-link">Back to Kit</a>
+            </div>
+        </nav>
+
+        <main class="main">
+            <div class="breadcrumb">
+                <a href="../index.html">Kit</a> / <a href="index.html">Year One</a> / Vendor Evaluation
+            </div>
+
+            <h1>Semantic Layer Vendor Evaluation</h1>
+            <p class="subtitle">Scoring rubric for vector databases, event streaming, and semantic layer platforms</p>
+
+            <div class="meta-inline">
+                <span><strong>Date:</strong> January 2026</span>
+                <span><strong>Related:</strong> ADR-001</span>
+                <span><strong>Timeline:</strong> 8 weeks to selection</span>
+            </div>
+
+            <!-- Overview -->
+            <section>
+                <h2>Evaluation Framework Overview</h2>
+
+                <h3>What We're Evaluating</h3>
+                <div class="category-grid">
+                    <div class="category-card">
+                        <h4>Vector Database</h4>
+                        <p>Store and query embeddings for semantic search and recommendations</p>
+                        <div class="vendor-tags">
+                            <span class="vendor-tag">Pinecone</span>
+                            <span class="vendor-tag">Weaviate</span>
+                            <span class="vendor-tag">Qdrant</span>
+                            <span class="vendor-tag">Milvus</span>
+                            <span class="vendor-tag">pgvector</span>
+                        </div>
+                    </div>
+                    <div class="category-card">
+                        <h4>Event Streaming</h4>
+                        <p>Real-time data backbone with CDC for keeping systems in sync</p>
+                        <div class="vendor-tags">
+                            <span class="vendor-tag">Confluent</span>
+                            <span class="vendor-tag">Kinesis</span>
+                            <span class="vendor-tag">Redpanda</span>
+                            <span class="vendor-tag">MSK</span>
+                        </div>
+                    </div>
+                    <div class="category-card">
+                        <h4>Semantic Layer</h4>
+                        <p>Query abstraction and metrics layer for unified data access</p>
+                        <div class="vendor-tags">
+                            <span class="vendor-tag">Cube</span>
+                            <span class="vendor-tag">Materialize</span>
+                            <span class="vendor-tag">dbt SL</span>
+                            <span class="vendor-tag">AtScale</span>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Scoring System</h3>
+                <div class="scoring-legend">
+                    <h4>Each criterion is scored 1-5:</h4>
+                    <div class="score-items">
+                        <div class="score-item">
+                            <div class="number">1</div>
+                            <div class="label">Does not meet</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="number">2</div>
+                            <div class="label">Partial with gaps</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="number">3</div>
+                            <div class="label">Meets basic</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="number">4</div>
+                            <div class="label">Exceeds</div>
+                        </div>
+                        <div class="score-item">
+                            <div class="number">5</div>
+                            <div class="label">Best-in-class</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Vector Database -->
+            <section>
+                <h2>Vector Database Evaluation</h2>
+
+                <div class="evaluation-card">
+                    <div class="evaluation-header">
+                        <div class="eval-icon">DB</div>
+                        <div class="eval-title">Vector Database Candidates</div>
+                    </div>
+
+                    <table class="candidates-table">
+                        <tr>
+                            <th>Vendor</th>
+                            <th>Type</th>
+                            <th>Notes</th>
+                        </tr>
+                        <tr>
+                            <td><strong>Pinecone</strong></td>
+                            <td><span class="type-badge type-managed">Managed SaaS</span></td>
+                            <td>Market leader, purpose-built</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Weaviate</strong></td>
+                            <td><span class="type-badge type-hybrid">Managed + Self-hosted</span></td>
+                            <td>Strong hybrid search</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Qdrant</strong></td>
+                            <td><span class="type-badge type-hybrid">Managed + Self-hosted</span></td>
+                            <td>Rust-based, performance focus</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Milvus/Zilliz</strong></td>
+                            <td><span class="type-badge type-hybrid">Managed + Self-hosted</span></td>
+                            <td>Open source, enterprise option</td>
+                        </tr>
+                        <tr>
+                            <td><strong>pgvector</strong></td>
+                            <td><span class="type-badge type-oss">Postgres extension</span></td>
+                            <td>Familiar, but limited scale</td>
+                        </tr>
+                    </table>
+
+                    <!-- Technical Capabilities -->
+                    <div class="criteria-section">
+                        <div class="criteria-header">
+                            <span class="criteria-title">Technical Capabilities</span>
+                            <span class="weight-badge">40% weight</span>
+                        </div>
+                        <table class="criteria-table">
+                            <tr>
+                                <th>Criterion</th>
+                                <th>Weight</th>
+                                <th>What We're Looking For</th>
+                            </tr>
+                            <tr>
+                                <td>Query Performance</td>
+                                <td class="weight-cell">10%</td>
+                                <td>P99 latency <100ms at 10M+ vectors</td>
+                            </tr>
+                            <tr>
+                                <td>Hybrid Search</td>
+                                <td class="weight-cell">8%</td>
+                                <td>Combine vector similarity with metadata filtering</td>
+                            </tr>
+                            <tr>
+                                <td>Scalability</td>
+                                <td class="weight-cell">8%</td>
+                                <td>Handle 10x growth without re-architecture</td>
+                            </tr>
+                            <tr>
+                                <td>Index Types</td>
+                                <td class="weight-cell">6%</td>
+                                <td>Support for HNSW, IVF, or similar</td>
+                            </tr>
+                            <tr>
+                                <td>Embedding Dimensions</td>
+                                <td class="weight-cell">4%</td>
+                                <td>Support 1536+ dimensions (OpenAI scale)</td>
+                            </tr>
+                            <tr>
+                                <td>Real-time Updates</td>
+                                <td class="weight-cell">4%</td>
+                                <td>Near-instant index updates, not batch-only</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Operational Excellence -->
+                    <div class="criteria-section">
+                        <div class="criteria-header">
+                            <span class="criteria-title">Operational Excellence</span>
+                            <span class="weight-badge">25% weight</span>
+                        </div>
+                        <table class="criteria-table">
+                            <tr>
+                                <th>Criterion</th>
+                                <th>Weight</th>
+                                <th>What We're Looking For</th>
+                            </tr>
+                            <tr>
+                                <td>Managed Service Quality</td>
+                                <td class="weight-cell">8%</td>
+                                <td>SLA, uptime history, incident response</td>
+                            </tr>
+                            <tr>
+                                <td>Monitoring & Observability</td>
+                                <td class="weight-cell">6%</td>
+                                <td>Built-in metrics, logging, alerting</td>
+                            </tr>
+                            <tr>
+                                <td>Backup & Recovery</td>
+                                <td class="weight-cell">5%</td>
+                                <td>Point-in-time recovery, cross-region backup</td>
+                            </tr>
+                            <tr>
+                                <td>Security & Compliance</td>
+                                <td class="weight-cell">6%</td>
+                                <td>SOC2, encryption at rest/transit, VPC</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Integration & DX -->
+                    <div class="criteria-section">
+                        <div class="criteria-header">
+                            <span class="criteria-title">Integration & Developer Experience</span>
+                            <span class="weight-badge">20% weight</span>
+                        </div>
+                        <table class="criteria-table">
+                            <tr>
+                                <th>Criterion</th>
+                                <th>Weight</th>
+                                <th>What We're Looking For</th>
+                            </tr>
+                            <tr>
+                                <td>SDK Quality</td>
+                                <td class="weight-cell">6%</td>
+                                <td>Python, Node.js, Go SDKs with good docs</td>
+                            </tr>
+                            <tr>
+                                <td>API Design</td>
+                                <td class="weight-cell">5%</td>
+                                <td>RESTful or gRPC, consistent patterns</td>
+                            </tr>
+                            <tr>
+                                <td>Documentation</td>
+                                <td class="weight-cell">5%</td>
+                                <td>Comprehensive, up-to-date, with examples</td>
+                            </tr>
+                            <tr>
+                                <td>Community & Support</td>
+                                <td class="weight-cell">4%</td>
+                                <td>Active community, responsive support</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Cost -->
+                    <div class="criteria-section">
+                        <div class="criteria-header">
+                            <span class="criteria-title">Cost & Commercial</span>
+                            <span class="weight-badge">15% weight</span>
+                        </div>
+                        <table class="criteria-table">
+                            <tr>
+                                <th>Criterion</th>
+                                <th>Weight</th>
+                                <th>What We're Looking For</th>
+                            </tr>
+                            <tr>
+                                <td>Pricing Model</td>
+                                <td class="weight-cell">5%</td>
+                                <td>Predictable, scales reasonably</td>
+                            </tr>
+                            <tr>
+                                <td>Total Cost at Scale</td>
+                                <td class="weight-cell">6%</td>
+                                <td>Model cost at 10M, 50M, 100M vectors</td>
+                            </tr>
+                            <tr>
+                                <td>Contract Flexibility</td>
+                                <td class="weight-cell">4%</td>
+                                <td>Monthly vs. annual, exit terms</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- POC Requirements -->
+                    <div class="poc-card">
+                        <h4>POC Requirements</h4>
+                        <p style="margin-bottom: 15px; color: #166534;"><strong>Dataset:</strong> 1M product vectors with metadata (category, price, merchant ID)</p>
+                        <div class="poc-list">
+                            <div class="poc-item">Similarity search (top-10 similar products)</div>
+                            <div class="poc-item">Filtered search (category + price range)</div>
+                            <div class="poc-item">Bulk insert (100K vectors in batch)</div>
+                            <div class="poc-item">Real-time insert latency test</div>
+                            <div class="poc-item">Delete and re-query consistency</div>
+                        </div>
+                        <div class="success-criteria">
+                            <h5>Success Criteria:</h5>
+                            <ul>
+                                <li>P99 query latency <100ms at 1M vectors</li>
+                                <li>Filtered search doesn't degrade >2x vs. unfiltered</li>
+                                <li>Bulk insert completes in <10 minutes</li>
+                                <li>Real-time insert latency <50ms</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Event Streaming -->
+            <section>
+                <h2>Event Streaming Evaluation</h2>
+
+                <div class="evaluation-card">
+                    <div class="evaluation-header">
+                        <div class="eval-icon">ES</div>
+                        <div class="eval-title">Event Streaming Candidates</div>
+                    </div>
+
+                    <table class="candidates-table">
+                        <tr>
+                            <th>Vendor</th>
+                            <th>Type</th>
+                            <th>Notes</th>
+                        </tr>
+                        <tr>
+                            <td><strong>Confluent Cloud</strong></td>
+                            <td><span class="type-badge type-managed">Managed Kafka</span></td>
+                            <td>Enterprise leader, rich ecosystem</td>
+                        </tr>
+                        <tr>
+                            <td><strong>AWS Kinesis</strong></td>
+                            <td><span class="type-badge type-managed">AWS Native</span></td>
+                            <td>Good if AWS-heavy</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Redpanda</strong></td>
+                            <td><span class="type-badge type-hybrid">Kafka-compatible</span></td>
+                            <td>Performance focus, simpler ops</td>
+                        </tr>
+                        <tr>
+                            <td><strong>AWS MSK</strong></td>
+                            <td><span class="type-badge type-managed">Managed Kafka on AWS</span></td>
+                            <td>Middle ground</td>
+                        </tr>
+                    </table>
+
+                    <!-- Technical Capabilities -->
+                    <div class="criteria-section">
+                        <div class="criteria-header">
+                            <span class="criteria-title">Technical Capabilities</span>
+                            <span class="weight-badge">40% weight</span>
+                        </div>
+                        <table class="criteria-table">
+                            <tr>
+                                <th>Criterion</th>
+                                <th>Weight</th>
+                                <th>What We're Looking For</th>
+                            </tr>
+                            <tr>
+                                <td>Throughput</td>
+                                <td class="weight-cell">10%</td>
+                                <td>Handle 100K+ events/second</td>
+                            </tr>
+                            <tr>
+                                <td>Latency</td>
+                                <td class="weight-cell">8%</td>
+                                <td>P99 <50ms end-to-end</td>
+                            </tr>
+                            <tr>
+                                <td>Durability</td>
+                                <td class="weight-cell">8%</td>
+                                <td>Zero data loss guarantees</td>
+                            </tr>
+                            <tr>
+                                <td>Exactly-once Semantics</td>
+                                <td class="weight-cell">6%</td>
+                                <td>Critical for data consistency</td>
+                            </tr>
+                            <tr>
+                                <td>Schema Registry</td>
+                                <td class="weight-cell">4%</td>
+                                <td>Native or integrated schema management</td>
+                            </tr>
+                            <tr>
+                                <td>Connectors Ecosystem</td>
+                                <td class="weight-cell">4%</td>
+                                <td>Pre-built connectors for our data sources</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- CDC & Integration -->
+                    <div class="criteria-section">
+                        <div class="criteria-header">
+                            <span class="criteria-title">CDC & Integration</span>
+                            <span class="weight-badge">20% weight</span>
+                        </div>
+                        <table class="criteria-table">
+                            <tr>
+                                <th>Criterion</th>
+                                <th>Weight</th>
+                                <th>What We're Looking For</th>
+                            </tr>
+                            <tr>
+                                <td>CDC Capabilities</td>
+                                <td class="weight-cell">8%</td>
+                                <td>Debezium or native CDC support</td>
+                            </tr>
+                            <tr>
+                                <td>Database Connectors</td>
+                                <td class="weight-cell">6%</td>
+                                <td>Postgres, MySQL, MongoDB support</td>
+                            </tr>
+                            <tr>
+                                <td>Sink Connectors</td>
+                                <td class="weight-cell">6%</td>
+                                <td>Connect to vector DB, data warehouse</td>
+                            </tr>
+                        </table>
+                        <div class="scoring-note">
+                            <strong>Critical:</strong> CDC is how we feed the semantic layer. Test actual CDC setup with our database types.
+                        </div>
+                    </div>
+
+                    <!-- POC -->
+                    <div class="poc-card">
+                        <h4>POC Requirements</h4>
+                        <p style="margin-bottom: 15px; color: #166534;"><strong>Setup:</strong> CDC from test Postgres, 3-topic architecture, consumer writing to vector DB</p>
+                        <div class="poc-list">
+                            <div class="poc-item">Steady-state: 10K events/second</div>
+                            <div class="poc-item">Burst: 100K events in 1 minute</div>
+                            <div class="poc-item">Consumer lag recovery</div>
+                            <div class="poc-item">Schema evolution test</div>
+                            <div class="poc-item">Failover simulation</div>
+                        </div>
+                        <div class="success-criteria">
+                            <h5>Success Criteria:</h5>
+                            <ul>
+                                <li>Sustained 10K events/second with <50ms latency</li>
+                                <li>Burst absorbed without data loss</li>
+                                <li>Consumer catches up within 5 minutes after 1-hour pause</li>
+                                <li>Schema evolution works without consumer restart</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Semantic Layer Platform -->
+            <section>
+                <h2>Semantic Layer Platform Evaluation</h2>
+
+                <div class="evaluation-card">
+                    <div class="evaluation-header">
+                        <div class="eval-icon">SL</div>
+                        <div class="eval-title">Semantic Layer Candidates</div>
+                    </div>
+
+                    <table class="candidates-table">
+                        <tr>
+                            <th>Vendor</th>
+                            <th>Type</th>
+                            <th>Notes</th>
+                        </tr>
+                        <tr>
+                            <td><strong>Cube</strong></td>
+                            <td><span class="type-badge type-managed">Semantic layer</span></td>
+                            <td>Headless BI, good API</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Materialize</strong></td>
+                            <td><span class="type-badge type-managed">Streaming SQL</span></td>
+                            <td>Real-time materialized views</td>
+                        </tr>
+                        <tr>
+                            <td><strong>dbt Semantic Layer</strong></td>
+                            <td><span class="type-badge type-hybrid">Metrics layer</span></td>
+                            <td>If already using dbt</td>
+                        </tr>
+                        <tr>
+                            <td><strong>AtScale</strong></td>
+                            <td><span class="type-badge type-managed">Enterprise</span></td>
+                            <td>Heavy enterprise focus</td>
+                        </tr>
+                    </table>
+
+                    <!-- Integration -->
+                    <div class="criteria-section">
+                        <div class="criteria-header">
+                            <span class="criteria-title">Integration (Critical)</span>
+                            <span class="weight-badge">25% weight</span>
+                        </div>
+                        <table class="criteria-table">
+                            <tr>
+                                <th>Criterion</th>
+                                <th>Weight</th>
+                                <th>What We're Looking For</th>
+                            </tr>
+                            <tr>
+                                <td>Vector DB Integration</td>
+                                <td class="weight-cell">10%</td>
+                                <td>Native or easy integration with our vector DB</td>
+                            </tr>
+                            <tr>
+                                <td>Event Stream Integration</td>
+                                <td class="weight-cell">8%</td>
+                                <td>Connect to Kafka/Kinesis</td>
+                            </tr>
+                            <tr>
+                                <td>Existing Stack Compatibility</td>
+                                <td class="weight-cell">7%</td>
+                                <td>Work with current BI tools, data warehouse</td>
+                            </tr>
+                        </table>
+                        <div class="scoring-note">
+                            <strong>Make-or-break:</strong> If can't integrate with vector DB, it's a no-go. Test actual integration, not just claimed support.
+                        </div>
+                    </div>
+
+                    <!-- POC -->
+                    <div class="poc-card">
+                        <h4>POC Requirements</h4>
+                        <p style="margin-bottom: 15px; color: #166534;"><strong>Setup:</strong> Connect to vector DB and event stream, define 3-5 semantic models</p>
+                        <div class="poc-list">
+                            <div class="poc-item">API query for product recommendations</div>
+                            <div class="poc-item">Real-time metric update (new order)</div>
+                            <div class="poc-item">Cross-source query (vector + structured)</div>
+                            <div class="poc-item">Caching effectiveness test</div>
+                        </div>
+                        <div class="success-criteria">
+                            <h5>Success Criteria:</h5>
+                            <ul>
+                                <li>API queries return in <200ms</li>
+                                <li>Real-time updates reflected within 1 second</li>
+                                <li>Cross-source queries work correctly</li>
+                                <li>Cached queries return in <50ms</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Must-Haves -->
+            <section>
+                <h2>Must-Haves (Elimination Criteria)</h2>
+                <p>If a vendor fails any of these, they're eliminated:</p>
+
+                <div class="must-have-list">
+                    <div class="must-have-item">
+                        <strong>All Categories</strong>
+                        <span>SOC2 compliance or clear path to it</span>
+                    </div>
+                    <div class="must-have-item">
+                        <strong>All Categories</strong>
+                        <span>Managed service option (no self-hosting requirement)</span>
+                    </div>
+                    <div class="must-have-item">
+                        <strong>Vector DB</strong>
+                        <span>Hybrid search support + 10M+ vector scale demonstrated</span>
+                    </div>
+                    <div class="must-have-item">
+                        <strong>Event Streaming</strong>
+                        <span>CDC support (native or Debezium) + exactly-once semantics</span>
+                    </div>
+                    <div class="must-have-item">
+                        <strong>Semantic Layer</strong>
+                        <span>Real-time source support + API access (not just BI tool)</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Comparison Matrix -->
+            <section>
+                <h2>Comparison Matrix Template</h2>
+
+                <h3>Vector Database Comparison</h3>
+                <table class="comparison-matrix">
+                    <tr>
+                        <th>Criterion</th>
+                        <th>Pinecone</th>
+                        <th>Weaviate</th>
+                        <th>Qdrant</th>
+                        <th>Milvus</th>
+                        <th>pgvector</th>
+                    </tr>
+                    <tr>
+                        <td>Query Performance</td>
+                        <td></td><td></td><td></td><td></td><td></td>
+                    </tr>
+                    <tr>
+                        <td>Hybrid Search</td>
+                        <td></td><td></td><td></td><td></td><td></td>
+                    </tr>
+                    <tr>
+                        <td>Scalability</td>
+                        <td></td><td></td><td></td><td></td><td></td>
+                    </tr>
+                    <tr>
+                        <td>Managed Quality</td>
+                        <td></td><td></td><td></td><td></td><td></td>
+                    </tr>
+                    <tr>
+                        <td>Security</td>
+                        <td></td><td></td><td></td><td></td><td></td>
+                    </tr>
+                    <tr>
+                        <td>SDK Quality</td>
+                        <td></td><td></td><td></td><td></td><td></td>
+                    </tr>
+                    <tr>
+                        <td>Pricing</td>
+                        <td></td><td></td><td></td><td></td><td></td>
+                    </tr>
+                    <tr>
+                        <td><strong>TOTAL</strong></td>
+                        <td></td><td></td><td></td><td></td><td></td>
+                    </tr>
+                </table>
+            </section>
+
+            <!-- Timeline -->
+            <section>
+                <h2>Evaluation Timeline</h2>
+
+                <div class="timeline-steps">
+                    <div class="timeline-step">
+                        <span class="week">Week 1-2</span>
+                        <div class="activity">Initial research, request demos, complete scorecards</div>
+                    </div>
+                    <div class="timeline-step">
+                        <span class="week">Week 3-4</span>
+                        <div class="activity">Technical deep dives with top 2-3 per category</div>
+                    </div>
+                    <div class="timeline-step">
+                        <span class="week">Week 5-6</span>
+                        <div class="activity">POC setup, testing, and completion</div>
+                    </div>
+                    <div class="timeline-step">
+                        <span class="week">Week 7-8</span>
+                        <div class="activity">Final scoring, recommendation, contract negotiation</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Scorecard Template -->
+            <section>
+                <h2>Scorecard Template</h2>
+
+                <div class="scorecard-template">
+<span class="header">Vendor:</span> _________________
+<span class="header">Category:</span> [ ] Vector DB  [ ] Event Streaming  [ ] Semantic Layer
+<span class="header">Evaluator:</span> _________________
+<span class="header">Date:</span> _________________
+
+<span class="header">TECHNICAL CAPABILITIES (40%)</span>
+<span class="field">Criterion                  Weight   Score   Notes</span>
+────────────────────────────────────────────────────
+                             ___%     /5
+                             ___%     /5
+                             ___%     /5
+────────────────────────────────────────────────────
+Weighted Subtotal            40%     ___
+
+<span class="header">TOTAL WEIGHTED SCORE:</span> _____ / 5.0
+
+<span class="header">RECOMMENDATION:</span> [ ] Proceed to POC  [ ] Consider  [ ] Eliminate
+
+<span class="header">KEY STRENGTHS:</span>
+1.
+2.
+3.
+
+<span class="header">KEY CONCERNS:</span>
+1.
+2.
+3.
+                </div>
+            </section>
+
+            <footer style="margin-top: 60px; padding-top: 30px; border-top: 1px solid var(--bc-border); font-size: 0.85rem; color: #666;">
+                <p>Last Updated: January 2026</p>
+                <p style="margin-top: 10px;">Part of the Product Architect Year One Planning Kit</p>
+            </footer>
+        </main>
+    </div>
+</body>
+</html>

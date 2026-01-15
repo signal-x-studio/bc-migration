@@ -1,0 +1,89 @@
+---
+title: "ApiError"
+description: "API error wrapping axios errors"
+category: "reference"
+order: 100
+section: "api"
+---
+
+# ApiError
+
+API error wrapping axios errors
+
+## Constructor
+
+```typescript
+ApiError(message: string, axiosError: AxiosError, context?: Record<string, unknown>): ApiError
+```
+
+### Parameters
+
+- **`message`** (`string`): No description
+- **`axiosError`** (`AxiosError`): No description
+- **`context`** (`Record<string, unknown>`) (optional): No description
+
+### Returns
+
+`ApiError`
+
+## Properties
+
+### `code`
+
+Type: `string`
+
+### `retriable`
+
+Type: `boolean`
+
+### `context`
+
+Type: `Record<string, unknown>`
+
+### `timestamp`
+
+Type: `string`
+
+### `status`
+
+Type: `number`
+
+### `url`
+
+Type: `string`
+
+### `method`
+
+Type: `string`
+
+### `responseData`
+
+Type: `unknown`
+
+## Methods
+
+### `toJSON()`
+
+```typescript
+toJSON(): Record<string, unknown>
+```
+
+### Returns
+
+`Record<string, unknown>`
+
+### `fromAxiosError()`
+
+```typescript
+fromAxiosError(error: AxiosError, context?: Record<string, unknown>): ApiError
+```
+
+### Parameters
+
+- **`error`** (`AxiosError`): No description
+- **`context`** (`Record<string, unknown>`) (optional): No description
+
+### Returns
+
+`ApiError`
+
