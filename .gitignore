@@ -44,3 +44,4 @@ out/
 # Claude/Agent state
 .agent/
 .claude/
+.vercel
